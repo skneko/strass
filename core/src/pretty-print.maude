@@ -1,0 +1,312 @@
+***(
+    Meta-level helper descent functions
+
+    Daniel Galán Pascual <dagapas@vrain.upv.es>
+    DSIC-ELP, Universitat Politècnica de València
+    February 2022
+)
+
+fmod PRETTY-PRINT is
+    pr META-LEVEL .
+    pr CONVERSION .
+    pr LEXICAL .
+
+    var H : Header .
+    var M : Module .
+    var Is : ImportList .
+    vars S S' : Sort .
+    var Ss : SortSet .
+    var SubSs : SubsortDeclSet .
+    vars Q Q' Q'' : Qid . var Qs : QidList .
+    var K : Kind .
+    var Ty : Type .
+    var Tys : TypeList .
+    var At : Attr .
+    var Ats : AttrSet .
+    var Ops : OpDeclSet .
+    var MAs : MembAxSet .
+    var V : Variable .
+    vars T T' : Term .
+    var Ts : TermList .
+    var EqC : EqCondition .
+    var Eqs : EquationSet .
+    vars RlC RlC' : Condition .
+    var Rls : RuleSet .
+    var ME : ModuleExpression .
+    var StDecls : StratDeclSet .
+    var StDefs : StratDefSet .
+    var St St' St'' : Strategy .
+    var Sts : StrategyList .
+    var Sub : Substitution .
+    var UPs : UsingPairSet .
+    var Ch : Char .
+    var Str : String .
+    var Hk : Hook . var Hks : HookList .
+
+    op toString : SModule -> String .
+    ceq toString(M) =
+        "mod " + string(H) + " is\n" 
+        + toStringImports(M, Is)
+        + toStringSortSet(M, Ss)
+        + toStringSubsorts(M, SubSs)
+        + toStringOps(M, Ops)
+        + toStringMembers(M, MAs)
+        + toStringEqs(M, Eqs)
+        + toStringRls(M, Rls)
+        + "endm\n"
+    if (mod H is Is sorts Ss . SubSs Ops MAs Eqs Rls endm) := M .
+
+    op toString : FModule -> String .
+    ceq toString(M) =
+        "fmod " + string(H) + " is\n" 
+        + toStringImports(M, Is)
+        + toStringSortSet(M, Ss)
+        + toStringSubsorts(M, SubSs)
+        + toStringOps(M, Ops)
+        + toStringMembers(M, MAs)
+        + toStringEqs(M, Eqs)
+        + "endfm\n"
+    if (fmod H is Is sorts Ss . SubSs Ops MAs Eqs endfm) := M .
+
+    op toString : SModule -> String .
+    ceq toString(M) =
+        "smod " + string(H) + " is\n" 
+        + toStringImports(M, Is)
+        + toStringSortSet(M, Ss)
+        + toStringSubsorts(M, SubSs)
+        + toStringOps(M, Ops)
+        + toStringMembers(M, MAs)
+        + toStringEqs(M, Eqs)
+        + toStringStratDecls(M, StDecls)
+        + toStringStratDefs(M, StDefs)
+        + "endsm\n"
+    if (smod H is Is sorts Ss . SubSs Ops MAs Eqs Rls StDecls StDefs endsm) := M .
+
+    op toStringImports : Module ImportList -> String .
+    eq toStringImports(M, (protecting ME .) Is) = 
+        "\tprotecting " + toStringModuleExpr(M, ME) + " .\n" + toStringImports(M, Is) .
+    eq toStringImports(M, (extending ME .) Is) =
+        "\textending " + toStringModuleExpr(M, ME) + " .\n" + toStringImports(M, Is) .
+    eq toStringImports(M, (including ME .) Is) =
+        "\tincluding " + toStringModuleExpr(M, ME) + " .\n" + toStringImports(M, Is) .
+    eq toStringImports(M, (nil).ImportList) = "" .
+
+    op toStringModuleExpr : Module ModuleExpression -> String .
+    eq toStringModuleExpr(M, S) = string(S) .
+
+    op toStringSortSet : Module SortSet -> String .
+    eq toStringSortSet(M, S ; Ss) = "\tsort " + string(S) + " .\n" + toStringSortSet(M, Ss) .
+    eq toStringSortSet(M, (none).SortSet) = "" .
+
+    op toStringSubsorts : Module SubsortDeclSet -> String .
+    eq toStringSubsorts(M, (subsort S < S' .) SubSs) =
+        "\tsubsort " + string(S) + " < " + string(S') + " .\n" + toStringSubsorts(M, SubSs) .
+    eq toStringSubsorts(M, (none).SubsortDeclSet) = "" .
+
+    op toStringOps : Module OpDeclSet -> String .
+    eq toStringOps(M, (op Q : Tys -> Ty [Ats] .) Ops) =
+        "\top " + string(Q) + " : " + toStringTypeList(M, Tys) + " -> " + toStringType(M, Ty) + toStringAttributes(M, Ats) + " .\n" + toStringOps(M, Ops) .
+    eq toStringOps(M, (none).OpDeclSet) = "" .
+
+    op toStringTypeList : Module TypeList -> String .
+    eq toStringTypeList(M, (nil).TypeList) = "" .
+    eq toStringTypeList(M, Ty (nil).TypeList) = toStringType(M, Ty) .
+    eq toStringTypeList(M, Ty Tys) = toStringType(M, Ty) + " " + toStringTypeList(M, Tys) [owise] .
+
+    op toStringType : Module Type -> String .
+    eq toStringType(M, S) = string(S) .
+    eq toStringType(M, K) = unescapeKindSymbols(string(K)) .
+
+    op toStringMembers : Module MembAxSet -> String .
+    eq toStringMembers(M, (none).MembAxSet) = "" .
+    eq toStringMembers(M, (mb T : S [Ats] .) MAs) = 
+        "\tmb " + toStringTerm(M, T) + " : " + string(S) + toStringAttributes(M, Ats) + " .\n" + toStringMembers(M, MAs) .
+    eq toStringMembers(M, (cmb T : S if EqC [Ats] .) MAs) = 
+        "\tcmb " + toStringTerm(M, T) + " : " + string(S) + " if " + toStringEqCondition(M, EqC) + toStringAttributes(M, Ats) + " .\n" + toStringMembers(M, MAs) .
+
+    op toStringEqs : Module EquationSet -> String .
+    eq toStringEqs(M, (eq T = T' [Ats] .) Eqs) =
+        "\teq " + toStringTerm(M, T) + " = " + toStringTerm(M, T') + toStringAttributes(M, Ats) + " .\n" + toStringEqs(M, Eqs) .
+    eq toStringEqs(M, (ceq T = T' if EqC [Ats] .) Eqs) =
+        "\tceq " + toStringTerm(M, T) + " = " + toStringTerm(M, T') + " if " + toStringEqCondition(M, EqC) + toStringAttributes(M, Ats) + " .\n" + toStringEqs(M, Eqs) .
+    eq toStringEqs(M, (none).EquationSet) = "" .
+
+    op toStringTermList : Module TermList -> String .
+    eq toStringTermList(M, (empty).TermList) = "" .
+    eq toStringTermList(M, (T, (empty).TermList)) = toStringTerm(M, T) .
+    eq toStringTermList(M, (T, Ts)) = toStringTerm(M, T) + ", " + toStringTermList(M, Ts) [owise] .
+
+    op toStringTerm : Module Term -> String .
+    eq toStringTerm(M, T) = printTokens(metaPrettyPrint(M, (none).VariableSet, T, 
+                                            mixfix flat format number rat)) .
+
+    op toStringAttributes : Module AttrSet -> String .
+    eq toStringAttributes(M, (none).AttrSet) = "" .
+    eq toStringAttributes(M, Ats) = " [" + $toStringAttributes(M, Ats) + "]" [owise] .
+
+    op $toStringAttributes : Module AttrSet -> String .
+    eq $toStringAttributes(M, (none).AttrSet) = "" .
+    eq $toStringAttributes(M, At (none).AttrSet) = toStringOneAttribute(M, At) .
+    eq $toStringAttributes(M, At Ats) = toStringOneAttribute(M, At) + " " + $toStringAttributes(M, Ats) [owise] . 
+
+    op toStringEqCondition : Module EqCondition -> String .
+    eq toStringEqCondition(M, EqC) = toStringRlCondition(M, EqC) .
+
+    op toStringRls : Module RuleSet -> String .
+    eq toStringRls(M, (rl T => T' [Ats] .) Rls) = 
+        "\trl " + toStringTerm(M, T) + " => " + toStringTerm(M, T') + toStringAttributes(M, Ats) + " .\n" + toStringRls(M, Rls) .
+    eq toStringRls(M, (crl T => T' if RlC [Ats] .) Rls) = 
+        "\tcrl" + toStringTerm(M, T) + " => " + toStringTerm(M, T) + " if " + toStringRlCondition(M, RlC) + toStringAttributes(M, Ats) + " .\n" + toStringRls(M, Rls) .
+    eq toStringRls(M, (none).RuleSet) = "" .
+
+    op toStringRlCondition : Module Condition -> String .
+    eq toStringRlCondition(M, (nil).Condition) = "true" .
+    eq toStringRlCondition(M, T = T') = toStringTerm(M, T) +
+                                        if T' == 'true.Bool then
+                                            ""  
+                                        else
+                                            " = " + toStringTerm(M, T')
+                                        fi .
+    eq toStringRlCondition(M, T : S) = toStringTerm(M, T) + " : " + string(S) .
+    eq toStringRlCondition(M, T := T') = toStringTerm(M, T) + " := " + toStringTerm(M, T') .
+    eq toStringRlCondition(M, T => T') = toStringTerm(M, T) + " => " + toStringTerm(M, T') .
+    eq toStringRlCondition(M, RlC /\ RlC') = toStringRlCondition(M, RlC) + " /\\ " +  toStringRlCondition(M, RlC') .
+
+    op toStringSubstitution : Module Substitution -> String .
+    eq toStringSubstitution(M, (none).Substitution) = "" .
+    eq toStringSubstitution(M, V <- T ; (none).Substitution) = 
+        toStringTerm(M, V) + " <- " + toStringTerm(M, T) .
+    eq toStringSubstitution(M, V <- T ; Sub) = 
+        toStringTerm(M, V) + " <- " + toStringTerm(M, T) + " ; " + toStringSubstitution(M, Sub) [owise] .
+
+    op toStringStratDecls : Module StratDeclSet -> String .
+    eq toStringStratDecls(M, none) = "" .
+    eq toStringStratDecls(M, (strat Q : nil @ Ty [Ats] .) StDecls) =
+        "\tstrat " + string(Q) + " : @ " + toStringType(M, Ty) + toStringAttributes(M, Ats) + " .\n" + toStringStratDecls(M, StDecls) .
+    eq toStringStratDecls(M, (strat Q : Tys @ Ty [Ats] .) StDecls) =
+        "\tstrat " + string(Q) + " : " + toStringTypeList(M, Tys) + " @ " + toStringType(M, Ty) + toStringAttributes(M, Ats) + " .\n" + toStringStratDecls(M, StDecls) [owise] .
+
+    op toStringStratDefs : Module StratDefSet -> String .
+    eq toStringStratDefs(M, none) = "" .
+    eq toStringStratDefs(M, (sd St := St' [Ats] .) StDefs) =
+        "\tsd " + toStringStrategy(M, St) + " := " + toStringStrategy(M, St') + toStringAttributes(M, Ats) + " .\n" + toStringStratDefs(M, StDefs) .
+
+    op toStringStrategyList : Module StrategyList -> String .
+    eq toStringStrategyList(M, (empty).StrategyList) = "" .
+    eq toStringStrategyList(M, (St, (empty).StrategyList)) = toStringStrategy(M, St) .
+    eq toStringStrategyList(M, (St, Sts)) = toStringStrategy(M, St) + ", " + toStringStrategyList(M, Sts) [owise] .
+
+    op toStringStrategy : Module Strategy -> String .
+    eq toStringStrategy(M, fail) = "fail" .
+    eq toStringStrategy(M, idle) = "idle" .
+    eq toStringStrategy(M, all) = "all" .
+    eq toStringStrategy(M, Q [ Sub ] { Sts }) = 
+        string(Q) + 
+        if Sub == none then "" else "[" + toStringSubstitution(M, Sub) + "]" fi +
+        if Sts == empty then "" else "{" + toStringStrategyList(M, Sts) + "}" fi .
+    eq toStringStrategy(M, top(St)) = "top(" + toStringStrategy(M, St) + ")" .
+    eq toStringStrategy(M, match T s.t. EqC) = "match " + toStringTerm(M, T) + " s.t. " + toStringEqCondition(M, EqC) .
+    eq toStringStrategy(M, xmatch T s.t. EqC) = "xmatch " + toStringTerm(M, T) + " s.t. " + toStringEqCondition(M, EqC) .
+    eq toStringStrategy(M, amatch T s.t. EqC) = "amatch " + toStringTerm(M, T) + " s.t. " + toStringEqCondition(M, EqC) .
+    ceq toStringStrategy(M, St | St') = "(" + toStringStrategy(M, St) + ") | " + toStringStrategy(M, St') if St =/= fail /\ St' =/= fail .
+    ceq toStringStrategy(M, St ; St') = "(" + toStringStrategy(M, St) + ") ; (" + toStringStrategy(M, St') + ")" if St =/= idle /\ St' =/= idle .
+    eq toStringStrategy(M, St or-else St') = toStringStrategy(M, St) + " or-else " + toStringStrategy(M, St') .
+    eq toStringStrategy(M, St +) = "(" + toStringStrategy(M, St) + ") +" .
+    eq toStringStrategy(M, St ? St' : St'') =  
+        "(" + toStringStrategy(M, St) + ") ? (" + toStringStrategy(M, St') + ") : (" + toStringStrategy(M, St'') + ")" .
+    eq toStringStrategy(M, matchrew T s.t. EqC by UPs) =
+        "matchrew " + toStringTerm(M, T) + " s.t. " + toStringEqCondition(M, EqC) + " by " + toStringUsingPairSet(M, UPs) .
+    eq toStringStrategy(M, xmatchrew T s.t. EqC by UPs) =
+        "xmatchrew " + toStringTerm(M, T) + " s.t. " + toStringEqCondition(M, EqC) + " by " + toStringUsingPairSet(M, UPs) .
+    eq toStringStrategy(M, amatchrew T s.t. EqC by UPs) =
+        "amatchrew " + toStringTerm(M, T) + " s.t. " + toStringEqCondition(M, EqC) + " by " + toStringUsingPairSet(M, UPs) .
+    eq toStringStrategy(M, Q [[ empty ]]) = string(Q) .
+    eq toStringStrategy(M, Q [[ Ts ]]) = string(Q) + "[[" + toStringTermList(M, Ts) + "]]" [owise] .
+    eq toStringStrategy(M, one(St)) = "one(" + toStringStrategy(M, St) + ")" .
+    eq toStringStrategy(M, St *) = "(" + toStringStrategy(M, St) + ") *" .
+    eq toStringStrategy(M, St !) = "(" + toStringStrategy(M, St) + ") !" .
+    eq toStringStrategy(M, not(St)) = "not(" + toStringStrategy(M, St) + ")" .
+    eq toStringStrategy(M, test(St)) = "test(" + toStringStrategy(M, St) + ")" .
+    eq toStringStrategy(M, try(St)) = "try(" + toStringStrategy(M, St) + ")" .
+
+    op toStringUsingPairSet : Module UsingPairSet -> String .
+    eq toStringUsingPairSet(M, (V using St, UPs)) = 
+        toStringUsingPairSet(M, V using St) + ", " + toStringUsingPairSet(M, UPs) .
+    eq toStringUsingPairSet(M, V using St) =
+        toStringTerm(M, V) + " using " + toStringStrategy(M, St) .
+
+    op toStringOneAttribute : Module Attr -> String .
+    eq toStringOneAttribute(M, assoc) = "assoc" .
+    eq toStringOneAttribute(M, comm) = "comm" .
+    eq toStringOneAttribute(M, idem) = "idem" .
+    eq toStringOneAttribute(M, iter) = "iter" .
+    eq toStringOneAttribute(M, id(T)) = "id: " + toStringTerm(M, T) .
+    eq toStringOneAttribute(M, left-id(T)) = "left id: " + toStringTerm(M, T) .
+    eq toStringOneAttribute(M, right-id(T)) = "right id: " + toStringTerm(M, T) .
+    eq toStringOneAttribute(M, strat(Args:NeNatList)) = "strat(" + toStringNatList(Args:NeNatList) + ")" . 
+    eq toStringOneAttribute(M, memo) = "memo" .
+    eq toStringOneAttribute(M, prec(N:Nat)) = "prec " + toStringNat(N:Nat) .
+    eq toStringOneAttribute(M, gather(Qs)) = "gather(" + toStringQidList(Qs) + ")" .
+    eq toStringOneAttribute(M, format(Qs)) = "format(" + toStringQidList(Qs) + ")" .
+    eq toStringOneAttribute(M, ctor) = "ctor" .
+    eq toStringOneAttribute(M, config) = "config" .
+    eq toStringOneAttribute(M, object) = "object" .
+    eq toStringOneAttribute(M, msg) = "msg" .
+    eq toStringOneAttribute(M, frozen(Args:NeNatList)) = "frozen(" + toStringNatList(Args:NeNatList) + ")" .
+    eq toStringOneAttribute(M, poly(Args:NeNatList)) = "poly(" + toStringNatList(Args:NeNatList) + ")" .
+    eq toStringOneAttribute(M, special(Hks)) = "special(" + toStringHooks(M, Hks) + ")" .
+    eq toStringOneAttribute(M, label(Q)) = "label " + string(Q) .
+    eq toStringOneAttribute(M, metadata(Str)) = "metadata \"" + Str + "\"" .
+    eq toStringOneAttribute(M, owise) = "owise" .
+    eq toStringOneAttribute(M, nonexec) = "nonexec" .
+    eq toStringOneAttribute(M, variant) = "variant" .
+    eq toStringOneAttribute(M, narrowing) = "narrowing" .
+    eq toStringOneAttribute(M, print(Pat:QidList)) = "print " + toStringQidList(Pat:QidList) .
+
+    op toStringHooks : Module HookList -> String .
+    eq toStringHooks(M, Hk Hks) = toStringHook(M, Hk) + " " + toStringHooks(M, Hks) .
+    eq toStringHooks(M, nil) = "" .
+
+    op toStringHook : Module Hook -> String .
+    eq toStringHook(M, id-hook(Q, Qs)) = "id-hook " + string(Q) + " (" + toStringQidList(Qs) + ")" .
+    eq toStringHook(M, op-hook(Q, Q', Qs, Q'')) = "op-hook " + string(Q) + " (" + string(Q') + " : " + toStringQidList(Qs) + " ~> " + string(Q'') + ")" .
+    eq toStringHook(M, term-hook(Q, T)) = "term-hook " + string(Q) + " (" + toStringTerm(M, T) + ")" .
+    
+    op toStringNatList : NatList -> String .
+    eq toStringNatList(nil) = "" .
+    eq toStringNatList(N:Nat Ns:NatList) = toStringNat(N:Nat) + " " + toStringNatList(Ns:NatList) .
+
+    op toStringNat : Nat -> String .
+    eq toStringNat(N:Nat) = string(N:Nat, 10) .
+
+    op toStringQidList : QidList -> String .
+    eq toStringQidList(nil) = "" .
+    eq toStringQidList(Q Qs) = string(Q) + " " + toStringQidList(Qs) .
+
+    op unescapeKindSymbols : String -> String .
+    eq unescapeKindSymbols(Str) = "[" + $unescapeKindSymbols(substr(Str, 2, sd(length(Str), 4))) + "]" .
+
+    op $unescapeKindSymbols : String -> String .
+    ceq $unescapeKindSymbols(Str) =
+        if Idx:FindResult == notFound
+        then Str
+        else 
+            substr(Str, 0, Idx:FindResult) + $unescapeKindSymbols(substr(Str, Idx:FindResult, length(Str)))
+        fi
+    if Idx:FindResult := find(Str, "`", 0) .
+
+    op toLower : String -> String .
+    eq toLower(Str) = toLower(Str, 0) .
+
+    op toLower : String Nat -> String .
+    ceq toLower(Str, Idx:Nat) = toLowerChar(substr(Str, Idx:Nat, 1)) + toLower(Str, Idx:Nat + 1)
+        if Idx:Nat < length(Str) .
+    eq toLower(Str, Idx:Nat) = "" [owise] .
+
+    op toLowerChar : Char -> Char .
+    eq toLowerChar(Ch) = if ascii(Ch) >= 65 and ascii(Ch) <= 90 then 
+                            char(ascii(Ch) + 32)
+                         else
+                            Ch
+                         fi .
+endfm

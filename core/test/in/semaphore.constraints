@@ -1,0 +1,4 @@
+p N:Nat {PS:PState} p N:Nat {PS':PState} # false
+B:Bool || p N:Nat {critical} p M:Nat {critical} # false
+p N:Nat {idle} # N:Nat > 0
+false || p N:Nat {entering} PS:PSet # true

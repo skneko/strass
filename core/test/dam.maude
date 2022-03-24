@@ -1,0 +1,24 @@
+load ../src/main.maude
+load ../src/io.maude
+load in/dam.maude
+
+mod DAM-PRED is
+  pr DAM .
+  
+  var S : SpillwayId .
+  var O : Aperture .
+  var SC : Spillways .
+
+  op openSpillways : Spillways -> Nat .
+  eq openSpillways(empty) = 0 .
+  eq openSpillways([ S,O ] SC) = if O =/= close then 1 + openSpillways(SC) else openSpillways(SC) fi .
+endm
+
+mod TEST is
+    pr STRASS .
+    pr IO .
+endm
+
+erew writeToFile("out/dam-fixed.maude", fix('DAM, 'DAM-PRED, readFileToEnd("in/dam.constraints"))) .
+
+quit

@@ -1,0 +1,165 @@
+***(
+    Utility Maude prelude extensions
+
+    Daniel Galán Pascual <dagapas@vrain.upv.es>
+    DSIC-ELP, Universitat Politècnica de València
+    February 2022
+)
+
+fmod META-MODULE-EXT is
+    protecting META-MODULE .
+
+    var H : Header .
+
+    op emptySModule : -> SModule .
+    eq emptySModule = emptySModule('EMPTY) .
+
+    op emptySModule : Header -> SModule .
+    eq emptySModule(H) = mod H is nil sorts none . none none none none none endm .
+
+    var S : Sort . var Ss : SortSet .
+
+    op _in_ : Sort SortSet -> Bool .
+    eq S in (S ; Ss) = true .
+    eq S in Ss = false [owise] .
+endfm
+
+fmod META-LEVEL-EXT is
+    protecting META-MODULE-EXT .
+    protecting STRING .
+
+    protecting META-LEVEL .
+
+    vars M M' : Module .
+    vars H H' : Header . var Q : Qid . vars Is Is' : ImportList . 
+    vars Ss Ss' : SortSet . vars SubSs SubSs' : SubsortDeclSet . 
+    vars Ops Ops' : OpDeclSet . 
+    vars MAs MAs' : MembAxSet . 
+    vars Es Es' : EquationSet . vars Rs Rs' : RuleSet .
+    var SDcs : StratDeclSet . var SDfs : StratDefSet .
+
+    op removeDuplicateImports : Module -> Module .
+    eq removeDuplicateImports(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
+        fmod H is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es endfm .
+    eq removeDuplicateImports(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) =
+        mod H is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es Rs endm .
+    eq removeDuplicateImports(smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) =
+        smod H is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm .
+    eq removeDuplicateImports(fth Q is Is sorts Ss . SubSs Ops MAs Es endfth) =
+        fth Q is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es endfth .
+    eq removeDuplicateImports(th Q is Is sorts Ss . SubSs Ops MAs Es Rs endth) =
+        th Q is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es Rs endth .
+    eq removeDuplicateImports(sth Q is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsth) =
+        sth Q is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsth .
+
+    vars ME ME' : ModuleExpression .
+
+    op removeDuplicateImports : ImportList -> ImportList .
+    eq removeDuplicateImports((protecting ME .) Is) =
+        if $containsImport(ME, Is) then removeDuplicateImports(Is)
+        else (protecting ME .) removeDuplicateImports(Is) 
+        fi .
+    eq removeDuplicateImports((extending ME .) Is) =
+        if $containsImport(ME, Is) then removeDuplicateImports(Is)
+        else (extending ME .) removeDuplicateImports(Is) 
+        fi .
+    eq removeDuplicateImports((including ME .) Is) =
+        if $containsImport(ME, Is) then removeDuplicateImports(Is)
+        else (including ME .) removeDuplicateImports(Is) 
+        fi .
+    eq removeDuplicateImports(nil) = nil .
+
+    op $containsImport : ModuleExpression ImportList -> Bool .
+    eq $containsImport(ME, (protecting ME' .) Is) = ME == ME' or-else $containsImport(ME, Is) .
+    eq $containsImport(ME, (including ME' .) Is) = ME == ME' or-else $containsImport(ME, Is) .
+    eq $containsImport(ME, (extending ME' .) Is) = ME == ME' or-else $containsImport(ME, Is) .
+    eq $containsImport(ME, nil) = false .
+
+    op upgradeToSystemModule : FModule -> SModule .
+    eq upgradeToSystemModule(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
+        mod H is Is sorts Ss . SubSs Ops MAs Es none endm .
+    eq upgradeToSystemModule(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) =
+        mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm .
+
+    op mergeModules : Module Module -> Module .
+    ceq mergeModules(M, M') =
+        mod H is
+            $removeImport(H', Is) $removeImport(H, Is')
+            sorts Ss ; Ss' .
+            SubSs SubSs'
+            Ops Ops'
+            MAs MAs'
+            Es Es'
+            Rs Rs'
+        endm
+    if (mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) := M
+    /\ (mod H' is Is' sorts Ss' . SubSs' Ops' MAs' Es' Rs' endm) := M' .
+    ceq mergeModules(M, M') =
+        fmod H is
+            $removeImport(H', Is) $removeImport(H, Is')
+            sorts Ss ; Ss' .
+            SubSs SubSs'
+            Ops Ops'
+            MAs MAs'
+            Es Es'
+        endfm
+    if (fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) := M
+    /\ (fmod H' is Is' sorts Ss' . SubSs' Ops' MAs' Es' endfm) := M' .
+    eq mergeModules(M, M') =
+        mergeModules(upgradeToSystemModule(M), upgradeToSystemModule(M')) [owise] .
+
+    op $removeImport : Header ImportList -> ImportList .
+    eq $removeImport(H, (protecting H .) Is) = $removeImport(H, Is) .
+    eq $removeImport(H, (extending H .) Is) = $removeImport(H, Is) .
+    eq $removeImport(H, (including H .) Is) = $removeImport(H, Is) .
+    eq $removeImport(H, nil) = nil .
+    eq $removeImport(H, I:Import Is) = I:Import $removeImport(H, Is) [owise] .
+
+    op getHeader : Module -> Header .
+    eq getHeader(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) = H .
+    eq getHeader(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) = H .
+    eq getHeader(smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) = H .
+    eq getHeader(fth Q is Is sorts Ss . SubSs Ops MAs Es endfth) = Q .
+    eq getHeader(th Q is Is sorts Ss . SubSs Ops MAs Es Rs endth) = Q .
+    eq getHeader(sth Q is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsth) = Q .
+
+    var S : Sort .
+
+    op maximalSorts : Module -> SortSet .
+    eq maximalSorts(M) = $maximalSorts(M, getSorts(M)) .
+
+    op $maximalSorts : Module SortSet -> SortSet .
+    eq $maximalSorts(M, S ; Ss) = maximalSorts(M, getKind(M, S)); $maximalSorts(M, Ss) .
+    eq $maximalSorts(M, none) = none .
+
+    var Ty : Type .
+
+    op toSort : Type ~> Sort .
+    ceq toSort(Ty) = qid(substr(string(Ty), 2, sd(length(string(Ty)), 4))) if Ty :: Kind .
+    ceq toSort(Ty) = Ty if Ty :: Sort .
+endfm
+
+fmod STRING-EXT is
+    pr STRING .
+
+    var S Q R : String .
+    var Idx : FindResult .
+
+    op replace : String String String -> String .
+    ceq replace(S, Q, R) =
+        if Idx == notFound
+        then S
+        else 
+            substr(S, 0, Idx) + 
+            R + 
+            replace(substr(S, Idx + length(Q), length(S)), Q, R)
+        fi
+    if Idx := find(S, Q, 0) .
+endfm
+
+fmod MAYBE{X :: TRIV} is
+    sort Maybe{X} .
+    subsort X$Elt < Maybe{X} .
+
+    op null : -> Maybe{X} [ctor] .
+endfm

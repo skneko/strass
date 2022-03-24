@@ -1,0 +1,15 @@
+load ../src/main.maude
+load ../src/io.maude
+load in/semaphore.maude
+
+mod EMPTY is
+endm
+
+mod TEST is
+    pr STRASS .
+    pr IO .
+endm
+
+erew writeToFile("out/semaphore-fixed.maude", fix('SEMAPHORE, 'EMPTY, readFileToEnd("in/semaphore.constraints"))) .
+
+quit

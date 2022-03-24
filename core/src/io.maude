@@ -1,0 +1,96 @@
+***(
+    IO helper functions
+
+    Daniel Galán Pascual <dagapas@vrain.upv.es>
+    DSIC-ELP, Universitat Politècnica de València
+    January 2022
+)
+
+load file.maude
+
+mod IO-STREAM is
+    pr STD-STREAM .
+
+    op io : -> Oid [ctor] .
+
+    op print : String -> Configuration .
+    eq print(S:String) = 
+        <>
+        write(stdout, io, S:String) .
+endm
+
+mod IO-FILE is
+    pr FILE .
+
+    op --skn-io-helper-singleton : -> Oid [ctor] .
+
+    op FileWriter : -> Cid [ctor] .
+    op text:_ : String -> Attribute [ctor] .
+
+    vars O FHOut : Oid . vars Path Text : String .
+
+    op writeToFile : String String -> Configuration .
+    eq writeToFile(Path, Text) =
+        <>
+        < --skn-io-helper-singleton : FileWriter | text: Text >
+        openFile(fileManager, --skn-io-helper-singleton, Path, "w") .
+
+    rl < O : FileWriter | text: Text > openedFile(O, fileManager, FHOut)
+    => < O : FileWriter | text: Text > write(FHOut, O, Text) .
+
+    rl < O : FileWriter | text: Text > wrote(O, FHOut)
+    => < O : FileWriter | text: Text > closeFile(FHOut, O) .
+
+    rl < O : FileWriter | text: Text > closedFile(O, FHOut)
+    => none .
+
+    op FileReader : -> Cid [ctor] .
+    op text?:_ : [String] -> Attribute [ctor] .
+    op finished:_ : Bool -> Attribute [ctor] .
+
+    op finishedReadingFile : Oid [String] -> Msg [ctor] .
+
+    op readError : -> [String] [ctor] .
+
+    var FHIn : Oid . var Done : Bool . 
+    vars Line Terminator : String . var Text? : [String] .
+
+    op readFileToEnd : String ~> String .
+    eq readFileToEnd(Path) = $getText(
+        <>
+        < --skn-io-helper-singleton : FileReader | text?: readError, finished: false >
+        openFile(fileManager, --skn-io-helper-singleton, Path, "r")) .
+
+    op $getText : Configuration ~> String .
+    eq $getText(<> finishedReadingFile(--skn-io-helper-singleton, Text?)) = Text? .
+
+    rl < O : FileReader | text?: readError, finished: false > 
+        openedFile(O, fileManager, FHIn)
+    => < O : FileReader | text?: "", finished: false > 
+        getLine(FHIn, O) .
+
+    crl < O : FileReader | text?: Text, finished: false > 
+        gotLine(O, FHIn, Line)
+    => < O : FileReader | text?: (Text + Line), finished: false > 
+        getLine(FHIn, O) 
+    if length(Line) > 0 .
+
+    rl < O : FileReader | text?: Text?, finished: false > 
+        fileError(O, fileManager, Reason:String)
+    => fileError(O, fileManager, Reason:String) finishedReadingFile(O, readError) .
+
+    crl < O : FileReader | text?: Text, finished: false > 
+        gotLine(O, FHIn, Line)
+    => < O : FileReader | text?: Text, finished: true > 
+        closeFile(FHIn, O)
+    if length(Line) == 0 .
+
+    rl < O : FileReader | text?: Text?, finished: true >
+        closedFile(O, FHIn)
+    => finishedReadingFile(O, Text?) .
+endm
+
+mod IO is
+    pr IO-STREAM .
+    pr IO-FILE .
+endm

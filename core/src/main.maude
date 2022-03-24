@@ -1,0 +1,554 @@
+***(
+    STRASS: assertion-based automatic theory repair tool
+
+    Daniel Galán Pascual <dagapas@vrain.upv.es>
+    DSIC-ELP, Universitat Politècnica de València
+    March 2022
+)
+
+load preludex.maude
+load pretty-print.maude
+
+fmod STRASS-INSPECTION is
+    pr META-MODULE .
+
+    var M : Module .
+    var H : Header . var Q : Qid . var Is : ImportList . 
+    var Ss : SortSet . var SubSs : SubsortDeclSet . 
+    var Ops : OpDeclSet . 
+    var MAs  : MembAxSet . 
+    var Es : EquationSet . var Rs : RuleSet .
+
+    op collectRuleLabels : Module -> QidSet .
+    eq collectRuleLabels(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) =
+        collectRuleLabels(Rs) .
+
+    vars T T' : Term . var RC : Condition . var Ats : AttrSet .
+    var QL : Qid .
+
+    op collectRuleLabels : RuleSet -> QidSet .
+    eq collectRuleLabels((rl T => T' [label(QL) Ats] .) Rs) = QL ; collectRuleLabels(Rs) .
+    eq collectRuleLabels((rl T => T' [Ats] .) Rs) = collectRuleLabels(Rs) [owise] .
+    eq collectRuleLabels((crl T => T' if RC [label(QL) Ats] .) Rs) = QL ; collectRuleLabels(Rs) .
+    eq collectRuleLabels((crl T => T' if RC [Ats] .) Rs) = collectRuleLabels(Rs) [owise] .
+    eq collectRuleLabels(none) = none .
+endfm
+
+fmod STRASS-CONSTRAINTS-BASE is
+    pr META-STRATEGY .
+    pr NAT .
+
+    sorts SimpleConstraint ARConstraint Constraint IndexedConstraint .
+    subsort SimpleConstraint ARConstraint < Constraint .
+
+    op _#_ : Term Term -> SimpleConstraint [ctor] .
+    op _#_-[_]->_#_ : Term Term Strategy Term Term -> ARConstraint [ctor] .
+    op [_]_ : Nat Constraint -> IndexedConstraint [ctor] .
+endfm
+
+view IndexedConstraint from TRIV to STRASS-CONSTRAINTS-BASE is
+    sort Elt to IndexedConstraint .
+endv
+
+view Sort from TRIV to STRASS-CONSTRAINTS-BASE is
+    sort Elt to Sort .
+endv
+
+fmod STRASS-META-CONSTRAINT-GUARD-OPERATORS is
+    pr EXT-BOOL .
+endfm
+
+fmod STRASS-META-CONSTRAINT-ACTION-LANGUAGE is
+    sort __STRASS_Action __STRASS_RuleLabel .
+    subsort __STRASS_RuleLabel < __STRASS_Action .
+
+    op idle : -> __STRASS_Action [ctor] .
+    op all : -> __STRASS_Action [ctor] .
+    op _|_ : __STRASS_Action __STRASS_Action -> __STRASS_Action [ctor assoc comm id: idle prec 11 gather (e E)] .
+    op _;_ : __STRASS_Action __STRASS_Action -> __STRASS_Action [ctor assoc id: idle prec 9 gather (e E)] .
+    op _* : __STRASS_Action -> __STRASS_Action [ctor] .
+    op _+ : __STRASS_Action -> __STRASS_Action [ctor] .
+    op _! : __STRASS_Action -> __STRASS_Action [ctor] .
+endfm
+
+fmod STRASS-CONSTRAINTS-PARSING is
+    pr STRASS-INSPECTION .
+    pr STRASS-CONSTRAINTS-BASE .
+
+    pr META-LEVEL-EXT .
+    pr LEXICAL .
+    pr STRING .
+    pr MAP{Sort, IndexedConstraint} * (
+        sort Map{Sort, IndexedConstraint} to TaggedConstraintSet,
+        sort Entry{Sort, IndexedConstraint} to TaggedConstraint) .
+
+    ***( Constraint expression parsing )***
+
+    op constraintParseFailure : Nat -> [TaggedConstraint] [format (r! o)] .
+    op actionParseFailure : -> [Strategy] [format (r! o)] .
+
+    var Idx : Nat .
+
+    eq constraintParseFailure(Idx), TC:TaggedConstraint = constraintParseFailure(Idx) .
+
+    vars M MP MPx MT : Module . var Raw : String .
+    var Ty Ty' : Type .
+    
+    op parseConstraints : Module Module String ~> TaggedConstraintSet .
+    eq parseConstraints(M, MP, Raw) = 
+        $parseConstraints(
+            M, 
+            mergeModules(extendWithGuardOperators(MP), M),
+            $generateParsingContext(M, mergeModules(extendWithGuardOperators(MP), M)),
+            0,
+            Raw) .
+
+    op $parseConstraints : Module Module Module Nat String ~> TaggedConstraintSet .
+    eq $parseConstraints(M, MPx, MT, Idx, Raw) =   
+        if find(Raw, "\n", 0) == notFound then $parseOneConstraint(M, MPx, MT, Idx, Raw)
+        else
+            $parseOneConstraint(M, MPx, MT, Idx, substr(Raw, 0, find(Raw, "\n", 0))),
+            if length(substr(Raw, find(Raw, "\n", 0) + 1, length(Raw))) == 0 
+            then empty
+            else
+                $parseConstraints(M, MPx, MT, Idx + 1, substr(Raw, find(Raw, "\n", 0) + 1, length(Raw)))
+            fi
+        fi .
+
+    op $parseOneConstraint : Module Module Module Nat String ~> TaggedConstraint .
+    eq $parseOneConstraint(M, MPx, MT, Idx, Raw) =
+        $$parseOneConstraint(M, MPx, Idx, 
+            metaParse(MT, tokenize(Raw), '__STRASS_MonomorphizedConstraint)) .
+
+    op $$parseOneConstraint : Module Module Nat ResultPair? ~> TaggedConstraint .
+    ceq $$parseOneConstraint(M, MPx, Idx, R:ResultPair) =
+        $$$parseOneConstraint(Idx,
+            metaParse(M, metaPrettyPrint(M, P:Term), anyType),
+            metaParse(MPx, metaPrettyPrint(MPx, G:Term), 'Bool))
+    if { '_#_ [ P:Term, G:Term ] , '__STRASS_MonomorphizedConstraint } := R:ResultPair .
+    ceq $$parseOneConstraint(M, MPx, Idx, R:ResultPair) =
+        $$$parseOneConstraint(Idx,
+            metaParse(M, metaPrettyPrint(M, P:Term), anyType),
+            metaParse(MPx, metaPrettyPrint(MPx, G:Term), 'Bool),
+            metaParse(M, metaPrettyPrint(M, P':Term), anyType),
+            metaParse(MPx, metaPrettyPrint(MPx, G':Term), 'Bool),
+            A:Term)
+    if { '_#_-`[_`]->_#_ [ P:Term, G:Term, A:Term, P':Term, G':Term ] , '__STRASS_MonomorphizedConstraint } := R:ResultPair .
+    eq $$parseOneConstraint(M, MPx, Idx, R:[ResultPair?]) = constraintParseFailure(Idx) [owise] .
+
+    op $$$parseOneConstraint : Nat ResultPair? ResultPair? ~> TaggedConstraint .
+    ceq $$$parseOneConstraint(Idx, RP:ResultPair, RG:ResultPair) =
+        toSort(Ty) |-> [Idx] P:Term # G:Term
+    if { P:Term, Ty } := RP:ResultPair /\ { G:Term, Ty' } := RG:ResultPair .
+    eq $$$parseOneConstraint(Idx, RP:[ResultPair?], RG:[ResultPair?]) = constraintParseFailure(Idx) [owise] .
+
+    op $$$parseOneConstraint : Nat ResultPair? ResultPair? ResultPair? ResultPair? Term ~> TaggedConstraint .
+    ceq $$$parseOneConstraint(Idx, RP:ResultPair, RG:ResultPair, RP':ResultPair, RG':ResultPair, TA:Term) =
+        toSort(Ty) |-> [Idx] P:Term # G:Term -[ A:Strategy ]-> P':Term # G':Term
+    if { P:Term, Ty } := RP:ResultPair /\ { G:Term, Ty' } := RG:ResultPair 
+    /\ { P':Term, Ty } := RP':ResultPair /\ { G':Term, Ty' } := RG':ResultPair
+    /\ A:Strategy := downAction(TA:Term) .
+    eq $$$parseOneConstraint(Idx, RP:[ResultPair?], RG:[ResultPair?], RP':[ResultPair?], RG':[ResultPair?], A:[Term]) = 
+        constraintParseFailure(Idx) [owise] .
+
+    ***( Action sublanguage parsing )***
+
+    vars T T' : Term .
+
+    op downAction : Term ~> Strategy .
+    eq downAction('idle.__STRASS_Action) = idle .
+    eq downAction('all.__STRASS_Action) = all .
+    eq downAction('_||_ [ T , T' ]) = downAction(T) | downAction(T') .
+    eq downAction('_;_ [ T , T' ]) = downAction(T) ; downAction(T') .
+    eq downAction('_*[ T ]) = downAction(T) * .
+    eq downAction('_+[ T ]) = downAction(T) + .
+    eq downAction('_![ T ]) = downAction(T) ! .
+    ceq downAction(QL:Qid) = qid(substr(SL:String, 0, Idx:FindResult))[none]{empty}
+    if SL:String := string(QL:Qid) 
+    /\ Idx:FindResult := rfind(SL:String, ".__STRASS_RuleLabel", length(SL:String))
+    /\ Idx:FindResult =/= notFound .
+    eq downAction(T) = actionParseFailure [owise] .
+
+    ***( Module and parsing context handling )***
+
+    op extendWithGuardOperators : Module -> Module .
+    eq extendWithGuardOperators(M) =
+        mergeModules(M, upModule('STRASS-META-CONSTRAINT-GUARD-OPERATORS, false)) .
+
+    op $generateParsingContext : Module Module -> Module .
+    eq $generateParsingContext(M, MPx) = 
+        mergeModules(
+            mergeModules(
+                mod 'STRASS-TRANSIENT-PARSING-CONTEXT is
+                    nil
+                    sorts '__STRASS_MonomorphizedConstraint .
+                    none
+                    $generateParsingContextOps(MPx, maximalSorts(MPx), '__STRASS_MonomorphizedConstraint)
+                    none
+                    none
+                    none
+                endm,
+                MPx),
+            $generateActionParsingContext(M)) .
+
+    vars Ss Ss' : SortSet . vars S S' ST : Sort .
+    var K : Kind .
+
+    op $generateParsingContextOps : Module SortSet Sort -> OpDeclSet .
+    eq $generateParsingContextOps(M, Ss, ST) = 
+        $generateParsingContextOps(M, Ss, 'Bool, ST) .
+
+    op $generateParsingContextOps : Module SortSet SortSet Sort -> OpDeclSet .
+    eq $generateParsingContextOps(M, S ; Ss, Ss', ST) =
+        $$generateParsingContextOps(getKind(M, S), Ss', ST)
+        $generateParsingContextOps(M, Ss, Ss', ST) .
+    eq $generateParsingContextOps(M, none, Ss', ST) = none .
+
+    op $$generateParsingContextOps : Kind SortSet Sort -> OpDeclSet .
+    eq $$generateParsingContextOps(K, S' ; Ss', ST) =
+        (op '_#_ : K S' -> ST [ctor prec(0) gather('& '&)] .)
+        (op '_#_-`[_`]->_#_ : K S' '__STRASS_Action K S' -> ST [ctor prec(0) gather('& '& '& '& '&)] .)
+        $$generateParsingContextOps(K, Ss', ST) .
+    eq $$generateParsingContextOps(K, none, ST) = none .
+
+    op $generateActionParsingContext : Module -> Module .
+    eq $generateActionParsingContext(M) =
+        mergeModules(
+            mod 'STRASS-TRANSIENT-ACTION-PARSING-CONTEXT is
+                nil
+                sorts '__STRASS_RuleLabel .
+                none
+                $generateActionParsingContextOps(collectRuleLabels(M), '__STRASS_RuleLabel)
+                none
+                none
+                none
+            endm,
+            upModule('STRASS-META-CONSTRAINT-ACTION-LANGUAGE, false)) .
+
+     var Q : Qid . var Qs : QidSet .
+
+    op $generateActionParsingContextOps : QidSet Sort -> OpDeclSet .
+    eq $generateActionParsingContextOps(Q ; Qs, S) =
+        (op Q : nil -> S [ctor] .)
+        $generateActionParsingContextOps(Qs, S) .
+    eq $generateActionParsingContextOps(none, S) = none .
+endfm
+
+fmod STRASS-CONSTRAINTS is
+    pr STRASS-CONSTRAINTS-PARSING .
+endfm
+
+view SortSet from TRIV to STRASS-CONSTRAINTS is
+    sort Elt to SortSet .
+endv
+
+fmod STRASS-ANALYSIS-DEPENDENCIES is
+    pr META-LEVEL-EXT .
+
+    pr MAP{Sort, SortSet} * (sort Map{Sort, SortSet} to SortDependencyMap) .
+
+    ***( Dependency map generation )***
+
+    var M : Module .
+    var SDM : SortDependencyMap .
+
+    op arrangedSortDependencies : Module -> SortDependencyMap .
+    eq arrangedSortDependencies(M) = maximal(transitive(sortDependencies(M)), M) .
+
+    op maximal : SortDependencyMap Module -> SortDependencyMap .
+    eq maximal(SDM, M) = $filterByKey(maximalSorts(M), SDM) .
+
+    op transitive : SortDependencyMap -> SortDependencyMap .
+    eq transitive(SDM) = transitiveClosure(SDM) .
+
+    op sortDependencies : Module -> SortDependencyMap .
+    eq sortDependencies(M) =
+        $mergeKeys((
+            subsortDependencies(M, getSorts(M)),
+            usageDependencies(getSorts(M), getOps(M)))) .
+
+    var S : Sort . var Ss : SortSet .
+    var Q : Qid . var Ops : OpDeclSet . var Ats : AttrSet .
+
+    op subsortDependencies : Module SortSet -> SortDependencyMap .
+    eq subsortDependencies(M, S ; Ss) = 
+        S |-> lesserSorts(M, S),
+        subsortDependencies(M, Ss) .
+    eq subsortDependencies(M, none) = empty .
+
+    op usageDependencies : SortSet OpDeclSet -> SortDependencyMap .
+    eq usageDependencies(S ; Ss, Ops) =
+        S |-> $usageDependencies(S, Ops),
+        usageDependencies(Ss, Ops) .
+    eq usageDependencies(none, Ops) = empty .
+
+    op $usageDependencies : Sort OpDeclSet -> SortSet .
+    eq $usageDependencies(S, (op Q : Args:TypeList -> Ret:Type [Ats] .) Ops) =
+        if toSort(Ret:Type) == S then $$usageDependencies(S, Args:TypeList)
+        else none 
+        fi ;
+        $usageDependencies(S, Ops) .
+    eq $usageDependencies(S, none) = none .
+
+    var Ty : Type . var Tys : TypeList .
+
+    op $$usageDependencies : Sort TypeList -> SortSet .
+    eq $$usageDependencies(S, Ty Tys) = 
+        if toSort(Ty) =/= S then toSort(Ty)
+        else none fi ; 
+        $$usageDependencies(S, Tys) .
+    eq $$usageDependencies(S, nil) = none .
+
+    var SDM' : SortDependencyMap .
+
+    op transitiveClosure : SortDependencyMap -> SortDependencyMap .
+    eq transitiveClosure(SDM) = $transitiveClosure(SDM, SDM) .
+
+    op $transitiveClosure : SortDependencyMap SortDependencyMap -> SortDependencyMap .
+    eq $transitiveClosure((S |-> Ss, SDM), SDM') =
+        S |-> $$transitiveClosure(Ss, SDM'), 
+        $transitiveClosure(SDM, SDM') .
+    eq $transitiveClosure(empty, SDM') = empty .
+
+    op $$transitiveClosure : SortSet SortDependencyMap -> SortSet .
+    eq $$transitiveClosure((S ; Ss), SDM) =
+        S ;
+        if SDM[S] =/= undefined then SDM[S]
+        else none
+        fi ;
+        $$transitiveClosure(Ss, SDM) .
+    eq $$transitiveClosure(none, SDM) = none .
+
+    ***( Auxiliary functions )***
+
+    var Ss' : SortSet .
+
+    op $mergeKeys : SortDependencyMap -> SortDependencyMap .
+    eq $mergeKeys((S |-> Ss, S |-> Ss', SDM)) = S |-> (Ss ; Ss'), $mergeKeys(SDM) .
+    eq $mergeKeys(SDM) = SDM [owise] .
+
+    op $filterByKey : SortSet SortDependencyMap -> SortDependencyMap .
+    eq $filterByKey(Ss, (S |-> Ss', SDM)) =
+        if S in Ss then S |-> Ss'
+        else empty
+        fi,
+        $filterByKey(Ss, SDM) .
+    eq $filterByKey(Ss, (empty).SortDependencyMap) = empty .
+endfm
+
+fmod STRASS-ANALYSIS is
+    pr STRASS-CONSTRAINTS .
+    pr STRASS-ANALYSIS-DEPENDENCIES .
+endfm
+
+fmod STRASS-GENERATION is
+    pr STRASS-ANALYSIS .
+    pr CONVERSION .
+
+    ***( Strategy body generation )***
+
+    var SDM : SortDependencyMap . var S : Sort . var Ss : SortSet .
+    var TCs : TaggedConstraintSet . var Idx : Nat . 
+    var CS : SimpleConstraint . var CAR : ARConstraint .
+
+    op makeStratDeclSet : SortDependencyMap TaggedConstraintSet -> StratDeclSet .
+    eq makeStratDeclSet(SDM, TCs) = 
+        makeAssertionStratDeclSet(TCs)
+        makeEntryStratDeclSet(SDM) .
+
+    op makeAssertionStratDeclSet : TaggedConstraintSet -> StratDeclSet .
+    eq makeAssertionStratDeclSet((S |-> [Idx] CS, TCs)) =
+        (strat $filterStratName(Idx) : nil @ S [ none ] .)
+        makeAssertionStratDeclSet(TCs) .
+    eq makeAssertionStratDeclSet((S |-> [Idx] CAR, TCs)) =
+        (strat $actionStratName(Idx) : nil @ S [ none ] .)
+        (strat $filterStratName(Idx, "c") : nil @ S [ none ] .)
+        (strat $filterStratName(Idx, "g") : nil @ S [ none ] .)
+        makeAssertionStratDeclSet(TCs) .
+    eq makeAssertionStratDeclSet(empty) = none .
+
+    op makeEntryStratDeclSet : SortDependencyMap -> StratDeclSet .
+    eq makeEntryStratDeclSet((S |-> Ss, SDM)) =
+        (strat S : nil @ S [ none ] .)
+        makeSearchStratDecls(S)
+        makeEntryStratDeclSet(SDM) .
+    eq makeEntryStratDeclSet(empty) = none .
+
+    op makeSearchStratDecls : Sort -> StratDeclSet .
+    eq makeSearchStratDecls(S) =
+        (strat $suffix(S, "*") : nil @ S [ none ] .)
+        (strat $suffix(S, "+") : nil @ S [ none ] .)
+        (strat $suffix(S, "!") : nil @ S [ none ] .) .
+
+    vars P G P' G' : Term . var A : Strategy .
+
+    op makeStratDefSet : SortDependencyMap TaggedConstraintSet -> StratDefSet .
+    eq makeStratDefSet(SDM, TCs) =
+        makeConstraintStratDefSet(TCs)
+        makeEntryStratDefSet(SDM, TCs) .
+
+    op makeConstraintStratDefSet : TaggedConstraintSet -> StratDefSet .
+    eq makeConstraintStratDefSet((S |-> [Idx] P # G, TCs)) =
+        makeFilterStratDef(Idx, P, G)
+        makeConstraintStratDefSet(TCs) .
+    eq makeConstraintStratDefSet((S |-> [Idx] P # G -[ A ]-> P' # G', TCs)) =
+        (sd $filterStratName(Idx, "c")[[empty]] := makeFilterStratBody(P, G) [ none ] .)
+        (sd $filterStratName(Idx, "g")[[empty]] := makeFilterStratBody(P', G') [ none ] .)
+        makeActionStratDef(Idx, P, G, P', G', A)
+        makeConstraintStratDefSet(TCs) .
+    eq makeConstraintStratDefSet(empty) = none .
+
+    op makeFilterStratDef : Nat Term Term -> StratDefinition .
+    eq makeFilterStratDef(Idx, P, G) =
+        (sd $filterStratName(Idx)[[empty]] := makeFilterStratBody(P, G) [ none ] .) .
+
+    op makeFilterStratBody : Term Term -> Strategy .
+    eq makeFilterStratBody(P, G) = not (amatch P s.t. (G = 'false.Bool)) .
+
+    op makeActionStratDef : Nat Term Term Term Term Strategy -> StratDefinition .
+    eq makeActionStratDef(Idx, P, G, P', G', A) =
+        (sd $actionStratName(Idx)[[empty]] := 
+            $filterStratName(Idx, "c")[[empty]] 
+            ? ( A ; $filterStratName(Idx, "g")[[empty]] )
+            : idle
+            [none] .) .
+
+    op makeEntryStratDefSet : SortDependencyMap TaggedConstraintSet -> StratDefSet .
+    eq makeEntryStratDefSet((S |-> Ss, SDM), TCs) =
+        makeEntryStratDef(S, $filterByKey(S ; Ss, TCs))
+        makeSearchStratDefs(S, $filterByKey(S ; Ss, TCs) == empty)
+        makeEntryStratDefSet(SDM, TCs) .
+    eq makeEntryStratDefSet(empty, TCs) = none .
+
+    op makeEntryStratDef : Sort TaggedConstraintSet -> StratDefinition .
+    eq makeEntryStratDef(S, TCs) =
+        (sd S[[empty]] := $makeEntryStratDef(TCs) [ none ] .) .
+
+    op $makeEntryStratDef : TaggedConstraintSet -> Strategy .
+    eq $makeEntryStratDef((S |-> [Idx] CS, TCs)) =
+        $filterStratName(Idx)[[empty]] ; $makeEntryStratDef(TCs) .
+    eq $makeEntryStratDef((S |-> [Idx] CAR, TCs)) =
+        $actionStratName(Idx)[[empty]] ; $makeEntryStratDef(TCs) .
+    eq $makeEntryStratDef(empty) = idle .
+
+    op makeSearchStratDefs : Sort Bool -> StratDefSet .
+    eq makeSearchStratDefs(S, Simple:Bool) =
+        if Simple:Bool then
+            (sd $suffix(S, "*")[[empty]] := all * [ none ] .)
+            (sd $suffix(S, "+")[[empty]] := all + [ none ] .)
+            (sd $suffix(S, "!")[[empty]] := all ! [ none ] .)
+        else
+            (sd $suffix(S, "*")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) *) [ none ] .)
+            (sd $suffix(S, "+")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) +) [ none ] .)
+            (sd $suffix(S, "!")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) !) [ none ] .)
+        fi .
+
+    ***( Strategy module wrapping )***
+
+    vars H OrigH HP : Header . var Is : ImportList .
+    var SDcs : StratDeclSet . var SDfs : StratDefSet .
+
+    op makeStratModule : Header Header SortDependencyMap TaggedConstraintSet -> StratModule .
+    eq makeStratModule(OrigH, HP, SDM, TCs) =
+        makeStratModule(makeHeader(OrigH), makeImportList(OrigH, HP), SDM, TCs) .
+
+    op makeStratModule : Header ImportList SortDependencyMap TaggedConstraintSet -> StratModule .
+    eq makeStratModule(H, Is, SDM, TCs) =
+        makeStratModule(H, Is, makeStratDeclSet(SDM, TCs), makeStratDefSet(SDM, TCs)) .
+
+    op makeStratModule : Header ImportList StratDeclSet StratDefSet -> StratModule .
+    eq makeStratModule(H, Is, SDcs, SDfs) =
+        smod H is
+            Is                              --- ImportList
+            sorts none .                    --- SortSet
+            none                            --- SubsortDeclSet 
+            none                            --- OpDeclSet 
+            none                            --- MembAxSet 
+            none                            --- EquationSet 
+            none                            --- RuleSet 
+            SDcs                            --- StratDeclSet 
+            SDfs                            --- StratDefSet
+        endsm .
+
+    op makeHeader : Header -> Header .
+    eq makeHeader(OrigH) = qid(string(OrigH) + "-STRAT") .
+
+    op makeImportList : Header Header -> ImportList .
+    eq makeImportList(OrigH, HP) = (protecting OrigH .) (protecting HP .) .
+
+    ***( Auxiliary functions )***
+
+    var C : Constraint .
+
+    op $actionStratName : Nat -> Qid .
+    eq $actionStratName(Idx) = qid("a" + string(Idx, 10)) .
+
+    op $filterStratName : Nat -> Qid .
+    eq $filterStratName(Idx) = qid("f" + string(Idx, 10)) .
+
+    op $filterStratName : Nat String -> Qid .
+    eq $filterStratName(Idx, S:String) = qid("f" + string(Idx, 10) + S:String) .
+
+    op $suffix : Qid String -> Qid .
+    eq $suffix(Q:Qid, S:String) = qid(string(Q:Qid) + S:String) .
+
+    op $filterByKey : SortSet TaggedConstraintSet -> TaggedConstraintSet .
+    eq $filterByKey(Ss, (S |-> [Idx] C, TCs)) =
+        if S in Ss then S |-> [Idx] C
+        else empty
+        fi,
+        $filterByKey(Ss, TCs) .
+    eq $filterByKey(Ss, (empty).TaggedConstraintSet) = empty .
+endfm
+
+fmod STRASS-FORMATTING is
+    pr STRASS-GENERATION .
+    pr PRETTY-PRINT .
+
+    vars MP MS : Module . var OrigH : Header .
+
+    op programContents : Header Module Module -> String .
+    eq programContents(OrigH, MP, MS) = 
+        programHeader(OrigH) 
+        + "\n--- Notice: extended by STRASS, not the original definition\n" + toString(MP)
+        + "\n" + toString(MS) .
+
+    op programHeader : Header -> String .
+    eq programHeader(OrigH) =
+          "load " + toLower(string(OrigH)) + ".maude\t---Load files containing the original definitions.\n\n"
+        + "***(\n\tGenerated by STRASS -- Daniel Galán <dagapas@vrain.upv.es>, 2021\n)\n" .
+endfm
+
+mod STRASS is
+    pr STRASS-FORMATTING .
+
+    vars M MP : Module . vars Q QP : Qid . var RawCs : String .
+    vars H HP : Header . vars Is IsP : ImportList . 
+    vars Ss SsP : SortSet . vars SubSs SubSsP : SubsortDeclSet . 
+    vars Ops OpsP : OpDeclSet . 
+    vars MAs MAsP : MembAxSet . 
+    vars Es EsP : EquationSet . vars Rs RsP : RuleSet .
+
+    op fix : Qid Qid String -> String .
+    eq fix(Q, QP, RawCs) = 
+        programContents(
+            Q,
+            removeDuplicateImports(
+                extendWithGuardOperators(upModule(QP, false))),
+            removeDuplicateImports(
+                generateRepairStrats(Q, QP, RawCs))) .
+
+    op generateRepairStrats : Qid Qid String -> StratModule .
+    eq generateRepairStrats(Q, QP, RawCs) = 
+        generateRepairStrats(upModule(Q, false), upModule(QP, false), RawCs) .
+    
+    op generateRepairStrats : Module Module String -> StratModule .
+    ceq generateRepairStrats(M, MP, RawCs) =
+        makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs))
+    if (fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) := M
+    /\ (fmod HP is IsP sorts SsP . SubSsP OpsP MAsP EsP endfm) := MP .
+    ceq generateRepairStrats(M, MP, RawCs) =
+        makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs))
+    if (mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) := M
+    /\ (mod HP is IsP sorts SsP . SubSsP OpsP MAsP EsP RsP endm) := MP .
+endm

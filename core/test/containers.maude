@@ -1,0 +1,15 @@
+load ../src/main.maude
+load ../src/io.maude
+load in/containers.maude
+
+mod EMPTY is
+endm
+
+mod TEST is
+    pr STRASS .
+    pr IO .
+endm
+
+erew writeToFile("out/containers-fixed.maude", fix('CONTAINER, 'EMPTY, readFileToEnd("in/containers.constraints"))) .
+
+quit
