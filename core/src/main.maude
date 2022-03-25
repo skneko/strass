@@ -38,10 +38,10 @@ fmod STRASS-CONSTRAINTS-BASE is
     pr META-STRATEGY .
     pr NAT .
 
-    sorts SimpleConstraint ARConstraint Constraint IndexedConstraint .
-    subsort SimpleConstraint ARConstraint < Constraint .
+    sorts BasicConstraint ARConstraint Constraint IndexedConstraint .
+    subsort BasicConstraint ARConstraint < Constraint .
 
-    op _#_ : Term Term -> SimpleConstraint [ctor] .
+    op _#_ : Term Term -> BasicConstraint [ctor] .
     op _#_-[_]->_#_ : Term Term Strategy Term Term -> ARConstraint [ctor] .
     op [_]_ : Nat Constraint -> IndexedConstraint [ctor] .
 endfm
@@ -169,6 +169,23 @@ fmod STRASS-CONSTRAINTS-PARSING is
     /\ Idx:FindResult =/= notFound .
     eq downAction(T) = actionParseFailure [owise] .
 
+    vars A A' A'' Astep : Strategy .
+
+    op interleave : Strategy Strategy -> Strategy .
+    ceq interleave(A | A', Astep) = interleave(A, Astep) | interleave(A', Astep) if A =/= fail /\ A' =/= fail .
+    ceq interleave(A ; A', Astep) = interleave(A, Astep) ; interleave(A', Astep) if A =/= idle /\ A' =/= idle .
+    eq interleave(A or-else A', Astep) = interleave(A, Astep) or-else interleave(A', Astep) .
+    eq interleave(A *, Astep) = interleave(A, Astep) * .
+    eq interleave(A +, Astep) = interleave(A, Astep) + .
+    eq interleave(A !, Astep) = interleave(A, Astep) ! .
+    eq interleave(A ? A' : A'', Astep) = interleave(A, Astep) ? interleave(A', Astep) : interleave(A'', Astep) .
+    eq interleave(one(A), Astep) = one(interleave(A, Astep)) .
+    eq interleave(not(A), Astep) = not(interleave(A, Astep)) .
+    eq interleave(test(A), Astep) = test(interleave(A, Astep)) .
+    eq interleave(try(A), Astep) = try(interleave(A, Astep)) .
+    eq interleave(RA:RuleApplication, Astep) = RA:RuleApplication ; Astep .
+    eq interleave(A, Astep) = A [owise] .
+
     ***( Module and parsing context handling )***
 
     op extendWithGuardOperators : Module -> Module .
@@ -236,6 +253,18 @@ endfm
 
 fmod STRASS-CONSTRAINTS is
     pr STRASS-CONSTRAINTS-PARSING .
+
+    var S : Sort . var Idx : Nat .
+    var CS : BasicConstraint . var CAR : ARConstraint .
+    var TCs : TaggedConstraintSet .
+
+    op containsBasicConstraints : TaggedConstraintSet -> Bool .
+    eq containsBasicConstraints((S |-> [Idx] CS, TCs)) = true .
+    eq containsBasicConstraints(TCs) = false [owise] .
+
+    op containsActionConstraints : TaggedConstraintSet -> Bool .
+    eq containsActionConstraints((S |-> [Idx] CAR, TCs)) = true .
+    eq containsActionConstraints(TCs) = false [owise] .
 endfm
 
 view SortSet from TRIV to STRASS-CONSTRAINTS is
@@ -349,12 +378,14 @@ fmod STRASS-GENERATION is
 
     var SDM : SortDependencyMap . var S : Sort . var Ss : SortSet .
     var TCs : TaggedConstraintSet . var Idx : Nat . 
-    var CS : SimpleConstraint . var CAR : ARConstraint .
+    var CS : BasicConstraint . var CAR : ARConstraint .
 
-    op makeStratDeclSet : SortDependencyMap TaggedConstraintSet -> StratDeclSet .
-    eq makeStratDeclSet(SDM, TCs) = 
+    vars Inline UseBasic UseAction : Bool .
+
+    op makeStratDeclSet : SortDependencyMap TaggedConstraintSet Bool Bool Bool -> StratDeclSet .
+    eq makeStratDeclSet(SDM, TCs, Inline, UseBasic, UseAction) = 
         makeAssertionStratDeclSet(TCs)
-        makeEntryStratDeclSet(SDM) .
+        makeEntryStratDeclSet(SDM, Inline, UseBasic, UseAction) .
 
     op makeAssertionStratDeclSet : TaggedConstraintSet -> StratDeclSet .
     eq makeAssertionStratDeclSet((S |-> [Idx] CS, TCs)) =
@@ -362,17 +393,29 @@ fmod STRASS-GENERATION is
         makeAssertionStratDeclSet(TCs) .
     eq makeAssertionStratDeclSet((S |-> [Idx] CAR, TCs)) =
         (strat $actionStratName(Idx) : nil @ S [ none ] .)
-        (strat $filterStratName(Idx, "c") : nil @ S [ none ] .)
-        (strat $filterStratName(Idx, "g") : nil @ S [ none ] .)
+        (strat $filterStratName(Idx, "pre") : nil @ S [ none ] .)
+        (strat $filterStratName(Idx, "post") : nil @ S [ none ] .)
         makeAssertionStratDeclSet(TCs) .
     eq makeAssertionStratDeclSet(empty) = none .
 
-    op makeEntryStratDeclSet : SortDependencyMap -> StratDeclSet .
-    eq makeEntryStratDeclSet((S |-> Ss, SDM)) =
+    op makeEntryStratDeclSet : SortDependencyMap Bool Bool Bool -> StratDeclSet .
+    --- inlining
+    eq makeEntryStratDeclSet((S |-> Ss, SDM), true, true, false) =
         (strat S : nil @ S [ none ] .)
         makeSearchStratDecls(S)
-        makeEntryStratDeclSet(SDM) .
-    eq makeEntryStratDeclSet(empty) = none .
+        makeEntryStratDeclSet(SDM, true, true, false) .
+    eq makeEntryStratDeclSet((S |-> Ss, SDM), true, false, true) =
+        (strat S : nil @ S [ none ] .)
+        makeSearchStratDecls(S)
+        makeEntryStratDeclSet(SDM, true, false, true) .
+    --- general case
+    eq makeEntryStratDeclSet((S |-> Ss, SDM), Inline, UseBasic, UseAction) = 
+        (strat S : nil @ S [ none ] .)
+        if UseBasic then (strat $basicEntryStratName(S) : nil @ S [ none ] .) else none fi
+        if UseAction then (strat $actionEntryStratName(S) : nil @ S [ none ] .) else none fi
+        makeSearchStratDecls(S)
+        makeEntryStratDeclSet(SDM, Inline, UseBasic, UseAction) [owise] .
+    eq makeEntryStratDeclSet(empty, Inline, UseBasic, UseAction) = none .
 
     op makeSearchStratDecls : Sort -> StratDeclSet .
     eq makeSearchStratDecls(S) =
@@ -380,23 +423,24 @@ fmod STRASS-GENERATION is
         (strat $suffix(S, "+") : nil @ S [ none ] .)
         (strat $suffix(S, "!") : nil @ S [ none ] .) .
 
-    vars P G P' G' : Term . var A : Strategy .
+    vars P G P' G' : Term . vars A Afixed : Strategy .
 
-    op makeStratDefSet : SortDependencyMap TaggedConstraintSet -> StratDefSet .
-    eq makeStratDefSet(SDM, TCs) =
-        makeConstraintStratDefSet(TCs)
-        makeEntryStratDefSet(SDM, TCs) .
+    op makeStratDefSet : SortDependencyMap TaggedConstraintSet Bool Bool Bool -> StratDefSet .
+    eq makeStratDefSet(SDM, TCs, Inline, UseBasic, UseAction) =
+        makeConstraintStratDefSet(TCs, UseBasic)
+        makeSortRelatedStratDefs(SDM, TCs, Inline, UseBasic, UseAction) .
 
-    op makeConstraintStratDefSet : TaggedConstraintSet -> StratDefSet .
-    eq makeConstraintStratDefSet((S |-> [Idx] P # G, TCs)) =
+    op makeConstraintStratDefSet : TaggedConstraintSet Bool -> StratDefSet .
+    eq makeConstraintStratDefSet((S |-> [Idx] P # G, TCs), UseBasic) =
         makeFilterStratDef(Idx, P, G)
-        makeConstraintStratDefSet(TCs) .
-    eq makeConstraintStratDefSet((S |-> [Idx] P # G -[ A ]-> P' # G', TCs)) =
-        (sd $filterStratName(Idx, "c")[[empty]] := makeFilterStratBody(P, G) [ none ] .)
-        (sd $filterStratName(Idx, "g")[[empty]] := makeFilterStratBody(P', G') [ none ] .)
-        makeActionStratDef(Idx, P, G, P', G', A)
-        makeConstraintStratDefSet(TCs) .
-    eq makeConstraintStratDefSet(empty) = none .
+        makeConstraintStratDefSet(TCs, UseBasic) .
+    ceq makeConstraintStratDefSet((S |-> [Idx] P # G -[ A ]-> P' # G', TCs), UseBasic) =
+        (sd $filterStratName(Idx, "pre")[[empty]] := makeFilterStratBody(P, G) [ none ] .)
+        (sd $filterStratName(Idx, "post")[[empty]] := makeFilterStratBody(P', G') [ none ] .)
+        makeActionStratDef(Idx, P, G, P', G', Afixed)
+        makeConstraintStratDefSet(TCs, UseBasic)
+    if Afixed := if UseBasic then interleave(A, $basicEntryStratName(S)[[empty]]) else A fi .
+    eq makeConstraintStratDefSet(empty, UseBasic) = none .
 
     op makeFilterStratDef : Nat Term Term -> StratDefinition .
     eq makeFilterStratDef(Idx, P, G) =
@@ -408,28 +452,50 @@ fmod STRASS-GENERATION is
     op makeActionStratDef : Nat Term Term Term Term Strategy -> StratDefinition .
     eq makeActionStratDef(Idx, P, G, P', G', A) =
         (sd $actionStratName(Idx)[[empty]] := 
-            $filterStratName(Idx, "c")[[empty]] 
-            ? ( A ; $filterStratName(Idx, "g")[[empty]] )
+            $filterStratName(Idx, "pre")[[empty]] 
+            ? ( A ; $filterStratName(Idx, "post")[[empty]] )
             : idle
             [none] .) .
 
-    op makeEntryStratDefSet : SortDependencyMap TaggedConstraintSet -> StratDefSet .
-    eq makeEntryStratDefSet((S |-> Ss, SDM), TCs) =
-        makeEntryStratDef(S, $filterByKey(S ; Ss, TCs))
+    op makeSortRelatedStratDefs : SortDependencyMap TaggedConstraintSet Bool Bool Bool -> StratDefSet .
+    eq makeSortRelatedStratDefs((S |-> Ss, SDM), TCs, Inline, UseBasic, UseAction) =
+        makeEntryStratDefs(S, $filterByKey(S ; Ss, TCs), Inline, UseBasic, UseAction)
         makeSearchStratDefs(S, $filterByKey(S ; Ss, TCs) == empty)
-        makeEntryStratDefSet(SDM, TCs) .
-    eq makeEntryStratDefSet(empty, TCs) = none .
+        makeSortRelatedStratDefs(SDM, TCs, Inline, UseBasic, UseAction) .
+    eq makeSortRelatedStratDefs(empty, TCs, Inline, UseBasic, UseAction) = none .
 
-    op makeEntryStratDef : Sort TaggedConstraintSet -> StratDefinition .
-    eq makeEntryStratDef(S, TCs) =
-        (sd S[[empty]] := $makeEntryStratDef(TCs) [ none ] .) .
+    op makeEntryStratDefs : Sort TaggedConstraintSet Bool Bool Bool -> StratDefSet .
+    --- inlining
+    eq makeEntryStratDefs(S, TCs, true,  true, false) =
+        (sd S[[empty]] := $makeEntryStratDefBasic(TCs) [ none ] .) .
+    eq makeEntryStratDefs(S, TCs, true, false, true) =
+        (sd S[[empty]] := $makeEntryStratDefAction(TCs) [ none ] .) .
+    --- general case
+    eq makeEntryStratDefs(S, TCs, Inline, UseBasic, UseAction) =
+        (sd S[[empty]] := 
+            if UseAction then $actionEntryStratName(S)[[empty]] else idle fi ; 
+            if UseBasic then $basicEntryStratName(S)[[empty]] else idle fi
+        [ none ] .)
+        if UseBasic then
+            (sd $basicEntryStratName(S)[[empty]] := $makeEntryStratDefBasic(TCs) [ none ] .)
+        else none fi
+        if UseAction then
+            (sd $actionEntryStratName(S)[[empty]] := $makeEntryStratDefAction(TCs) [ none ] .)
+        else none fi [owise] .
 
-    op $makeEntryStratDef : TaggedConstraintSet -> Strategy .
-    eq $makeEntryStratDef((S |-> [Idx] CS, TCs)) =
-        $filterStratName(Idx)[[empty]] ; $makeEntryStratDef(TCs) .
-    eq $makeEntryStratDef((S |-> [Idx] CAR, TCs)) =
-        $actionStratName(Idx)[[empty]] ; $makeEntryStratDef(TCs) .
-    eq $makeEntryStratDef(empty) = idle .
+    op $makeEntryStratDefAction : TaggedConstraintSet -> Strategy .
+    eq $makeEntryStratDefAction(TCs) = $$makeEntryStratDefAction(TCs, false) .
+
+    op $$makeEntryStratDefAction : TaggedConstraintSet Bool -> Strategy .
+    eq $$makeEntryStratDefAction((S |-> [Idx] CAR, TCs), AtLeastOne:Bool) =
+        $actionStratName(Idx)[[empty]] | $$makeEntryStratDefAction(TCs, true) .
+    eq $$makeEntryStratDefAction(TCs, AtLeastOne:Bool) =
+        if AtLeastOne:Bool then fail else idle fi [owise] .
+
+    op $makeEntryStratDefBasic : TaggedConstraintSet -> Strategy .
+    eq $makeEntryStratDefBasic((S |-> [Idx] CS, TCs)) =
+        $filterStratName(Idx)[[empty]] ; $makeEntryStratDefBasic(TCs) .
+    eq $makeEntryStratDefBasic(TCs) = idle [owise] .
 
     op makeSearchStratDefs : Sort Bool -> StratDefSet .
     eq makeSearchStratDefs(S, Simple:Bool) =
@@ -448,13 +514,16 @@ fmod STRASS-GENERATION is
     vars H OrigH HP : Header . var Is : ImportList .
     var SDcs : StratDeclSet . var SDfs : StratDefSet .
 
-    op makeStratModule : Header Header SortDependencyMap TaggedConstraintSet -> StratModule .
-    eq makeStratModule(OrigH, HP, SDM, TCs) =
-        makeStratModule(makeHeader(OrigH), makeImportList(OrigH, HP), SDM, TCs) .
+    op makeStratModule : Header Header SortDependencyMap TaggedConstraintSet Bool -> StratModule .
+    eq makeStratModule(OrigH, HP, SDM, TCs, Inline) =
+        makeStratModule(makeHeader(OrigH), makeImportList(OrigH, HP), SDM, TCs, Inline) .
 
-    op makeStratModule : Header ImportList SortDependencyMap TaggedConstraintSet -> StratModule .
-    eq makeStratModule(H, Is, SDM, TCs) =
-        makeStratModule(H, Is, makeStratDeclSet(SDM, TCs), makeStratDefSet(SDM, TCs)) .
+    op makeStratModule : Header ImportList SortDependencyMap TaggedConstraintSet Bool -> StratModule .
+    ceq makeStratModule(H, Is, SDM, TCs, Inline) =
+        makeStratModule(H, Is, 
+            makeStratDeclSet(SDM, TCs, Inline, UseBasic, UseAction), 
+            makeStratDefSet(SDM, TCs, Inline, UseBasic, UseAction))
+    if UseBasic := containsBasicConstraints(TCs) /\ UseAction := containsActionConstraints(TCs) .
 
     op makeStratModule : Header ImportList StratDeclSet StratDefSet -> StratModule .
     eq makeStratModule(H, Is, SDcs, SDfs) =
@@ -488,6 +557,12 @@ fmod STRASS-GENERATION is
 
     op $filterStratName : Nat String -> Qid .
     eq $filterStratName(Idx, S:String) = qid("f" + string(Idx, 10) + S:String) .
+
+    op $basicEntryStratName : Qid -> Qid .
+    eq $basicEntryStratName(Q:Qid) = $suffix(Q:Qid, "-state") .
+
+    op $actionEntryStratName : Qid -> Qid .
+    eq $actionEntryStratName(Q:Qid) = $suffix(Q:Qid, "-path") .
 
     op $suffix : Qid String -> Qid .
     eq $suffix(Q:Qid, S:String) = qid(string(Q:Qid) + S:String) .
@@ -529,26 +604,31 @@ mod STRASS is
     vars MAs MAsP : MembAxSet . 
     vars Es EsP : EquationSet . vars Rs RsP : RuleSet .
 
+    var Inline : Bool .
+
     op fix : Qid Qid String -> String .
-    eq fix(Q, QP, RawCs) = 
+    eq fix(Q, QP, RawCs) = fix(Q, QP, RawCs, true) .
+
+    op fix : Qid Qid String Bool -> String .
+    eq fix(Q, QP, RawCs, Inline) = 
         programContents(
             Q,
             removeDuplicateImports(
                 extendWithGuardOperators(upModule(QP, false))),
             removeDuplicateImports(
-                generateRepairStrats(Q, QP, RawCs))) .
+                generateRepairStrats(Q, QP, RawCs, Inline))) .
 
-    op generateRepairStrats : Qid Qid String -> StratModule .
-    eq generateRepairStrats(Q, QP, RawCs) = 
-        generateRepairStrats(upModule(Q, false), upModule(QP, false), RawCs) .
-    
-    op generateRepairStrats : Module Module String -> StratModule .
-    ceq generateRepairStrats(M, MP, RawCs) =
-        makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs))
+    op generateRepairStrats : Qid Qid String Bool -> StratModule .
+    eq generateRepairStrats(Q, QP, RawCs, Inline) = 
+        generateRepairStrats(upModule(Q, false), upModule(QP, false), RawCs, Inline) .
+
+    op generateRepairStrats : Module Module String Bool -> StratModule .
+    ceq generateRepairStrats(M, MP, RawCs, Inline) =
+        makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs), Inline)
     if (fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) := M
     /\ (fmod HP is IsP sorts SsP . SubSsP OpsP MAsP EsP endfm) := MP .
-    ceq generateRepairStrats(M, MP, RawCs) =
-        makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs))
+    ceq generateRepairStrats(M, MP, RawCs, Inline) =
+        makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs), Inline)
     if (mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) := M
     /\ (mod HP is IsP sorts SsP . SubSsP OpsP MAsP EsP RsP endm) := MP .
 endm
