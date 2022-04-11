@@ -41,10 +41,10 @@ smod DAM-STRAT is
 	strat TimeStamp! : @ TimeStamp .
 	strat TimeStamp* : @ TimeStamp .
 	strat TimeStamp+ : @ TimeStamp .
-	strat f0 : @ State .
-	strat f1 : @ State .
-	strat f2 : @ State .
-	strat f3 : @ State .
+	strat s1 : @ State .
+	strat s2 : @ State .
+	strat s3 : @ State .
+	strat s4 : @ State .
 	sd Aperture := idle .
 	sd Aperture! := (all) ! .
 	sd Aperture* := (all) * .
@@ -61,7 +61,7 @@ smod DAM-STRAT is
 	sd Spillways! := (all) ! .
 	sd Spillways* := (all) * .
 	sd Spillways+ := (all) + .
-	sd State := (f0) ; ((f1) ; ((f2) ; (f3))) .
+	sd State := (s1) ; ((s2) ; ((s3) ; (s4))) .
 	sd State! := (State) ; (((all) ; (State)) !) .
 	sd State* := (State) ; (((all) ; (State)) *) .
 	sd State+ := (State) ; (((all) ; (State)) +) .
@@ -69,8 +69,8 @@ smod DAM-STRAT is
 	sd TimeStamp! := (all) ! .
 	sd TimeStamp* := (all) * .
 	sd TimeStamp+ := (all) + .
-	sd f0 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat < 50000000 = false) .
-	sd f1 := not(amatch {[S1:SpillwayId, O1:Aperture][S2:SpillwayId, O2:Aperture][S3:SpillwayId, O3:Aperture] ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat > 40000000 implies O1:Aperture == open3 and O2:Aperture =/= close and O3:Aperture =/= close or O2:Aperture == open3 and O1:Aperture =/= close and O3:Aperture =/= close or O3:Aperture == open3 and O1:Aperture =/= close and O2:Aperture =/= close = false) .
-	sd f2 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat < 10000000 implies openSpillways(SC:Spillways) == 0 = false) .
-	sd f3 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat >= 10000000 and V:Rat <= 40000000 implies openSpillways(SC:Spillways) == 2 = false) .
+	sd s1 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat < 50000000 = false) .
+	sd s2 := not(amatch {[S1:SpillwayId, O1:Aperture][S2:SpillwayId, O2:Aperture][S3:SpillwayId, O3:Aperture] ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat > 40000000 implies O1:Aperture == open3 and O2:Aperture =/= close and O3:Aperture =/= close or O2:Aperture == open3 and O1:Aperture =/= close and O3:Aperture =/= close or O3:Aperture == open3 and O1:Aperture =/= close and O2:Aperture =/= close = false) .
+	sd s3 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat < 10000000 implies openSpillways(SC:Spillways) == 0 = false) .
+	sd s4 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool} s.t. V:Rat >= 10000000 and V:Rat <= 40000000 implies openSpillways(SC:Spillways) == 2 = false) .
 endsm

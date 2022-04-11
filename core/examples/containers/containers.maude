@@ -1,4 +1,4 @@
-mod CONTAINER is 
+mod CONTAINERS is 
    pr INT + EXT-BOOL .
 
    sorts Container Cargo Ship Fleet State .

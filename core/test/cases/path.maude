@@ -1,0 +1,28 @@
+load ../test.maude
+
+mod PROGRAM is
+    sorts S X .
+
+    ops a b c : -> S .
+    op x : -> X .
+
+    rl [r1] : a => b .
+    rl [r2] : b => c .
+    rl [r3] : c => a .
+    rl [rx] : x => x .
+endm
+
+mod TEST is
+    pr TEST-CONTEXT .
+
+    op constraints : -> String .
+    eq constraints = ""
+    + "a # true\n" 
+    + "b # true\n" 
+    + "c # true\n" 
+    + "path for S : (r1 | r2) *\n" .
+endm
+
+erew print(fix('PROGRAM, 'EMPTY, constraints)) .
+
+quit

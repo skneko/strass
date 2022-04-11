@@ -6,7 +6,20 @@
     February 2022
 )
 
+fmod META-TERM-EXT is
+    protecting META-TERM .
+
+    var T : Term . var Ty : Type .
+
+    op downConstant : Term Type ~> Qid .
+    ceq downConstant(T, Ty) = qid(substr(Up:String, 0, Idx:FindResult))
+    if Up:String := string(T) 
+    /\ Idx:FindResult := rfind(Up:String, "." + string(Ty), length(Up:String))
+    /\ Idx:FindResult =/= notFound .
+endfm
+
 fmod META-MODULE-EXT is
+    protecting META-TERM-EXT .
     protecting META-MODULE .
 
     var H : Header .

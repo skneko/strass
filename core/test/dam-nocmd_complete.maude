@@ -1,0 +1,21 @@
+load test.maude
+load ../examples/dam-nocmd/dam-nocmd.maude
+
+mod DAM-PRED is
+    pr DAM-NOCMD .
+
+    var S : SpillwayId .
+    var O : Aperture .
+    var SC : Spillways .
+
+    op openSpillways : Spillways -> Nat .
+    eq openSpillways(empty) = 0 .
+    eq openSpillways([ S,O ] SC) = if O =/= close then 1 + openSpillways(SC) else openSpillways(SC) fi .
+endm
+
+select TEST-CONTEXT .
+
+erew writeToFile("../examples/dam-nocmd/fixed/dam-nocmd_complete.maude", 
+    fix('DAM-NOCMD, 'DAM-PRED, readFileToEnd("../examples/dam-nocmd/complete.constraints"))) .
+
+quit

@@ -1,0 +1,10 @@
+load ../src/main.maude
+load ../src/io.maude
+
+fmod EMPTY is
+endfm
+
+mod TEST-CONTEXT is
+    pr STRASS .
+    pr IO .
+endm

@@ -1,0 +1,9 @@
+load test.maude
+load ../examples/containers/containers.maude
+
+select TEST-CONTEXT .
+
+erew writeToFile("../examples/containers/fixed/containers_state.maude", 
+    fix('CONTAINERS, 'EMPTY, readFileToEnd("../examples/containers/state.constraints"))) .
+
+quit
