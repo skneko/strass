@@ -13,9 +13,10 @@ mod DAM-PRED is
     eq openSpillways([ S,O ] SC) = if O =/= close then 1 + openSpillways(SC) else openSpillways(SC) fi .
 endm
 
-select TEST-CONTEXT .
-
-erew writeToFile("../examples/dam-nocmd/fixed/dam-nocmd_abridged.maude", 
-    fix('DAM-NOCMD, 'DAM-PRED, readFileToEnd("../examples/dam-nocmd/abridged.constraints"))) .
+erew in TEST-CONTEXT : test(
+    "../examples/dam-nocmd/dam-nocmd.maude",
+    "../examples/dam-nocmd/abridged.constraints",
+    'DAM-NOCMD, 'DAM-PRED,
+    "../examples/dam-nocmd/fixed/dam-nocmd_abridged.maude") .
 
 quit

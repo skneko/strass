@@ -209,6 +209,7 @@ fmod STRASS-CONSTRAINTS-PARSING is
     eq interleave(test(A), Astep) = test(interleave(A, Astep)) .
     eq interleave(try(A), Astep) = try(interleave(A, Astep)) .
     eq interleave(RA:RuleApplication, Astep) = RA:RuleApplication ; Astep .
+    eq interleave(all, Astep) = all ; Astep .
     eq interleave(A, Astep) = A [owise] .
 
     ***( Module and parsing context handling )***
@@ -432,7 +433,7 @@ fmod STRASS-GENERATION is
     eq makeSortRelatedStratDeclSet((S |-> Ss, SDM), TCs) = 
         (strat S : nil @ S [ none ] .)
         if hasGlobalPathFor(S, TCs)
-        then (strat $suffix(S, "-state") : nil @ S [ none ] .)
+        then (strat $stateSearchStratName(S) : nil @ S [ none ] .)
         else none
         fi
         makeSearchStratDecls(S)
@@ -469,7 +470,7 @@ fmod STRASS-GENERATION is
     op makeSortRelatedStratDefs : SortDependencyMap TaggedConstraintSet -> StratDefSet .
     eq makeSortRelatedStratDefs((S |-> Ss, SDM), TCs) =
         makeLocalStratDefs(S, $filterByKey(S ; Ss, TCs))
-        makeSearchStratDefs(S, $filterByKey(S ; Ss, TCs) == empty)
+        makeSearchStratDefs(S, $filterByKey(S ; Ss, TCs) == empty, hasGlobalPathFor(S, TCs))
         makeSortRelatedStratDefs(SDM, TCs) .
     eq makeSortRelatedStratDefs(empty, TCs) = none .
 
@@ -478,7 +479,7 @@ fmod STRASS-GENERATION is
         if hasGlobalPathFor(S, TCs) 
         then
             (sd S[[empty]] := $makeLocalStratDefPath(S, TCs) [ none ] .)
-            (sd $suffix(S, "-state")[[empty]] := $makeLocalStratDefState(TCs) [ none ] .)
+            (sd $stateSearchStratName(S)[[empty]] := $makeLocalStratDefState(TCs) [ none ] .)
         else
             (sd S[[empty]] := $makeLocalStratDefState(TCs) [ none ] .)
         fi .
@@ -490,19 +491,25 @@ fmod STRASS-GENERATION is
     eq $makeLocalStratDefState(TCs) = idle [owise] .
 
     op $makeLocalStratDefPath : Sort TaggedConstraintSet -> Strategy .
-    ceq $makeLocalStratDefPath(S, TCs) = interleave(A, $suffix(S, "-state")[[empty]])
+    ceq $makeLocalStratDefPath(S, TCs) = interleave(A, $stateSearchStratName(S)[[empty]])
     if (S |-> [global] path A, Tail:TaggedConstraintSet) := TCs .
 
-    op makeSearchStratDefs : Sort Bool -> StratDefSet .
-    eq makeSearchStratDefs(S, Simple:Bool) =
+    op makeSearchStratDefs : Sort Bool Bool -> StratDefSet .
+    eq makeSearchStratDefs(S, Simple:Bool, UsePathStrategy:Bool) =
         if Simple:Bool then
             (sd $suffix(S, "*")[[empty]] := all * [ none ] .)
             (sd $suffix(S, "+")[[empty]] := all + [ none ] .)
             (sd $suffix(S, "!")[[empty]] := all ! [ none ] .)
-        else
-            (sd $suffix(S, "*")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) *) [ none ] .)
-            (sd $suffix(S, "+")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) +) [ none ] .)
-            (sd $suffix(S, "!")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) !) [ none ] .)
+        else 
+            if UsePathStrategy:Bool then
+                (sd $suffix(S, "*")[[empty]] := $stateSearchStratName(S)[[empty]] ; S[[empty]] ; ((all ; S[[empty]]) *) [ none ] .)
+                (sd $suffix(S, "+")[[empty]] := $stateSearchStratName(S)[[empty]] ; S[[empty]] ; ((all ; S[[empty]]) +) [ none ] .)
+                (sd $suffix(S, "!")[[empty]] := $stateSearchStratName(S)[[empty]] ; S[[empty]] ; ((all ; S[[empty]]) !) [ none ] .)
+            else
+                (sd $suffix(S, "*")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) *) [ none ] .)
+                (sd $suffix(S, "+")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) +) [ none ] .)
+                (sd $suffix(S, "!")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) !) [ none ] .)
+            fi
         fi .
 
     ***( Strategy module wrapping )***
@@ -533,7 +540,7 @@ fmod STRASS-GENERATION is
         endsm .
 
     op makeHeader : Header -> Header .
-    eq makeHeader(OrigH) = qid(string(OrigH) + "-STRAT") .
+    eq makeHeader(OrigH) = qid(string(OrigH) + "-FIXED") .
 
     op makeImportList : Header Header -> ImportList .
     eq makeImportList(OrigH, HP) = (protecting OrigH .) (protecting HP .) .
@@ -542,6 +549,9 @@ fmod STRASS-GENERATION is
 
     op $stateStratName : Nat -> Qid .
     eq $stateStratName(NIdx) = qid("s" + string(NIdx, 10)) .
+
+    op $stateSearchStratName : Qid -> Qid .
+    eq $stateSearchStratName(S) = $suffix(S, "-state") .
 
     op $suffix : Qid String -> Qid .
     eq $suffix(Q:Qid, S:String) = qid(string(Q:Qid) + S:String) .
@@ -561,18 +571,16 @@ fmod STRASS-FORMATTING is
     pr STRASS-GENERATION .
     pr PRETTY-PRINT .
 
-    vars MP MS : Module . var OrigH : Header .
+    vars MP MS : Module .
 
-    op programContents : Header Module Module -> String .
-    eq programContents(OrigH, MP, MS) = 
-        programHeader(OrigH) 
+    op programContents : Module Module -> String .
+    eq programContents(MP, MS) = 
+        programHeader
         + "\n--- Notice: extended by STRASS, not the original definition\n" + toString(MP)
         + "\n" + toString(MS) .
 
-    op programHeader : Header -> String .
-    eq programHeader(OrigH) =
-          "load " + toLower(string(OrigH)) + ".maude\t---Load files containing the original definitions.\n\n"
-        + "***(\n\tGenerated by STRASS -- Daniel Galán <dagapas@vrain.upv.es>, 2021\n)\n" .
+    op programHeader : -> String .
+    eq programHeader = "***(\n\tGenerated by STRASS -- safe-tools.dsic.upv.es/strass\n)\n" .
 endfm
 
 mod STRASS is
@@ -588,7 +596,6 @@ mod STRASS is
     op fix : Qid Qid String -> String .
     eq fix(Q, QP, RawCs) = 
         programContents(
-            Q,
             removeDuplicateImports(
                 extendWithGuardOperators(upModule(QP, false))),
             removeDuplicateImports(

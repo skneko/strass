@@ -1,0 +1,4 @@
+c(W:Int) | (W:Int >= 0) and  (W:Int <= 5)
+< MAXW:Int , MAXS:Int | CG:Cargo > | weight(CG:Cargo) <= MAXW:Int and size(CG:Cargo) <= MAXS:Int
+CG1:Cargo,c(W:Int),CG2:Cargo | isFull(c(W:Int)) implies isFull(CG1:Cargo)
+< MAXW1:Int , MAXS1:Int | c(W1:Int) , c(W1':Int) > | (W1:Int >= 0) and  (W1:Int <= 5)

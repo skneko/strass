@@ -7,4 +7,32 @@ endfm
 mod TEST-CONTEXT is
     pr STRASS .
     pr IO .
+
+    vars ProgramPath ConstraintsPath OutputPath : String .
+    vars Program Constraints : String .
+    vars MainModule PredicateModule : Header .
+
+    ops programReader constraintsReader : -> Oid [ctor] .
+    op outputWriter : -> Oid [ctor] .
+
+    op runFix : Header Header String -> Msg [ctor] .
+
+    op test : String String Header String -> Configuration .
+    eq test(ProgramPath, ConstraintsPath, MainModule, OutputPath) =
+        test(ProgramPath, ConstraintsPath, MainModule, 'EMPTY, OutputPath) .
+
+    op test : String String Header Header String -> Configuration .
+    eq test(ProgramPath, ConstraintsPath, MainModule, PredicateModule, OutputPath) =
+        <>
+        startFileReader(programReader, ProgramPath)
+        startFileReader(constraintsReader, ConstraintsPath)
+        runFix(MainModule, PredicateModule, OutputPath) .
+
+    rl finishedReadingFile(programReader, Program)
+       finishedReadingFile(constraintsReader, Constraints)
+       runFix(MainModule, PredicateModule, OutputPath)
+    => startFileWriter(outputWriter, OutputPath,
+        Program
+        + "\n\n"
+        + fix(MainModule, PredicateModule, Constraints)) .
 endm

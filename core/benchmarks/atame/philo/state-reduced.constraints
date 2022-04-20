@@ -1,0 +1,2 @@
+< P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, hungry, 2) > | N:Nat >= 0
+< P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, think, 0) > | I:NzNat > 0

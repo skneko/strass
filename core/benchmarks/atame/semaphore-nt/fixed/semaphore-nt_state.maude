@@ -1,0 +1,158 @@
+mod SEMAPHORE-NT-FIXED is
+  inc BOOL .
+  pr NAT .
+  pr BOOL .
+  sorts GlobalState PSet PState Process Semaphore .
+  subsort Bool < Semaphore .
+  subsort Process < PSet .
+  op __ : PSet PSet -> PSet [ assoc comm id: empty ] .
+  op __-ren : PSet PSet -> PSet [ assoc comm id: empty-ren ] .
+  op _||_||_ : Semaphore Nat PSet -> GlobalState .
+  op _||_||_-ren : Semaphore Nat PSet -> GlobalState .
+  op critical : -> PState .
+  op critical-ren : -> PState .
+  op empty : -> PSet .
+  op empty-ren : -> PSet .
+  op entering : -> PState .
+  op entering-ren : -> PState .
+  op exiting : -> PState .
+  op exiting-ren : -> PState .
+  op fail : -> Universal [ poly (0) ] .
+  op idle : -> PState .
+  op idle-ren : -> PState .
+  op ori : Universal -> Universal [ memo strat (0) poly (1 0) ] .
+  op p_`{_`} : Nat PState -> Process .
+  op p_`{_`}-ren : Nat PState -> Process .
+  op ren : Universal -> Universal [ memo strat (1 0) poly (1 0) ] .
+  eq X:Process X:Process = X:Process .
+  eq AUX0:Semaphore || AUX1:Nat || fail -ren = (fail).GlobalState .
+  eq AUX0:Semaphore || fail || AUX2:PSet -ren = (fail).GlobalState .
+  eq fail || AUX1:Nat || AUX2:PSet -ren = (fail).GlobalState .
+  eq ori(0) = 0 .
+  eq ori(critical-ren) = critical .
+  eq ori(empty-ren) = empty .
+  eq ori(entering-ren) = entering .
+  eq ori(exiting-ren) = exiting .
+  eq ori(false) = false .
+  eq ori(idle-ren) = idle .
+  eq ori(true) = true .
+  eq ori(AUX0:Nat & AUX1:Nat) = ori(AUX0:Nat) & ori(AUX1:Nat) .
+  eq ori(AUX0:Nat * AUX1:Nat) = ori(AUX0:Nat) * ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat * AUX1:NzNat) = ori(AUX0:NzNat) * ori(AUX1:NzNat) .
+  eq ori(AUX0:Nat + AUX1:Nat) = ori(AUX0:Nat) + ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat + AUX1:Nat) = ori(AUX0:NzNat) + ori(AUX1:Nat) .
+  eq ori(AUX0:Nat << AUX1:Nat) = ori(AUX0:Nat) << ori(AUX1:Nat) .
+  eq ori(AUX0:Nat <= AUX1:Nat) = ori(AUX0:Nat) <= ori(AUX1:Nat) .
+  eq ori(AUX0:Nat < AUX1:Nat) = ori(AUX0:Nat) < ori(AUX1:Nat) .
+  eq ori(AUX0:[GlobalState] =/= AUX1:[GlobalState]) = ori(AUX0:[GlobalState]) =/= ori(AUX1:[GlobalState]) .
+  eq ori(AUX0:[GlobalState] == AUX1:[GlobalState]) = ori(AUX0:[GlobalState]) == ori(AUX1:[GlobalState]) .
+  eq ori(AUX0:[Nat] == AUX1:[Nat]) = ori(AUX0:[Nat]) == ori(AUX1:[Nat]) .
+  eq ori(AUX0:[PSet] == AUX1:[PSet]) = ori(AUX0:[PSet]) == ori(AUX1:[PSet]) .
+  eq ori(AUX0:[PState] == AUX1:[PState]) = ori(AUX0:[PState]) == ori(AUX1:[PState]) .
+  eq ori(AUX0:[Semaphore] == AUX1:[Semaphore]) = ori(AUX0:[Semaphore]) == ori(AUX1:[Semaphore]) .
+  eq ori(AUX0:Nat >= AUX1:Nat) = ori(AUX0:Nat) >= ori(AUX1:Nat) .
+  eq ori(AUX0:Nat >> AUX1:Nat) = ori(AUX0:Nat) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Nat > AUX1:Nat) = ori(AUX0:Nat) > ori(AUX1:Nat) .
+  eq ori(AUX0:Nat ^ AUX1:Nat) = ori(AUX0:Nat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat ^ AUX1:Nat) = ori(AUX0:NzNat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Bool and AUX1:Bool) = ori(AUX0:Bool) and ori(AUX1:Bool) .
+  eq ori(AUX0:NzNat divides AUX1:Nat) = ori(AUX0:NzNat) divides ori(AUX1:Nat) .
+  eq ori(AUX0:Bool implies AUX1:Bool) = ori(AUX0:Bool) implies ori(AUX1:Bool) .
+  eq ori(AUX0:Bool or AUX1:Bool) = ori(AUX0:Bool) or ori(AUX1:Bool) .
+  eq ori(AUX0:Nat quo AUX1:NzNat) = ori(AUX0:Nat) quo ori(AUX1:NzNat) .
+  eq ori(AUX0:Nat rem AUX1:NzNat) = ori(AUX0:Nat) rem ori(AUX1:NzNat) .
+  eq ori(AUX0:Bool xor AUX1:Bool) = ori(AUX0:Bool) xor ori(AUX1:Bool) .
+  eq ori(AUX0:Nat xor AUX1:Nat) = ori(AUX0:Nat) xor ori(AUX1:Nat) .
+  eq ori(AUX0:Nat | AUX1:Nat) = ori(AUX0:Nat) | ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat | AUX1:Nat) = ori(AUX0:NzNat) | ori(AUX1:Nat) .
+  eq ori(AUX0:Semaphore || AUX1:Nat || AUX2:PSet -ren) = ori(AUX0:Semaphore) || ori(AUX1:Nat) || ori(AUX2:PSet) .
+  eq ori(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(if AUX0:Bool then AUX1:[GlobalState] else AUX2:[GlobalState] fi) = if ori(AUX0:Bool) then ori(AUX1:[GlobalState]) else ori(AUX2:[GlobalState]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Nat] else AUX2:[Nat] fi) = if ori(AUX0:Bool) then ori(AUX1:[Nat]) else ori(AUX2:[Nat]) fi .
+  eq ori(if AUX0:Bool then AUX1:[PSet] else AUX2:[PSet] fi) = if ori(AUX0:Bool) then ori(AUX1:[PSet]) else ori(AUX2:[PSet]) fi .
+  eq ori(if AUX0:Bool then AUX1:[PState] else AUX2:[PState] fi) = if ori(AUX0:Bool) then ori(AUX1:[PState]) else ori(AUX2:[PState]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Semaphore] else AUX2:[Semaphore] fi) = if ori(AUX0:Bool) then ori(AUX1:[Semaphore]) else ori(AUX2:[Semaphore]) fi .
+  eq ori(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(max(AUX0:Nat, AUX1:Nat)) = max(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(max(AUX0:NzNat, AUX1:Nat)) = max(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:Nat, AUX1:Nat)) = min(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:NzNat, AUX1:NzNat)) = min(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(modExp(AUX0:[Nat], AUX1:[Nat], AUX2:[Nat])) = modExp(ori(AUX0:[Nat]), ori(AUX1:[Nat]), ori(AUX2:[Nat])) .
+  eq ori(not AUX0:Bool) = not ori(AUX0:Bool) .
+  eq ori(p AUX0:Nat{AUX1:PState}-ren) = p ori(AUX0:Nat){ori(AUX1:PState)} .
+  eq ori(s AUX0:Nat) = s AUX0:Nat .
+  eq ori(sd(AUX0:Nat, AUX1:Nat)) = sd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq p AUX0:Nat{fail}-ren = (fail).PSet .
+  eq p fail{AUX1:PState}-ren = (fail).PSet .
+  eq ren(0) = 0 .
+  eq ren(critical) = critical-ren .
+  eq ren(empty) = empty-ren .
+  eq ren(entering) = entering-ren .
+  eq ren(exiting) = exiting-ren .
+  eq ren(false) = false .
+  eq ren(idle) = idle-ren .
+  eq ren(true) = true .
+  eq ren(AUX0:Nat & AUX1:Nat) = ren(AUX0:Nat) & ren(AUX1:Nat) .
+  eq ren(AUX0:Nat * AUX1:Nat) = ren(AUX0:Nat) * ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat * AUX1:NzNat) = ren(AUX0:NzNat) * ren(AUX1:NzNat) .
+  eq ren(AUX0:Nat + AUX1:Nat) = ren(AUX0:Nat) + ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat + AUX1:Nat) = ren(AUX0:NzNat) + ren(AUX1:Nat) .
+  eq ren(AUX0:Nat << AUX1:Nat) = ren(AUX0:Nat) << ren(AUX1:Nat) .
+  eq ren(AUX0:Nat <= AUX1:Nat) = ren(AUX0:Nat) <= ren(AUX1:Nat) .
+  eq ren(AUX0:Nat < AUX1:Nat) = ren(AUX0:Nat) < ren(AUX1:Nat) .
+  eq ren(AUX0:[GlobalState] =/= AUX1:[GlobalState]) = ren(AUX0:[GlobalState]) =/= ren(AUX1:[GlobalState]) .
+  eq ren(AUX0:[GlobalState] == AUX1:[GlobalState]) = ren(AUX0:[GlobalState]) == ren(AUX1:[GlobalState]) .
+  eq ren(AUX0:[Nat] == AUX1:[Nat]) = ren(AUX0:[Nat]) == ren(AUX1:[Nat]) .
+  eq ren(AUX0:[PSet] == AUX1:[PSet]) = ren(AUX0:[PSet]) == ren(AUX1:[PSet]) .
+  eq ren(AUX0:[PState] == AUX1:[PState]) = ren(AUX0:[PState]) == ren(AUX1:[PState]) .
+  eq ren(AUX0:[Semaphore] == AUX1:[Semaphore]) = ren(AUX0:[Semaphore]) == ren(AUX1:[Semaphore]) .
+  eq ren(AUX0:Nat >= AUX1:Nat) = ren(AUX0:Nat) >= ren(AUX1:Nat) .
+  eq ren(AUX0:Nat >> AUX1:Nat) = ren(AUX0:Nat) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Nat > AUX1:Nat) = ren(AUX0:Nat) > ren(AUX1:Nat) .
+  eq ren(AUX0:Nat ^ AUX1:Nat) = ren(AUX0:Nat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat ^ AUX1:Nat) = ren(AUX0:NzNat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Bool and AUX1:Bool) = ren(AUX0:Bool) and ren(AUX1:Bool) .
+  eq ren(AUX0:NzNat divides AUX1:Nat) = ren(AUX0:NzNat) divides ren(AUX1:Nat) .
+  eq ren(AUX0:Bool implies AUX1:Bool) = ren(AUX0:Bool) implies ren(AUX1:Bool) .
+  eq ren(AUX0:Bool or AUX1:Bool) = ren(AUX0:Bool) or ren(AUX1:Bool) .
+  eq ren(AUX0:Nat quo AUX1:NzNat) = ren(AUX0:Nat) quo ren(AUX1:NzNat) .
+  eq ren(AUX0:Nat rem AUX1:NzNat) = ren(AUX0:Nat) rem ren(AUX1:NzNat) .
+  eq ren(AUX0:Bool xor AUX1:Bool) = ren(AUX0:Bool) xor ren(AUX1:Bool) .
+  eq ren(AUX0:Nat xor AUX1:Nat) = ren(AUX0:Nat) xor ren(AUX1:Nat) .
+  eq ren(AUX0:Nat | AUX1:Nat) = ren(AUX0:Nat) | ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat | AUX1:Nat) = ren(AUX0:NzNat) | ren(AUX1:Nat) .
+  eq ren(AUX0:Semaphore || AUX1:Nat || AUX2:PSet) = ren(AUX0:Semaphore) || ren(AUX1:Nat) || ren(AUX2:PSet) -ren .
+  eq ren(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(if AUX0:Bool then AUX1:[GlobalState] else AUX2:[GlobalState] fi) = if ren(AUX0:Bool) then ren(AUX1:[GlobalState]) else ren(AUX2:[GlobalState]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Nat] else AUX2:[Nat] fi) = if ren(AUX0:Bool) then ren(AUX1:[Nat]) else ren(AUX2:[Nat]) fi .
+  eq ren(if AUX0:Bool then AUX1:[PSet] else AUX2:[PSet] fi) = if ren(AUX0:Bool) then ren(AUX1:[PSet]) else ren(AUX2:[PSet]) fi .
+  eq ren(if AUX0:Bool then AUX1:[PState] else AUX2:[PState] fi) = if ren(AUX0:Bool) then ren(AUX1:[PState]) else ren(AUX2:[PState]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Semaphore] else AUX2:[Semaphore] fi) = if ren(AUX0:Bool) then ren(AUX1:[Semaphore]) else ren(AUX2:[Semaphore]) fi .
+  eq ren(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(max(AUX0:Nat, AUX1:Nat)) = max(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(max(AUX0:NzNat, AUX1:Nat)) = max(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:Nat, AUX1:Nat)) = min(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:NzNat, AUX1:NzNat)) = min(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(modExp(AUX0:[Nat], AUX1:[Nat], AUX2:[Nat])) = modExp(ren(AUX0:[Nat]), ren(AUX1:[Nat]), ren(AUX2:[Nat])) .
+  eq ren(not AUX0:Bool) = not ren(AUX0:Bool) .
+  eq ren(p AUX0:Nat{AUX1:PState}) = p ren(AUX0:Nat){ren(AUX1:PState)}-ren .
+  eq ren(s AUX0:Nat) = s AUX0:Nat .
+  eq ren(sd(AUX0:Nat, AUX1:Nat)) = sd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  ceq AUX0:PSet fail -ren = (fail).PSet if AUX0:PSet =/= empty-ren .
+  ceq fail AUX1:PSet -ren = (fail).PSet if AUX1:PSet =/= empty-ren .
+  ceq p N:Nat{PS:PState}-ren p N:Nat{PS':PState}-ren -ren = (fail).PSet if not ori(false) .
+  ceq B:Bool || N:Nat || p N:Nat{critical-ren}-ren p M:Nat{critical-ren}-ren -ren -ren = (fail).GlobalState if not ori(false) .
+  ceq false || N:Nat || p N:Nat{entering-ren}-ren PS:PSet -ren -ren = (fail).GlobalState if not ori(true) .
+  ceq ori(AUX0:PSet AUX1:PSet -ren) = ori(AUX0:PSet) ori(AUX1:PSet) if AUX0:PSet =/= empty-ren /\ AUX1:PSet =/= empty-ren .
+  ceq p N:Nat{idle-ren}-ren = (fail).PSet if not ori(N:Nat > 0) .
+  ceq ren(AUX0:PSet AUX1:PSet) = ren(AUX0:PSet) ren(AUX1:PSet) -ren if AUX0:PSet =/= empty /\ AUX1:PSet =/= empty .
+  crl S:Semaphore || Step:Nat || PS:PSet p Id:Nat{critical} => S:Semaphore || Step:Nat + 1 || PS:PSet p Id:Nat{exiting} if ren(S:Semaphore || Step:Nat + 1 || PS:PSet p Id:Nat{exiting}) =/= (fail).GlobalState [ label exiting ] .
+  crl S:Semaphore || Step:Nat || PS:PSet p Id:Nat{exiting} => false || Step:Nat || PS:PSet p Id:Nat{idle} if ren(false || Step:Nat || PS:PSet p Id:Nat{idle}) =/= (fail).GlobalState [ label to_idle ] .
+  crl S:Semaphore || Step:Nat || PS:PSet p Id:Nat{idle} => S:Semaphore || Step:Nat || PS:PSet p Id:Nat{entering} if ren(S:Semaphore || Step:Nat || PS:PSet p Id:Nat{entering}) =/= (fail).GlobalState [ label entering ] .
+  crl S:Semaphore || Step:Nat || PS:PSet p Id:Nat{idle} => S:Semaphore || Step:Nat || PS:PSet p Id:Nat{idle} if ren(S:Semaphore || Step:Nat || PS:PSet p Id:Nat{idle}) =/= (fail).GlobalState [ label keep_idle ] .
+  crl false || Step:Nat || PS:PSet p Id:Nat{entering} => true || Step:Nat || PS:PSet p Id:Nat{critical} if ren(true || Step:Nat || PS:PSet p Id:Nat{critical}) =/= (fail).GlobalState [ label critical ] .
+endm

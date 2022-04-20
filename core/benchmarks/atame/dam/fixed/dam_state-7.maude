@@ -1,0 +1,384 @@
+mod DAM-FIXED is
+  inc BOOL .
+  pr RAT .
+  sorts Aperture DamState Spillway SpillwayId Spillways State TimeStamp .
+  subsort Nat < TimeStamp .
+  subsort Spillway < Spillways .
+  op __ : Spillways Spillways -> Spillways [ assoc comm ctor id: empty ] .
+  op __-ren : Spillways Spillways -> Spillways [ assoc comm ctor id: empty-ren ] .
+  op _in`[_`,_`] : TimeStamp TimeStamp TimeStamp -> Bool .
+  op _in`[_`,_`]-ren : TimeStamp TimeStamp TimeStamp -> Bool .
+  op `[_`,_`] : SpillwayId Aperture -> Spillway [ ctor ] .
+  op `[_`,_`]-ren : SpillwayId Aperture -> Spillway [ ctor ] .
+  op `{_;_;_;_`} : Spillways Rat TimeStamp Bool -> State .
+  op `{_;_;_;_`}-ren : Spillways Rat TimeStamp Bool -> State .
+  op aperture : Aperture -> Rat .
+  op aperture-ren : Aperture -> Rat .
+  op close : -> Aperture [ ctor ] .
+  op close-ren : -> Aperture [ ctor ] .
+  op deltaT : -> TimeStamp .
+  op deltaT-ren : -> TimeStamp .
+  op empty : -> Spillways [ ctor ] .
+  op empty-ren : -> Spillways [ ctor ] .
+  op fail : -> Universal [ poly (0) ] .
+  op inflow : -> Rat .
+  op inflow-ren : -> Rat .
+  op open1 : -> Aperture [ ctor ] .
+  op open1-ren : -> Aperture [ ctor ] .
+  op open2 : -> Aperture [ ctor ] .
+  op open2-ren : -> Aperture [ ctor ] .
+  op open3 : -> Aperture [ ctor ] .
+  op open3-ren : -> Aperture [ ctor ] .
+  op openSpillways : Spillways -> Nat .
+  op openSpillways-ren : Spillways -> Nat .
+  op ori : Universal -> Universal [ memo strat (0) poly (1 0) ] .
+  op outflow : Spillways -> Rat .
+  op outflow-ren : Spillways -> Rat .
+  op ren : Universal -> Universal [ memo strat (1 0) poly (1 0) ] .
+  op s1 : -> SpillwayId [ ctor ] .
+  op s1-ren : -> SpillwayId [ ctor ] .
+  op s2 : -> SpillwayId [ ctor ] .
+  op s2-ren : -> SpillwayId [ ctor ] .
+  op s3 : -> SpillwayId [ ctor ] .
+  op s3-ren : -> SpillwayId [ ctor ] .
+  eq deltaT = 5 .
+  eq inflow = 2000 .
+  eq T:TimeStamp in[T1:TimeStamp,T2:TimeStamp] = T:TimeStamp <= T2:TimeStamp and T:TimeStamp >= T1:TimeStamp .
+  eq AUX0:TimeStamp in[AUX1:TimeStamp,fail]-ren = (fail).Bool .
+  eq AUX0:TimeStamp in[fail,AUX2:TimeStamp]-ren = (fail).Bool .
+  eq fail in[AUX1:TimeStamp,AUX2:TimeStamp]-ren = (fail).Bool .
+  eq [AUX0:SpillwayId,fail]-ren = (fail).Spillways .
+  eq [fail,AUX1:Aperture]-ren = (fail).Spillways .
+  eq {AUX0:Spillways ; AUX1:Rat ; AUX2:TimeStamp ; fail}-ren = (fail).State .
+  eq {AUX0:Spillways ; AUX1:Rat ; fail ; AUX3:Bool}-ren = (fail).State .
+  eq {AUX0:Spillways ; fail ; AUX2:TimeStamp ; AUX3:Bool}-ren = (fail).State .
+  eq {fail ; AUX1:Rat ; AUX2:TimeStamp ; AUX3:Bool}-ren = (fail).State .
+  eq aperture(close) = 0 .
+  eq aperture(open1) = 200 .
+  eq aperture(open2) = 400 .
+  eq aperture(open3) = 1200 .
+  eq aperture-ren(fail) = (fail).Rat .
+  eq openSpillways(empty) = 0 .
+  eq openSpillways(SC:Spillways [S:SpillwayId,O:Aperture]) = if O:Aperture =/= close then 1 + openSpillways(SC:Spillways) else openSpillways(SC:Spillways) fi .
+  eq openSpillways-ren(fail) = (fail).Rat .
+  eq ori(0) = 0 .
+  eq ori(close-ren) = close .
+  eq ori(deltaT-ren) = deltaT .
+  eq ori(empty-ren) = empty .
+  eq ori(false) = false .
+  eq ori(inflow-ren) = inflow .
+  eq ori(open1-ren) = open1 .
+  eq ori(open2-ren) = open2 .
+  eq ori(open3-ren) = open3 .
+  eq ori(s1-ren) = s1 .
+  eq ori(s2-ren) = s2 .
+  eq ori(s3-ren) = s3 .
+  eq ori(true) = true .
+  eq ori(- AUX0:Int) = - ori(AUX0:Int) .
+  eq ori(- AUX0:NzInt) = - ori(AUX0:NzInt) .
+  eq ori(- AUX0:NzNat) = - ori(AUX0:NzNat) .
+  eq ori(- AUX0:NzRat) = - ori(AUX0:NzRat) .
+  eq ori(- AUX0:Rat) = - ori(AUX0:Rat) .
+  eq ori(AUX0:Int & AUX1:Int) = ori(AUX0:Int) & ori(AUX1:Int) .
+  eq ori(AUX0:Nat & AUX1:Int) = ori(AUX0:Nat) & ori(AUX1:Int) .
+  eq ori(AUX0:Nat & AUX1:Nat) = ori(AUX0:Nat) & ori(AUX1:Nat) .
+  eq ori(AUX0:Int * AUX1:Int) = ori(AUX0:Int) * ori(AUX1:Int) .
+  eq ori(AUX0:Nat * AUX1:Nat) = ori(AUX0:Nat) * ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt * AUX1:NzInt) = ori(AUX0:NzInt) * ori(AUX1:NzInt) .
+  eq ori(AUX0:NzNat * AUX1:NzNat) = ori(AUX0:NzNat) * ori(AUX1:NzNat) .
+  eq ori(AUX0:NzRat * AUX1:NzRat) = ori(AUX0:NzRat) * ori(AUX1:NzRat) .
+  eq ori(AUX0:PosRat * AUX1:PosRat) = ori(AUX0:PosRat) * ori(AUX1:PosRat) .
+  eq ori(AUX0:Rat * AUX1:Rat) = ori(AUX0:Rat) * ori(AUX1:Rat) .
+  eq ori(AUX0:Int + AUX1:Int) = ori(AUX0:Int) + ori(AUX1:Int) .
+  eq ori(AUX0:Nat + AUX1:Nat) = ori(AUX0:Nat) + ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat + AUX1:Nat) = ori(AUX0:NzNat) + ori(AUX1:Nat) .
+  eq ori(AUX0:PosRat + AUX1:Nat) = ori(AUX0:PosRat) + ori(AUX1:Nat) .
+  eq ori(AUX0:PosRat + AUX1:PosRat) = ori(AUX0:PosRat) + ori(AUX1:PosRat) .
+  eq ori(AUX0:Rat + AUX1:Rat) = ori(AUX0:Rat) + ori(AUX1:Rat) .
+  eq ori(AUX0:Int - AUX1:Int) = ori(AUX0:Int) - ori(AUX1:Int) .
+  eq ori(AUX0:Rat - AUX1:Rat) = ori(AUX0:Rat) - ori(AUX1:Rat) .
+  eq ori(AUX0:NzInt / AUX1:NzNat) = ori(AUX0:NzInt) / ori(AUX1:NzNat) .
+  eq ori(AUX0:NzNat / AUX1:NzNat) = ori(AUX0:NzNat) / ori(AUX1:NzNat) .
+  eq ori(AUX0:NzRat / AUX1:NzRat) = ori(AUX0:NzRat) / ori(AUX1:NzRat) .
+  eq ori(AUX0:PosRat / AUX1:PosRat) = ori(AUX0:PosRat) / ori(AUX1:PosRat) .
+  eq ori(AUX0:Rat / AUX1:NzRat) = ori(AUX0:Rat) / ori(AUX1:NzRat) .
+  eq ori(AUX0:Int << AUX1:Nat) = ori(AUX0:Int) << ori(AUX1:Nat) .
+  eq ori(AUX0:Nat << AUX1:Nat) = ori(AUX0:Nat) << ori(AUX1:Nat) .
+  eq ori(AUX0:Int <= AUX1:Int) = ori(AUX0:Int) <= ori(AUX1:Int) .
+  eq ori(AUX0:Nat <= AUX1:Nat) = ori(AUX0:Nat) <= ori(AUX1:Nat) .
+  eq ori(AUX0:Rat <= AUX1:Rat) = ori(AUX0:Rat) <= ori(AUX1:Rat) .
+  eq ori(AUX0:Int < AUX1:Int) = ori(AUX0:Int) < ori(AUX1:Int) .
+  eq ori(AUX0:Nat < AUX1:Nat) = ori(AUX0:Nat) < ori(AUX1:Nat) .
+  eq ori(AUX0:Rat < AUX1:Rat) = ori(AUX0:Rat) < ori(AUX1:Rat) .
+  eq ori(AUX0:[Aperture] =/= AUX1:[Aperture]) = ori(AUX0:[Aperture]) =/= ori(AUX1:[Aperture]) .
+  eq ori(AUX0:[Aperture] == AUX1:[Aperture]) = ori(AUX0:[Aperture]) == ori(AUX1:[Aperture]) .
+  eq ori(AUX0:[Bool] == AUX1:[Bool]) = ori(AUX0:[Bool]) == ori(AUX1:[Bool]) .
+  eq ori(AUX0:[DamState] == AUX1:[DamState]) = ori(AUX0:[DamState]) == ori(AUX1:[DamState]) .
+  eq ori(AUX0:[Rat,TimeStamp] == AUX1:[Rat,TimeStamp]) = ori(AUX0:[Rat,TimeStamp]) == ori(AUX1:[Rat,TimeStamp]) .
+  eq ori(AUX0:[SpillwayId] == AUX1:[SpillwayId]) = ori(AUX0:[SpillwayId]) == ori(AUX1:[SpillwayId]) .
+  eq ori(AUX0:[Spillways] == AUX1:[Spillways]) = ori(AUX0:[Spillways]) == ori(AUX1:[Spillways]) .
+  eq ori(AUX0:[State] == AUX1:[State]) = ori(AUX0:[State]) == ori(AUX1:[State]) .
+  eq ori(AUX0:Int >= AUX1:Int) = ori(AUX0:Int) >= ori(AUX1:Int) .
+  eq ori(AUX0:Nat >= AUX1:Nat) = ori(AUX0:Nat) >= ori(AUX1:Nat) .
+  eq ori(AUX0:Rat >= AUX1:Rat) = ori(AUX0:Rat) >= ori(AUX1:Rat) .
+  eq ori(AUX0:Int >> AUX1:Nat) = ori(AUX0:Int) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Nat >> AUX1:Nat) = ori(AUX0:Nat) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Int > AUX1:Int) = ori(AUX0:Int) > ori(AUX1:Int) .
+  eq ori(AUX0:Nat > AUX1:Nat) = ori(AUX0:Nat) > ori(AUX1:Nat) .
+  eq ori(AUX0:Rat > AUX1:Rat) = ori(AUX0:Rat) > ori(AUX1:Rat) .
+  eq ori(AUX0:Int ^ AUX1:Nat) = ori(AUX0:Int) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Nat ^ AUX1:Nat) = ori(AUX0:Nat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt ^ AUX1:Nat) = ori(AUX0:NzInt) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat ^ AUX1:Nat) = ori(AUX0:NzNat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzRat ^ AUX1:Nat) = ori(AUX0:NzRat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:PosRat ^ AUX1:Nat) = ori(AUX0:PosRat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Rat ^ AUX1:Nat) = ori(AUX0:Rat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Bool and AUX1:Bool) = ori(AUX0:Bool) and ori(AUX1:Bool) .
+  eq ori(AUX0:NzInt divides AUX1:Int) = ori(AUX0:NzInt) divides ori(AUX1:Int) .
+  eq ori(AUX0:NzNat divides AUX1:Nat) = ori(AUX0:NzNat) divides ori(AUX1:Nat) .
+  eq ori(AUX0:NzRat divides AUX1:Rat) = ori(AUX0:NzRat) divides ori(AUX1:Rat) .
+  eq ori(AUX0:Bool implies AUX1:Bool) = ori(AUX0:Bool) implies ori(AUX1:Bool) .
+  eq ori(AUX0:TimeStamp in[AUX1:TimeStamp,AUX2:TimeStamp]-ren) = ori(AUX0:TimeStamp) in[ori(AUX1:TimeStamp),ori(AUX2:TimeStamp)] .
+  eq ori(AUX0:Bool or AUX1:Bool) = ori(AUX0:Bool) or ori(AUX1:Bool) .
+  eq ori(AUX0:Int quo AUX1:NzInt) = ori(AUX0:Int) quo ori(AUX1:NzInt) .
+  eq ori(AUX0:Nat quo AUX1:NzNat) = ori(AUX0:Nat) quo ori(AUX1:NzNat) .
+  eq ori(AUX0:PosRat quo AUX1:PosRat) = ori(AUX0:PosRat) quo ori(AUX1:PosRat) .
+  eq ori(AUX0:Rat quo AUX1:NzRat) = ori(AUX0:Rat) quo ori(AUX1:NzRat) .
+  eq ori(AUX0:Int rem AUX1:NzInt) = ori(AUX0:Int) rem ori(AUX1:NzInt) .
+  eq ori(AUX0:Nat rem AUX1:NzNat) = ori(AUX0:Nat) rem ori(AUX1:NzNat) .
+  eq ori(AUX0:Rat rem AUX1:NzRat) = ori(AUX0:Rat) rem ori(AUX1:NzRat) .
+  eq ori(AUX0:Bool xor AUX1:Bool) = ori(AUX0:Bool) xor ori(AUX1:Bool) .
+  eq ori(AUX0:Int xor AUX1:Int) = ori(AUX0:Int) xor ori(AUX1:Int) .
+  eq ori(AUX0:Nat xor AUX1:Nat) = ori(AUX0:Nat) xor ori(AUX1:Nat) .
+  eq ori(AUX0:Int | AUX1:Int) = ori(AUX0:Int) | ori(AUX1:Int) .
+  eq ori(AUX0:Nat | AUX1:Nat) = ori(AUX0:Nat) | ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt | AUX1:Int) = ori(AUX0:NzInt) | ori(AUX1:Int) .
+  eq ori(AUX0:NzNat | AUX1:Nat) = ori(AUX0:NzNat) | ori(AUX1:Nat) .
+  eq ori([AUX0:SpillwayId,AUX1:Aperture]-ren) = [ori(AUX0:SpillwayId),ori(AUX1:Aperture)] .
+  eq ori({AUX0:Spillways ; AUX1:Rat ; AUX2:TimeStamp ; AUX3:Bool}-ren) = {ori(AUX0:Spillways) ; ori(AUX1:Rat) ; ori(AUX2:TimeStamp) ; ori(AUX3:Bool)} .
+  eq ori(abs(AUX0:Int)) = abs(ori(AUX0:Int)) .
+  eq ori(abs(AUX0:NzInt)) = abs(ori(AUX0:NzInt)) .
+  eq ori(abs(AUX0:NzRat)) = abs(ori(AUX0:NzRat)) .
+  eq ori(abs(AUX0:Rat)) = abs(ori(AUX0:Rat)) .
+  eq ori(aperture-ren(AUX0:Aperture)) = aperture(ori(AUX0:Aperture)) .
+  eq ori(ceiling(AUX0:PosRat)) = ceiling(ori(AUX0:PosRat)) .
+  eq ori(ceiling(AUX0:Rat)) = ceiling(ori(AUX0:Rat)) .
+  eq ori(floor(AUX0:PosRat)) = floor(ori(AUX0:PosRat)) .
+  eq ori(floor(AUX0:Rat)) = floor(ori(AUX0:Rat)) .
+  eq ori(frac(AUX0:Rat)) = frac(ori(AUX0:Rat)) .
+  eq ori(gcd(AUX0:Int, AUX1:Int)) = gcd(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(gcd(AUX0:NzInt, AUX1:Int)) = gcd(ori(AUX0:NzInt), ori(AUX1:Int)) .
+  eq ori(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(gcd(AUX0:NzRat, AUX1:Rat)) = gcd(ori(AUX0:NzRat), ori(AUX1:Rat)) .
+  eq ori(gcd(AUX0:Rat, AUX1:Rat)) = gcd(ori(AUX0:Rat), ori(AUX1:Rat)) .
+  eq ori(if AUX0:Bool then AUX1:[Aperture] else AUX2:[Aperture] fi) = if ori(AUX0:Bool) then ori(AUX1:[Aperture]) else ori(AUX2:[Aperture]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ori(AUX0:Bool) then ori(AUX1:[Bool]) else ori(AUX2:[Bool]) fi .
+  eq ori(if AUX0:Bool then AUX1:[DamState] else AUX2:[DamState] fi) = if ori(AUX0:Bool) then ori(AUX1:[DamState]) else ori(AUX2:[DamState]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Rat,TimeStamp] else AUX2:[Rat,TimeStamp] fi) = if ori(AUX0:Bool) then ori(AUX1:[Rat,TimeStamp]) else ori(AUX2:[Rat,TimeStamp]) fi .
+  eq ori(if AUX0:Bool then AUX1:[SpillwayId] else AUX2:[SpillwayId] fi) = if ori(AUX0:Bool) then ori(AUX1:[SpillwayId]) else ori(AUX2:[SpillwayId]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Spillways] else AUX2:[Spillways] fi) = if ori(AUX0:Bool) then ori(AUX1:[Spillways]) else ori(AUX2:[Spillways]) fi .
+  eq ori(if AUX0:Bool then AUX1:[State] else AUX2:[State] fi) = if ori(AUX0:Bool) then ori(AUX1:[State]) else ori(AUX2:[State]) fi .
+  eq ori(lcm(AUX0:Int, AUX1:Int)) = lcm(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(lcm(AUX0:NzInt, AUX1:NzInt)) = lcm(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(lcm(AUX0:NzRat, AUX1:NzRat)) = lcm(ori(AUX0:NzRat), ori(AUX1:NzRat)) .
+  eq ori(lcm(AUX0:Rat, AUX1:Rat)) = lcm(ori(AUX0:Rat), ori(AUX1:Rat)) .
+  eq ori(max(AUX0:Int, AUX1:Int)) = max(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(max(AUX0:Nat, AUX1:Int)) = max(ori(AUX0:Nat), ori(AUX1:Int)) .
+  eq ori(max(AUX0:Nat, AUX1:Nat)) = max(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(max(AUX0:NzInt, AUX1:NzInt)) = max(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(max(AUX0:NzNat, AUX1:Int)) = max(ori(AUX0:NzNat), ori(AUX1:Int)) .
+  eq ori(max(AUX0:NzNat, AUX1:Nat)) = max(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(max(AUX0:NzRat, AUX1:NzRat)) = max(ori(AUX0:NzRat), ori(AUX1:NzRat)) .
+  eq ori(max(AUX0:PosRat, AUX1:Rat)) = max(ori(AUX0:PosRat), ori(AUX1:Rat)) .
+  eq ori(max(AUX0:Rat, AUX1:Rat)) = max(ori(AUX0:Rat), ori(AUX1:Rat)) .
+  eq ori(min(AUX0:Int, AUX1:Int)) = min(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(min(AUX0:Nat, AUX1:Nat)) = min(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:NzInt, AUX1:NzInt)) = min(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(min(AUX0:NzNat, AUX1:NzNat)) = min(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(min(AUX0:NzRat, AUX1:NzRat)) = min(ori(AUX0:NzRat), ori(AUX1:NzRat)) .
+  eq ori(min(AUX0:PosRat, AUX1:PosRat)) = min(ori(AUX0:PosRat), ori(AUX1:PosRat)) .
+  eq ori(min(AUX0:Rat, AUX1:Rat)) = min(ori(AUX0:Rat), ori(AUX1:Rat)) .
+  eq ori(modExp(AUX0:[Rat,TimeStamp], AUX1:[Rat,TimeStamp], AUX2:[Rat,TimeStamp])) = modExp(ori(AUX0:[Rat,TimeStamp]), ori(AUX1:[Rat,TimeStamp]), ori(AUX2:[Rat,TimeStamp])) .
+  eq ori(not AUX0:Bool) = not ori(AUX0:Bool) .
+  eq ori(openSpillways-ren(AUX0:Spillways)) = openSpillways(ori(AUX0:Spillways)) .
+  eq ori(outflow-ren(AUX0:Spillways)) = outflow(ori(AUX0:Spillways)) .
+  eq ori(s AUX0:Nat) = s AUX0:Nat .
+  eq ori(sd(AUX0:Nat, AUX1:Nat)) = sd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(trunc(AUX0:PosRat)) = trunc(ori(AUX0:PosRat)) .
+  eq ori(trunc(AUX0:Rat)) = trunc(ori(AUX0:Rat)) .
+  eq ori(~ AUX0:Int) = ~ ori(AUX0:Int) .
+  eq outflow(empty) = 0 .
+  eq outflow(SC:Spillways [S:SpillwayId,O:Aperture]) = aperture(O:Aperture) + outflow(SC:Spillways) .
+  eq outflow-ren(fail) = (fail).Rat .
+  eq ren(0) = 0 .
+  eq ren(close) = close-ren .
+  eq ren(deltaT) = deltaT-ren .
+  eq ren(empty) = empty-ren .
+  eq ren(false) = false .
+  eq ren(inflow) = inflow-ren .
+  eq ren(open1) = open1-ren .
+  eq ren(open2) = open2-ren .
+  eq ren(open3) = open3-ren .
+  eq ren(s1) = s1-ren .
+  eq ren(s2) = s2-ren .
+  eq ren(s3) = s3-ren .
+  eq ren(true) = true .
+  eq ren(- AUX0:Int) = - ren(AUX0:Int) .
+  eq ren(- AUX0:NzInt) = - ren(AUX0:NzInt) .
+  eq ren(- AUX0:NzNat) = - ren(AUX0:NzNat) .
+  eq ren(- AUX0:NzRat) = - ren(AUX0:NzRat) .
+  eq ren(- AUX0:Rat) = - ren(AUX0:Rat) .
+  eq ren(AUX0:Int & AUX1:Int) = ren(AUX0:Int) & ren(AUX1:Int) .
+  eq ren(AUX0:Nat & AUX1:Int) = ren(AUX0:Nat) & ren(AUX1:Int) .
+  eq ren(AUX0:Nat & AUX1:Nat) = ren(AUX0:Nat) & ren(AUX1:Nat) .
+  eq ren(AUX0:Int * AUX1:Int) = ren(AUX0:Int) * ren(AUX1:Int) .
+  eq ren(AUX0:Nat * AUX1:Nat) = ren(AUX0:Nat) * ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt * AUX1:NzInt) = ren(AUX0:NzInt) * ren(AUX1:NzInt) .
+  eq ren(AUX0:NzNat * AUX1:NzNat) = ren(AUX0:NzNat) * ren(AUX1:NzNat) .
+  eq ren(AUX0:NzRat * AUX1:NzRat) = ren(AUX0:NzRat) * ren(AUX1:NzRat) .
+  eq ren(AUX0:PosRat * AUX1:PosRat) = ren(AUX0:PosRat) * ren(AUX1:PosRat) .
+  eq ren(AUX0:Rat * AUX1:Rat) = ren(AUX0:Rat) * ren(AUX1:Rat) .
+  eq ren(AUX0:Int + AUX1:Int) = ren(AUX0:Int) + ren(AUX1:Int) .
+  eq ren(AUX0:Nat + AUX1:Nat) = ren(AUX0:Nat) + ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat + AUX1:Nat) = ren(AUX0:NzNat) + ren(AUX1:Nat) .
+  eq ren(AUX0:PosRat + AUX1:Nat) = ren(AUX0:PosRat) + ren(AUX1:Nat) .
+  eq ren(AUX0:PosRat + AUX1:PosRat) = ren(AUX0:PosRat) + ren(AUX1:PosRat) .
+  eq ren(AUX0:Rat + AUX1:Rat) = ren(AUX0:Rat) + ren(AUX1:Rat) .
+  eq ren(AUX0:Int - AUX1:Int) = ren(AUX0:Int) - ren(AUX1:Int) .
+  eq ren(AUX0:Rat - AUX1:Rat) = ren(AUX0:Rat) - ren(AUX1:Rat) .
+  eq ren(AUX0:NzInt / AUX1:NzNat) = ren(AUX0:NzInt) / ren(AUX1:NzNat) .
+  eq ren(AUX0:NzNat / AUX1:NzNat) = ren(AUX0:NzNat) / ren(AUX1:NzNat) .
+  eq ren(AUX0:NzRat / AUX1:NzRat) = ren(AUX0:NzRat) / ren(AUX1:NzRat) .
+  eq ren(AUX0:PosRat / AUX1:PosRat) = ren(AUX0:PosRat) / ren(AUX1:PosRat) .
+  eq ren(AUX0:Rat / AUX1:NzRat) = ren(AUX0:Rat) / ren(AUX1:NzRat) .
+  eq ren(AUX0:Int << AUX1:Nat) = ren(AUX0:Int) << ren(AUX1:Nat) .
+  eq ren(AUX0:Nat << AUX1:Nat) = ren(AUX0:Nat) << ren(AUX1:Nat) .
+  eq ren(AUX0:Int <= AUX1:Int) = ren(AUX0:Int) <= ren(AUX1:Int) .
+  eq ren(AUX0:Nat <= AUX1:Nat) = ren(AUX0:Nat) <= ren(AUX1:Nat) .
+  eq ren(AUX0:Rat <= AUX1:Rat) = ren(AUX0:Rat) <= ren(AUX1:Rat) .
+  eq ren(AUX0:Int < AUX1:Int) = ren(AUX0:Int) < ren(AUX1:Int) .
+  eq ren(AUX0:Nat < AUX1:Nat) = ren(AUX0:Nat) < ren(AUX1:Nat) .
+  eq ren(AUX0:Rat < AUX1:Rat) = ren(AUX0:Rat) < ren(AUX1:Rat) .
+  eq ren(AUX0:[Aperture] =/= AUX1:[Aperture]) = ren(AUX0:[Aperture]) =/= ren(AUX1:[Aperture]) .
+  eq ren(AUX0:[Aperture] == AUX1:[Aperture]) = ren(AUX0:[Aperture]) == ren(AUX1:[Aperture]) .
+  eq ren(AUX0:[Bool] == AUX1:[Bool]) = ren(AUX0:[Bool]) == ren(AUX1:[Bool]) .
+  eq ren(AUX0:[DamState] == AUX1:[DamState]) = ren(AUX0:[DamState]) == ren(AUX1:[DamState]) .
+  eq ren(AUX0:[Rat,TimeStamp] == AUX1:[Rat,TimeStamp]) = ren(AUX0:[Rat,TimeStamp]) == ren(AUX1:[Rat,TimeStamp]) .
+  eq ren(AUX0:[SpillwayId] == AUX1:[SpillwayId]) = ren(AUX0:[SpillwayId]) == ren(AUX1:[SpillwayId]) .
+  eq ren(AUX0:[Spillways] == AUX1:[Spillways]) = ren(AUX0:[Spillways]) == ren(AUX1:[Spillways]) .
+  eq ren(AUX0:[State] == AUX1:[State]) = ren(AUX0:[State]) == ren(AUX1:[State]) .
+  eq ren(AUX0:Int >= AUX1:Int) = ren(AUX0:Int) >= ren(AUX1:Int) .
+  eq ren(AUX0:Nat >= AUX1:Nat) = ren(AUX0:Nat) >= ren(AUX1:Nat) .
+  eq ren(AUX0:Rat >= AUX1:Rat) = ren(AUX0:Rat) >= ren(AUX1:Rat) .
+  eq ren(AUX0:Int >> AUX1:Nat) = ren(AUX0:Int) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Nat >> AUX1:Nat) = ren(AUX0:Nat) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Int > AUX1:Int) = ren(AUX0:Int) > ren(AUX1:Int) .
+  eq ren(AUX0:Nat > AUX1:Nat) = ren(AUX0:Nat) > ren(AUX1:Nat) .
+  eq ren(AUX0:Rat > AUX1:Rat) = ren(AUX0:Rat) > ren(AUX1:Rat) .
+  eq ren(AUX0:Int ^ AUX1:Nat) = ren(AUX0:Int) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Nat ^ AUX1:Nat) = ren(AUX0:Nat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt ^ AUX1:Nat) = ren(AUX0:NzInt) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat ^ AUX1:Nat) = ren(AUX0:NzNat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzRat ^ AUX1:Nat) = ren(AUX0:NzRat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:PosRat ^ AUX1:Nat) = ren(AUX0:PosRat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Rat ^ AUX1:Nat) = ren(AUX0:Rat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Bool and AUX1:Bool) = ren(AUX0:Bool) and ren(AUX1:Bool) .
+  eq ren(AUX0:NzInt divides AUX1:Int) = ren(AUX0:NzInt) divides ren(AUX1:Int) .
+  eq ren(AUX0:NzNat divides AUX1:Nat) = ren(AUX0:NzNat) divides ren(AUX1:Nat) .
+  eq ren(AUX0:NzRat divides AUX1:Rat) = ren(AUX0:NzRat) divides ren(AUX1:Rat) .
+  eq ren(AUX0:Bool implies AUX1:Bool) = ren(AUX0:Bool) implies ren(AUX1:Bool) .
+  eq ren(AUX0:TimeStamp in[AUX1:TimeStamp,AUX2:TimeStamp]) = ren(AUX0:TimeStamp) in[ren(AUX1:TimeStamp),ren(AUX2:TimeStamp)]-ren .
+  eq ren(AUX0:Bool or AUX1:Bool) = ren(AUX0:Bool) or ren(AUX1:Bool) .
+  eq ren(AUX0:Int quo AUX1:NzInt) = ren(AUX0:Int) quo ren(AUX1:NzInt) .
+  eq ren(AUX0:Nat quo AUX1:NzNat) = ren(AUX0:Nat) quo ren(AUX1:NzNat) .
+  eq ren(AUX0:PosRat quo AUX1:PosRat) = ren(AUX0:PosRat) quo ren(AUX1:PosRat) .
+  eq ren(AUX0:Rat quo AUX1:NzRat) = ren(AUX0:Rat) quo ren(AUX1:NzRat) .
+  eq ren(AUX0:Int rem AUX1:NzInt) = ren(AUX0:Int) rem ren(AUX1:NzInt) .
+  eq ren(AUX0:Nat rem AUX1:NzNat) = ren(AUX0:Nat) rem ren(AUX1:NzNat) .
+  eq ren(AUX0:Rat rem AUX1:NzRat) = ren(AUX0:Rat) rem ren(AUX1:NzRat) .
+  eq ren(AUX0:Bool xor AUX1:Bool) = ren(AUX0:Bool) xor ren(AUX1:Bool) .
+  eq ren(AUX0:Int xor AUX1:Int) = ren(AUX0:Int) xor ren(AUX1:Int) .
+  eq ren(AUX0:Nat xor AUX1:Nat) = ren(AUX0:Nat) xor ren(AUX1:Nat) .
+  eq ren(AUX0:Int | AUX1:Int) = ren(AUX0:Int) | ren(AUX1:Int) .
+  eq ren(AUX0:Nat | AUX1:Nat) = ren(AUX0:Nat) | ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt | AUX1:Int) = ren(AUX0:NzInt) | ren(AUX1:Int) .
+  eq ren(AUX0:NzNat | AUX1:Nat) = ren(AUX0:NzNat) | ren(AUX1:Nat) .
+  eq ren([AUX0:SpillwayId,AUX1:Aperture]) = [ren(AUX0:SpillwayId),ren(AUX1:Aperture)]-ren .
+  eq ren({AUX0:Spillways ; AUX1:Rat ; AUX2:TimeStamp ; AUX3:Bool}) = {ren(AUX0:Spillways) ; ren(AUX1:Rat) ; ren(AUX2:TimeStamp) ; ren(AUX3:Bool)}-ren .
+  eq ren(abs(AUX0:Int)) = abs(ren(AUX0:Int)) .
+  eq ren(abs(AUX0:NzInt)) = abs(ren(AUX0:NzInt)) .
+  eq ren(abs(AUX0:NzRat)) = abs(ren(AUX0:NzRat)) .
+  eq ren(abs(AUX0:Rat)) = abs(ren(AUX0:Rat)) .
+  eq ren(aperture(AUX0:Aperture)) = aperture-ren(ren(AUX0:Aperture)) .
+  eq ren(ceiling(AUX0:PosRat)) = ceiling(ren(AUX0:PosRat)) .
+  eq ren(ceiling(AUX0:Rat)) = ceiling(ren(AUX0:Rat)) .
+  eq ren(floor(AUX0:PosRat)) = floor(ren(AUX0:PosRat)) .
+  eq ren(floor(AUX0:Rat)) = floor(ren(AUX0:Rat)) .
+  eq ren(frac(AUX0:Rat)) = frac(ren(AUX0:Rat)) .
+  eq ren(gcd(AUX0:Int, AUX1:Int)) = gcd(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(gcd(AUX0:NzInt, AUX1:Int)) = gcd(ren(AUX0:NzInt), ren(AUX1:Int)) .
+  eq ren(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(gcd(AUX0:NzRat, AUX1:Rat)) = gcd(ren(AUX0:NzRat), ren(AUX1:Rat)) .
+  eq ren(gcd(AUX0:Rat, AUX1:Rat)) = gcd(ren(AUX0:Rat), ren(AUX1:Rat)) .
+  eq ren(if AUX0:Bool then AUX1:[Aperture] else AUX2:[Aperture] fi) = if ren(AUX0:Bool) then ren(AUX1:[Aperture]) else ren(AUX2:[Aperture]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ren(AUX0:Bool) then ren(AUX1:[Bool]) else ren(AUX2:[Bool]) fi .
+  eq ren(if AUX0:Bool then AUX1:[DamState] else AUX2:[DamState] fi) = if ren(AUX0:Bool) then ren(AUX1:[DamState]) else ren(AUX2:[DamState]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Rat,TimeStamp] else AUX2:[Rat,TimeStamp] fi) = if ren(AUX0:Bool) then ren(AUX1:[Rat,TimeStamp]) else ren(AUX2:[Rat,TimeStamp]) fi .
+  eq ren(if AUX0:Bool then AUX1:[SpillwayId] else AUX2:[SpillwayId] fi) = if ren(AUX0:Bool) then ren(AUX1:[SpillwayId]) else ren(AUX2:[SpillwayId]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Spillways] else AUX2:[Spillways] fi) = if ren(AUX0:Bool) then ren(AUX1:[Spillways]) else ren(AUX2:[Spillways]) fi .
+  eq ren(if AUX0:Bool then AUX1:[State] else AUX2:[State] fi) = if ren(AUX0:Bool) then ren(AUX1:[State]) else ren(AUX2:[State]) fi .
+  eq ren(lcm(AUX0:Int, AUX1:Int)) = lcm(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(lcm(AUX0:NzInt, AUX1:NzInt)) = lcm(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(lcm(AUX0:NzRat, AUX1:NzRat)) = lcm(ren(AUX0:NzRat), ren(AUX1:NzRat)) .
+  eq ren(lcm(AUX0:Rat, AUX1:Rat)) = lcm(ren(AUX0:Rat), ren(AUX1:Rat)) .
+  eq ren(max(AUX0:Int, AUX1:Int)) = max(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(max(AUX0:Nat, AUX1:Int)) = max(ren(AUX0:Nat), ren(AUX1:Int)) .
+  eq ren(max(AUX0:Nat, AUX1:Nat)) = max(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(max(AUX0:NzInt, AUX1:NzInt)) = max(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(max(AUX0:NzNat, AUX1:Int)) = max(ren(AUX0:NzNat), ren(AUX1:Int)) .
+  eq ren(max(AUX0:NzNat, AUX1:Nat)) = max(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(max(AUX0:NzRat, AUX1:NzRat)) = max(ren(AUX0:NzRat), ren(AUX1:NzRat)) .
+  eq ren(max(AUX0:PosRat, AUX1:Rat)) = max(ren(AUX0:PosRat), ren(AUX1:Rat)) .
+  eq ren(max(AUX0:Rat, AUX1:Rat)) = max(ren(AUX0:Rat), ren(AUX1:Rat)) .
+  eq ren(min(AUX0:Int, AUX1:Int)) = min(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(min(AUX0:Nat, AUX1:Nat)) = min(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:NzInt, AUX1:NzInt)) = min(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(min(AUX0:NzNat, AUX1:NzNat)) = min(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(min(AUX0:NzRat, AUX1:NzRat)) = min(ren(AUX0:NzRat), ren(AUX1:NzRat)) .
+  eq ren(min(AUX0:PosRat, AUX1:PosRat)) = min(ren(AUX0:PosRat), ren(AUX1:PosRat)) .
+  eq ren(min(AUX0:Rat, AUX1:Rat)) = min(ren(AUX0:Rat), ren(AUX1:Rat)) .
+  eq ren(modExp(AUX0:[Rat,TimeStamp], AUX1:[Rat,TimeStamp], AUX2:[Rat,TimeStamp])) = modExp(ren(AUX0:[Rat,TimeStamp]), ren(AUX1:[Rat,TimeStamp]), ren(AUX2:[Rat,TimeStamp])) .
+  eq ren(not AUX0:Bool) = not ren(AUX0:Bool) .
+  eq ren(openSpillways(AUX0:Spillways)) = openSpillways-ren(ren(AUX0:Spillways)) .
+  eq ren(outflow(AUX0:Spillways)) = outflow-ren(ren(AUX0:Spillways)) .
+  eq ren(s AUX0:Nat) = s AUX0:Nat .
+  eq ren(sd(AUX0:Nat, AUX1:Nat)) = sd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(trunc(AUX0:PosRat)) = trunc(ren(AUX0:PosRat)) .
+  eq ren(trunc(AUX0:Rat)) = trunc(ren(AUX0:Rat)) .
+  eq ren(~ AUX0:Int) = ~ ren(AUX0:Int) .
+  ceq AUX0:Spillways fail -ren = (fail).Spillways if AUX0:Spillways =/= empty-ren .
+  ceq fail AUX1:Spillways -ren = (fail).Spillways if AUX1:Spillways =/= empty-ren .
+  ceq {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool}-ren = (fail).State if not ori(V:Rat < 50000000) .
+  ceq {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool}-ren = (fail).State if not ori(V:Rat < 10000000 implies openSpillways-ren(SC:Spillways) == 0) .
+  ceq {SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool}-ren = (fail).State if not ori(V:Rat <= 40000000 and V:Rat >= 10000000 implies openSpillways-ren(SC:Spillways) == 2) .
+  ceq {[S1:SpillwayId,O1:Aperture]-ren [S2:SpillwayId,O2:Aperture]-ren [S3:SpillwayId,O3:Aperture]-ren -ren -ren ; V:Rat ; T:TimeStamp ; AC:Bool}-ren = (fail).State if not ori(V:Rat > 40000000 implies O1:Aperture =/= close-ren and O2:Aperture =/= close-ren and O3:Aperture == open3-ren or O1:Aperture =/= close-ren and O3:Aperture =/= close-ren and O2:Aperture == open3-ren or O2:Aperture =/= close-ren and O3:Aperture =/= close-ren and O1:Aperture == open3-ren) .
+  ceq {[S1:SpillwayId,open2-ren]-ren [S2:SpillwayId,close-ren]-ren [S3:SpillwayId,O3:Aperture]-ren -ren -ren ; V:Rat ; T:TimeStamp ; AC:Bool}-ren = (fail).State if not ori(false) .
+  ceq {[S1:SpillwayId,open3-ren]-ren [S2:SpillwayId,open1-ren]-ren [S3:SpillwayId,O3:Aperture]-ren -ren -ren ; V:Rat ; T:TimeStamp ; AC:Bool}-ren = (fail).State if not ori(false) .
+  ceq {[S1:SpillwayId,open3-ren]-ren [S2:SpillwayId,open3-ren]-ren [S3:SpillwayId,open3-ren]-ren -ren -ren ; V:Rat ; T:TimeStamp ; AC:Bool}-ren = (fail).State if not ori(false) .
+  ceq ori(AUX0:Spillways AUX1:Spillways -ren) = ori(AUX0:Spillways) ori(AUX1:Spillways) if AUX0:Spillways =/= empty-ren /\ AUX1:Spillways =/= empty-ren .
+  ceq ren(AUX0:Spillways AUX1:Spillways) = ren(AUX0:Spillways) ren(AUX1:Spillways) -ren if AUX0:Spillways =/= empty /\ AUX1:Spillways =/= empty .
+  crl {SC:Spillways ; V:Rat ; T:TimeStamp ; false} => {SC:Spillways ; V':Rat ; deltaT + T:TimeStamp ; true} if V':Rat := (V:Rat + deltaT * inflow) - deltaT * outflow(SC:Spillways) /\ ren({SC:Spillways ; V':Rat ; deltaT + T:TimeStamp ; true}) =/= (fail).State [ label volume ] .
+  crl {SC:Spillways ; V:Rat ; T:TimeStamp ; true} => {SC:Spillways ; V:Rat ; T:TimeStamp ; false} if ren({SC:Spillways ; V:Rat ; T:TimeStamp ; false}) =/= (fail).State [ label nocmd ] .
+  crl {SC:Spillways [S:SpillwayId,close] ; V:Rat ; T:TimeStamp ; true} => {SC:Spillways [S:SpillwayId,open1] ; V:Rat ; T:TimeStamp ; false} if ren({SC:Spillways [S:SpillwayId,open1] ; V:Rat ; T:TimeStamp ; false}) =/= (fail).State [ label openC-1 ] .
+  crl {SC:Spillways [S:SpillwayId,open1] ; V:Rat ; T:TimeStamp ; true} => {SC:Spillways [S:SpillwayId,close] ; V:Rat ; T:TimeStamp ; false} if ren({SC:Spillways [S:SpillwayId,close] ; V:Rat ; T:TimeStamp ; false}) =/= (fail).State [ label close1-C ] .
+  crl {SC:Spillways [S:SpillwayId,open1] ; V:Rat ; T:TimeStamp ; true} => {SC:Spillways [S:SpillwayId,open2] ; V:Rat ; T:TimeStamp ; false} if ren({SC:Spillways [S:SpillwayId,open2] ; V:Rat ; T:TimeStamp ; false}) =/= (fail).State [ label open1-2 ] .
+  crl {SC:Spillways [S:SpillwayId,open2] ; V:Rat ; T:TimeStamp ; true} => {SC:Spillways [S:SpillwayId,open1] ; V:Rat ; T:TimeStamp ; false} if ren({SC:Spillways [S:SpillwayId,open1] ; V:Rat ; T:TimeStamp ; false}) =/= (fail).State [ label close2-1 ] .
+  crl {SC:Spillways [S:SpillwayId,open2] ; V:Rat ; T:TimeStamp ; true} => {SC:Spillways [S:SpillwayId,open3] ; V:Rat ; T:TimeStamp ; false} if ren({SC:Spillways [S:SpillwayId,open3] ; V:Rat ; T:TimeStamp ; false}) =/= (fail).State [ label open2-3 ] .
+  crl {SC:Spillways [S:SpillwayId,open3] ; V:Rat ; T:TimeStamp ; true} => {SC:Spillways [S:SpillwayId,open2] ; V:Rat ; T:TimeStamp ; false} if ren({SC:Spillways [S:SpillwayId,open2] ; V:Rat ; T:TimeStamp ; false}) =/= (fail).State [ label close3-2 ] .
+endm

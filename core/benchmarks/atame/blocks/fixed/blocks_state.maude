@@ -1,0 +1,244 @@
+mod BLOCKS-FIXED is
+  inc BOOL .
+  inc INT .
+  sorts Block Prop PropSet State .
+  subsort Prop < PropSet .
+  subsort PropSet < State .
+  op _&_ : PropSet PropSet -> PropSet [ assoc comm ctor id: none ] .
+  op _&_-ren : PropSet PropSet -> PropSet [ assoc comm ctor id: none-ren ] .
+  op `[_`] : PropSet -> State [ ctor ] .
+  op `[_`]-ren : PropSet -> State [ ctor ] .
+  op a : -> Block .
+  op a-ren : -> Block .
+  op b : -> Block .
+  op b-ren : -> Block .
+  op c : -> Block .
+  op c-ren : -> Block .
+  op clear : Block -> Prop .
+  op clear-ren : Block -> Prop .
+  op empty : -> PropSet .
+  op empty-ren : -> PropSet .
+  op fail : -> Universal [ poly (0) ] .
+  op hold : Block -> Prop .
+  op hold-ren : Block -> Prop .
+  op none : -> PropSet .
+  op none-ren : -> PropSet .
+  op on : Block Block -> Prop .
+  op on-ren : Block Block -> Prop .
+  op ori : Universal -> Universal [ memo strat (0) poly (1 0) ] .
+  op ren : Universal -> Universal [ memo strat (1 0) poly (1 0) ] .
+  op size : Block -> Nat .
+  op size-ren : Block -> Nat .
+  op table : Block -> Prop .
+  op table-ren : Block -> Prop .
+  eq [fail]-ren = (fail).State .
+  eq clear-ren(fail) = (fail).State .
+  eq hold-ren(fail) = (fail).State .
+  eq on-ren(AUX0:Block, fail) = (fail).State .
+  eq on-ren(fail, AUX1:Block) = (fail).State .
+  eq ori(0) = 0 .
+  eq ori(a-ren) = a .
+  eq ori(b-ren) = b .
+  eq ori(c-ren) = c .
+  eq ori(empty-ren) = empty .
+  eq ori(false) = false .
+  eq ori(none-ren) = none .
+  eq ori(true) = true .
+  eq ori(- AUX0:Int) = - ori(AUX0:Int) .
+  eq ori(- AUX0:NzInt) = - ori(AUX0:NzInt) .
+  eq ori(- AUX0:NzNat) = - ori(AUX0:NzNat) .
+  eq ori(AUX0:Int & AUX1:Int) = ori(AUX0:Int) & ori(AUX1:Int) .
+  eq ori(AUX0:Nat & AUX1:Int) = ori(AUX0:Nat) & ori(AUX1:Int) .
+  eq ori(AUX0:Nat & AUX1:Nat) = ori(AUX0:Nat) & ori(AUX1:Nat) .
+  eq ori(AUX0:Int * AUX1:Int) = ori(AUX0:Int) * ori(AUX1:Int) .
+  eq ori(AUX0:Nat * AUX1:Nat) = ori(AUX0:Nat) * ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt * AUX1:NzInt) = ori(AUX0:NzInt) * ori(AUX1:NzInt) .
+  eq ori(AUX0:NzNat * AUX1:NzNat) = ori(AUX0:NzNat) * ori(AUX1:NzNat) .
+  eq ori(AUX0:Int + AUX1:Int) = ori(AUX0:Int) + ori(AUX1:Int) .
+  eq ori(AUX0:Nat + AUX1:Nat) = ori(AUX0:Nat) + ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat + AUX1:Nat) = ori(AUX0:NzNat) + ori(AUX1:Nat) .
+  eq ori(AUX0:Int - AUX1:Int) = ori(AUX0:Int) - ori(AUX1:Int) .
+  eq ori(AUX0:Int << AUX1:Nat) = ori(AUX0:Int) << ori(AUX1:Nat) .
+  eq ori(AUX0:Nat << AUX1:Nat) = ori(AUX0:Nat) << ori(AUX1:Nat) .
+  eq ori(AUX0:Int <= AUX1:Int) = ori(AUX0:Int) <= ori(AUX1:Int) .
+  eq ori(AUX0:Nat <= AUX1:Nat) = ori(AUX0:Nat) <= ori(AUX1:Nat) .
+  eq ori(AUX0:Int < AUX1:Int) = ori(AUX0:Int) < ori(AUX1:Int) .
+  eq ori(AUX0:Nat < AUX1:Nat) = ori(AUX0:Nat) < ori(AUX1:Nat) .
+  eq ori(AUX0:[Block] =/= AUX1:[Block]) = ori(AUX0:[Block]) =/= ori(AUX1:[Block]) .
+  eq ori(AUX0:[Block] == AUX1:[Block]) = ori(AUX0:[Block]) == ori(AUX1:[Block]) .
+  eq ori(AUX0:[Bool] == AUX1:[Bool]) = ori(AUX0:[Bool]) == ori(AUX1:[Bool]) .
+  eq ori(AUX0:[Int] == AUX1:[Int]) = ori(AUX0:[Int]) == ori(AUX1:[Int]) .
+  eq ori(AUX0:[State] == AUX1:[State]) = ori(AUX0:[State]) == ori(AUX1:[State]) .
+  eq ori(AUX0:Int >= AUX1:Int) = ori(AUX0:Int) >= ori(AUX1:Int) .
+  eq ori(AUX0:Nat >= AUX1:Nat) = ori(AUX0:Nat) >= ori(AUX1:Nat) .
+  eq ori(AUX0:Int >> AUX1:Nat) = ori(AUX0:Int) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Nat >> AUX1:Nat) = ori(AUX0:Nat) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Int > AUX1:Int) = ori(AUX0:Int) > ori(AUX1:Int) .
+  eq ori(AUX0:Nat > AUX1:Nat) = ori(AUX0:Nat) > ori(AUX1:Nat) .
+  eq ori(AUX0:Int ^ AUX1:Nat) = ori(AUX0:Int) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Nat ^ AUX1:Nat) = ori(AUX0:Nat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt ^ AUX1:Nat) = ori(AUX0:NzInt) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat ^ AUX1:Nat) = ori(AUX0:NzNat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Bool and AUX1:Bool) = ori(AUX0:Bool) and ori(AUX1:Bool) .
+  eq ori(AUX0:NzInt divides AUX1:Int) = ori(AUX0:NzInt) divides ori(AUX1:Int) .
+  eq ori(AUX0:NzNat divides AUX1:Nat) = ori(AUX0:NzNat) divides ori(AUX1:Nat) .
+  eq ori(AUX0:Bool implies AUX1:Bool) = ori(AUX0:Bool) implies ori(AUX1:Bool) .
+  eq ori(AUX0:Bool or AUX1:Bool) = ori(AUX0:Bool) or ori(AUX1:Bool) .
+  eq ori(AUX0:Int quo AUX1:NzInt) = ori(AUX0:Int) quo ori(AUX1:NzInt) .
+  eq ori(AUX0:Nat quo AUX1:NzNat) = ori(AUX0:Nat) quo ori(AUX1:NzNat) .
+  eq ori(AUX0:Int rem AUX1:NzInt) = ori(AUX0:Int) rem ori(AUX1:NzInt) .
+  eq ori(AUX0:Nat rem AUX1:NzNat) = ori(AUX0:Nat) rem ori(AUX1:NzNat) .
+  eq ori(AUX0:Bool xor AUX1:Bool) = ori(AUX0:Bool) xor ori(AUX1:Bool) .
+  eq ori(AUX0:Int xor AUX1:Int) = ori(AUX0:Int) xor ori(AUX1:Int) .
+  eq ori(AUX0:Nat xor AUX1:Nat) = ori(AUX0:Nat) xor ori(AUX1:Nat) .
+  eq ori(AUX0:Int | AUX1:Int) = ori(AUX0:Int) | ori(AUX1:Int) .
+  eq ori(AUX0:Nat | AUX1:Nat) = ori(AUX0:Nat) | ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt | AUX1:Int) = ori(AUX0:NzInt) | ori(AUX1:Int) .
+  eq ori(AUX0:NzNat | AUX1:Nat) = ori(AUX0:NzNat) | ori(AUX1:Nat) .
+  eq ori([AUX0:PropSet]-ren) = [ori(AUX0:PropSet)] .
+  eq ori(abs(AUX0:Int)) = abs(ori(AUX0:Int)) .
+  eq ori(abs(AUX0:NzInt)) = abs(ori(AUX0:NzInt)) .
+  eq ori(clear-ren(AUX0:Block)) = clear(ori(AUX0:Block)) .
+  eq ori(gcd(AUX0:Int, AUX1:Int)) = gcd(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(gcd(AUX0:NzInt, AUX1:Int)) = gcd(ori(AUX0:NzInt), ori(AUX1:Int)) .
+  eq ori(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(hold-ren(AUX0:Block)) = hold(ori(AUX0:Block)) .
+  eq ori(if AUX0:Bool then AUX1:[Block] else AUX2:[Block] fi) = if ori(AUX0:Bool) then ori(AUX1:[Block]) else ori(AUX2:[Block]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ori(AUX0:Bool) then ori(AUX1:[Bool]) else ori(AUX2:[Bool]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Int] else AUX2:[Int] fi) = if ori(AUX0:Bool) then ori(AUX1:[Int]) else ori(AUX2:[Int]) fi .
+  eq ori(if AUX0:Bool then AUX1:[State] else AUX2:[State] fi) = if ori(AUX0:Bool) then ori(AUX1:[State]) else ori(AUX2:[State]) fi .
+  eq ori(lcm(AUX0:Int, AUX1:Int)) = lcm(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(lcm(AUX0:NzInt, AUX1:NzInt)) = lcm(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(max(AUX0:Int, AUX1:Int)) = max(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(max(AUX0:Nat, AUX1:Int)) = max(ori(AUX0:Nat), ori(AUX1:Int)) .
+  eq ori(max(AUX0:Nat, AUX1:Nat)) = max(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(max(AUX0:NzInt, AUX1:NzInt)) = max(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(max(AUX0:NzNat, AUX1:Int)) = max(ori(AUX0:NzNat), ori(AUX1:Int)) .
+  eq ori(max(AUX0:NzNat, AUX1:Nat)) = max(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:Int, AUX1:Int)) = min(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(min(AUX0:Nat, AUX1:Nat)) = min(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:NzInt, AUX1:NzInt)) = min(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(min(AUX0:NzNat, AUX1:NzNat)) = min(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(modExp(AUX0:[Int], AUX1:[Int], AUX2:[Int])) = modExp(ori(AUX0:[Int]), ori(AUX1:[Int]), ori(AUX2:[Int])) .
+  eq ori(not AUX0:Bool) = not ori(AUX0:Bool) .
+  eq ori(on-ren(AUX0:Block, AUX1:Block)) = on(ori(AUX0:Block), ori(AUX1:Block)) .
+  eq ori(s AUX0:Nat) = s AUX0:Nat .
+  eq ori(sd(AUX0:Nat, AUX1:Nat)) = sd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(size-ren(AUX0:Block)) = size(ori(AUX0:Block)) .
+  eq ori(table-ren(AUX0:Block)) = table(ori(AUX0:Block)) .
+  eq ori(~ AUX0:Int) = ~ ori(AUX0:Int) .
+  eq ren(0) = 0 .
+  eq ren(a) = a-ren .
+  eq ren(b) = b-ren .
+  eq ren(c) = c-ren .
+  eq ren(empty) = empty-ren .
+  eq ren(false) = false .
+  eq ren(none) = none-ren .
+  eq ren(true) = true .
+  eq ren(- AUX0:Int) = - ren(AUX0:Int) .
+  eq ren(- AUX0:NzInt) = - ren(AUX0:NzInt) .
+  eq ren(- AUX0:NzNat) = - ren(AUX0:NzNat) .
+  eq ren(AUX0:Int & AUX1:Int) = ren(AUX0:Int) & ren(AUX1:Int) .
+  eq ren(AUX0:Nat & AUX1:Int) = ren(AUX0:Nat) & ren(AUX1:Int) .
+  eq ren(AUX0:Nat & AUX1:Nat) = ren(AUX0:Nat) & ren(AUX1:Nat) .
+  eq ren(AUX0:Int * AUX1:Int) = ren(AUX0:Int) * ren(AUX1:Int) .
+  eq ren(AUX0:Nat * AUX1:Nat) = ren(AUX0:Nat) * ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt * AUX1:NzInt) = ren(AUX0:NzInt) * ren(AUX1:NzInt) .
+  eq ren(AUX0:NzNat * AUX1:NzNat) = ren(AUX0:NzNat) * ren(AUX1:NzNat) .
+  eq ren(AUX0:Int + AUX1:Int) = ren(AUX0:Int) + ren(AUX1:Int) .
+  eq ren(AUX0:Nat + AUX1:Nat) = ren(AUX0:Nat) + ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat + AUX1:Nat) = ren(AUX0:NzNat) + ren(AUX1:Nat) .
+  eq ren(AUX0:Int - AUX1:Int) = ren(AUX0:Int) - ren(AUX1:Int) .
+  eq ren(AUX0:Int << AUX1:Nat) = ren(AUX0:Int) << ren(AUX1:Nat) .
+  eq ren(AUX0:Nat << AUX1:Nat) = ren(AUX0:Nat) << ren(AUX1:Nat) .
+  eq ren(AUX0:Int <= AUX1:Int) = ren(AUX0:Int) <= ren(AUX1:Int) .
+  eq ren(AUX0:Nat <= AUX1:Nat) = ren(AUX0:Nat) <= ren(AUX1:Nat) .
+  eq ren(AUX0:Int < AUX1:Int) = ren(AUX0:Int) < ren(AUX1:Int) .
+  eq ren(AUX0:Nat < AUX1:Nat) = ren(AUX0:Nat) < ren(AUX1:Nat) .
+  eq ren(AUX0:[Block] =/= AUX1:[Block]) = ren(AUX0:[Block]) =/= ren(AUX1:[Block]) .
+  eq ren(AUX0:[Block] == AUX1:[Block]) = ren(AUX0:[Block]) == ren(AUX1:[Block]) .
+  eq ren(AUX0:[Bool] == AUX1:[Bool]) = ren(AUX0:[Bool]) == ren(AUX1:[Bool]) .
+  eq ren(AUX0:[Int] == AUX1:[Int]) = ren(AUX0:[Int]) == ren(AUX1:[Int]) .
+  eq ren(AUX0:[State] == AUX1:[State]) = ren(AUX0:[State]) == ren(AUX1:[State]) .
+  eq ren(AUX0:Int >= AUX1:Int) = ren(AUX0:Int) >= ren(AUX1:Int) .
+  eq ren(AUX0:Nat >= AUX1:Nat) = ren(AUX0:Nat) >= ren(AUX1:Nat) .
+  eq ren(AUX0:Int >> AUX1:Nat) = ren(AUX0:Int) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Nat >> AUX1:Nat) = ren(AUX0:Nat) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Int > AUX1:Int) = ren(AUX0:Int) > ren(AUX1:Int) .
+  eq ren(AUX0:Nat > AUX1:Nat) = ren(AUX0:Nat) > ren(AUX1:Nat) .
+  eq ren(AUX0:Int ^ AUX1:Nat) = ren(AUX0:Int) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Nat ^ AUX1:Nat) = ren(AUX0:Nat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt ^ AUX1:Nat) = ren(AUX0:NzInt) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat ^ AUX1:Nat) = ren(AUX0:NzNat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Bool and AUX1:Bool) = ren(AUX0:Bool) and ren(AUX1:Bool) .
+  eq ren(AUX0:NzInt divides AUX1:Int) = ren(AUX0:NzInt) divides ren(AUX1:Int) .
+  eq ren(AUX0:NzNat divides AUX1:Nat) = ren(AUX0:NzNat) divides ren(AUX1:Nat) .
+  eq ren(AUX0:Bool implies AUX1:Bool) = ren(AUX0:Bool) implies ren(AUX1:Bool) .
+  eq ren(AUX0:Bool or AUX1:Bool) = ren(AUX0:Bool) or ren(AUX1:Bool) .
+  eq ren(AUX0:Int quo AUX1:NzInt) = ren(AUX0:Int) quo ren(AUX1:NzInt) .
+  eq ren(AUX0:Nat quo AUX1:NzNat) = ren(AUX0:Nat) quo ren(AUX1:NzNat) .
+  eq ren(AUX0:Int rem AUX1:NzInt) = ren(AUX0:Int) rem ren(AUX1:NzInt) .
+  eq ren(AUX0:Nat rem AUX1:NzNat) = ren(AUX0:Nat) rem ren(AUX1:NzNat) .
+  eq ren(AUX0:Bool xor AUX1:Bool) = ren(AUX0:Bool) xor ren(AUX1:Bool) .
+  eq ren(AUX0:Int xor AUX1:Int) = ren(AUX0:Int) xor ren(AUX1:Int) .
+  eq ren(AUX0:Nat xor AUX1:Nat) = ren(AUX0:Nat) xor ren(AUX1:Nat) .
+  eq ren(AUX0:Int | AUX1:Int) = ren(AUX0:Int) | ren(AUX1:Int) .
+  eq ren(AUX0:Nat | AUX1:Nat) = ren(AUX0:Nat) | ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt | AUX1:Int) = ren(AUX0:NzInt) | ren(AUX1:Int) .
+  eq ren(AUX0:NzNat | AUX1:Nat) = ren(AUX0:NzNat) | ren(AUX1:Nat) .
+  eq ren([AUX0:PropSet]) = [ren(AUX0:PropSet)]-ren .
+  eq ren(abs(AUX0:Int)) = abs(ren(AUX0:Int)) .
+  eq ren(abs(AUX0:NzInt)) = abs(ren(AUX0:NzInt)) .
+  eq ren(clear(AUX0:Block)) = clear-ren(ren(AUX0:Block)) .
+  eq ren(gcd(AUX0:Int, AUX1:Int)) = gcd(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(gcd(AUX0:NzInt, AUX1:Int)) = gcd(ren(AUX0:NzInt), ren(AUX1:Int)) .
+  eq ren(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(hold(AUX0:Block)) = hold-ren(ren(AUX0:Block)) .
+  eq ren(if AUX0:Bool then AUX1:[Block] else AUX2:[Block] fi) = if ren(AUX0:Bool) then ren(AUX1:[Block]) else ren(AUX2:[Block]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ren(AUX0:Bool) then ren(AUX1:[Bool]) else ren(AUX2:[Bool]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Int] else AUX2:[Int] fi) = if ren(AUX0:Bool) then ren(AUX1:[Int]) else ren(AUX2:[Int]) fi .
+  eq ren(if AUX0:Bool then AUX1:[State] else AUX2:[State] fi) = if ren(AUX0:Bool) then ren(AUX1:[State]) else ren(AUX2:[State]) fi .
+  eq ren(lcm(AUX0:Int, AUX1:Int)) = lcm(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(lcm(AUX0:NzInt, AUX1:NzInt)) = lcm(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(max(AUX0:Int, AUX1:Int)) = max(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(max(AUX0:Nat, AUX1:Int)) = max(ren(AUX0:Nat), ren(AUX1:Int)) .
+  eq ren(max(AUX0:Nat, AUX1:Nat)) = max(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(max(AUX0:NzInt, AUX1:NzInt)) = max(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(max(AUX0:NzNat, AUX1:Int)) = max(ren(AUX0:NzNat), ren(AUX1:Int)) .
+  eq ren(max(AUX0:NzNat, AUX1:Nat)) = max(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:Int, AUX1:Int)) = min(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(min(AUX0:Nat, AUX1:Nat)) = min(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:NzInt, AUX1:NzInt)) = min(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(min(AUX0:NzNat, AUX1:NzNat)) = min(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(modExp(AUX0:[Int], AUX1:[Int], AUX2:[Int])) = modExp(ren(AUX0:[Int]), ren(AUX1:[Int]), ren(AUX2:[Int])) .
+  eq ren(not AUX0:Bool) = not ren(AUX0:Bool) .
+  eq ren(on(AUX0:Block, AUX1:Block)) = on-ren(ren(AUX0:Block), ren(AUX1:Block)) .
+  eq ren(s AUX0:Nat) = s AUX0:Nat .
+  eq ren(sd(AUX0:Nat, AUX1:Nat)) = sd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(size(AUX0:Block)) = size-ren(ren(AUX0:Block)) .
+  eq ren(table(AUX0:Block)) = table-ren(ren(AUX0:Block)) .
+  eq ren(~ AUX0:Int) = ~ ren(AUX0:Int) .
+  eq size(a) = 1 [ label sizeA ] .
+  eq size(b) = 2 [ label sizeB ] .
+  eq size(c) = 3 [ label sizeC ] .
+  eq size-ren(fail) = (fail).Int .
+  eq table-ren(fail) = (fail).State .
+  ceq AUX0:PropSet & fail -ren = (fail).State if AUX0:PropSet =/= none-ren .
+  ceq fail & AUX1:PropSet -ren = (fail).State if AUX1:PropSet =/= none-ren .
+  ceq hold-ren(X:Block) & hold-ren(Y:Block) -ren = (fail).State if not ori(false) .
+  ceq on-ren(X1:Block, X2:Block) & table-ren(Y:Block) & table-ren(Z:Block) -ren -ren = (fail).State if not ori(X1:Block =/= Z:Block and X1:Block =/= Y:Block) .
+  ceq on-ren(X1:Block, X2:Block) & on-ren(Y1:Block, Y2:Block) -ren = (fail).State if not ori(X1:Block =/= Y1:Block) .
+  ceq table-ren(X:Block) & hold-ren(Y:Block) -ren = (fail).State if not ori(X:Block =/= Y:Block) .
+  ceq ori(AUX0:PropSet & AUX1:PropSet -ren) = ori(AUX0:PropSet) & ori(AUX1:PropSet) if AUX0:PropSet =/= none-ren /\ AUX1:PropSet =/= none-ren .
+  ceq ren(AUX0:PropSet & AUX1:PropSet) = ren(AUX0:PropSet) & ren(AUX1:PropSet) -ren if AUX0:PropSet =/= none /\ AUX1:PropSet =/= none .
+  crl [PS:PropSet & hold(X:Block)] => [empty & clear(X:Block) & PS:PropSet & table(X:Block)] if ren([empty & clear(X:Block) & PS:PropSet & table(X:Block)]) =/= (fail).State [ label putdown ] .
+  crl [PS:PropSet & clear(Y:Block) & hold(X:Block)] => [empty & clear(X:Block) & PS:PropSet & on(X:Block, Y:Block)] if size(X:Block) < size(Y:Block) /\ ren([empty & clear(X:Block) & PS:PropSet & on(X:Block, Y:Block)]) =/= (fail).State [ label stack ] .
+  crl [PS:PropSet & table(X:Block) & clear(X:Block)] => [PS:PropSet & hold(X:Block)] if ren([PS:PropSet & hold(X:Block)]) =/= (fail).State [ label pickup ] .
+  crl [empty & PS:PropSet & clear(X:Block) & on(X:Block, Y:Block)] => [hold(X:Block) & PS:PropSet & clear(Y:Block)] if ren([hold(X:Block) & PS:PropSet & clear(Y:Block)]) =/= (fail).State [ label unstack ] .
+endm

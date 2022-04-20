@@ -1,0 +1,256 @@
+mod CONTAINERS-FIXED is
+  inc BOOL .
+  pr EXT-BOOL + INT .
+  sorts Cargo Container Fleet Ship State .
+  subsort Container < Cargo .
+  subsort Ship < Fleet .
+  op <_`,_|_> : Int Int Cargo -> Ship [ ctor ] .
+  op <_`,_|_>-ren : Int Int Cargo -> Ship [ ctor ] .
+  op _:_ : Fleet Cargo -> State .
+  op _:_-ren : Fleet Cargo -> State .
+  op __ : Fleet Fleet -> Fleet [ assoc comm ctor id: none ] .
+  op __-ren : Fleet Fleet -> Fleet [ assoc comm ctor id: none-ren ] .
+  op _`,_ : Cargo Cargo -> Cargo [ assoc ctor id: nil ] .
+  op _`,_-ren : Cargo Cargo -> Cargo [ assoc ctor id: nil-ren ] .
+  op c : Int -> Container [ ctor ] .
+  op c-ren : Int -> Container [ ctor ] .
+  op fail : -> Universal [ poly (0) ] .
+  op isFull : Cargo -> Bool .
+  op isFull-ren : Cargo -> Bool .
+  op maxW : -> Int .
+  op maxW-ren : -> Int .
+  op nil : -> Cargo .
+  op nil-ren : -> Cargo .
+  op none : -> Fleet .
+  op none-ren : -> Fleet .
+  op ori : Universal -> Universal [ memo strat (0) poly (1 0) ] .
+  op ren : Universal -> Universal [ memo strat (1 0) poly (1 0) ] .
+  op size : Cargo -> Int .
+  op size-ren : Cargo -> Int .
+  op weight : Cargo -> Int .
+  op weight-ren : Cargo -> Int .
+  eq maxW = 5 .
+  eq < AUX0:Int,AUX1:Int | fail >-ren = (fail).Fleet .
+  eq < AUX0:Int,fail | AUX2:Cargo >-ren = (fail).Fleet .
+  eq < fail,AUX1:Int | AUX2:Cargo >-ren = (fail).Fleet .
+  eq AUX0:Fleet : fail -ren = (fail).State .
+  eq fail : AUX1:Cargo -ren = (fail).State .
+  eq c-ren(fail) = (fail).Cargo .
+  eq isFull(nil) = true .
+  eq isFull(c(W:Int),CG:Cargo) = isFull(CG:Cargo) and W:Int == maxW .
+  eq isFull-ren(fail) = (fail).Bool .
+  eq ori(0) = 0 .
+  eq ori(false) = false .
+  eq ori(maxW-ren) = maxW .
+  eq ori(nil-ren) = nil .
+  eq ori(none-ren) = none .
+  eq ori(true) = true .
+  eq ori(- AUX0:Int) = - ori(AUX0:Int) .
+  eq ori(- AUX0:NzInt) = - ori(AUX0:NzInt) .
+  eq ori(- AUX0:NzNat) = - ori(AUX0:NzNat) .
+  eq ori(< AUX0:Int,AUX1:Int | AUX2:Cargo >-ren) = < ori(AUX0:Int),ori(AUX1:Int) | ori(AUX2:Cargo) > .
+  eq ori(AUX0:Int & AUX1:Int) = ori(AUX0:Int) & ori(AUX1:Int) .
+  eq ori(AUX0:Nat & AUX1:Int) = ori(AUX0:Nat) & ori(AUX1:Int) .
+  eq ori(AUX0:Nat & AUX1:Nat) = ori(AUX0:Nat) & ori(AUX1:Nat) .
+  eq ori(AUX0:Int * AUX1:Int) = ori(AUX0:Int) * ori(AUX1:Int) .
+  eq ori(AUX0:Nat * AUX1:Nat) = ori(AUX0:Nat) * ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt * AUX1:NzInt) = ori(AUX0:NzInt) * ori(AUX1:NzInt) .
+  eq ori(AUX0:NzNat * AUX1:NzNat) = ori(AUX0:NzNat) * ori(AUX1:NzNat) .
+  eq ori(AUX0:Int + AUX1:Int) = ori(AUX0:Int) + ori(AUX1:Int) .
+  eq ori(AUX0:Nat + AUX1:Nat) = ori(AUX0:Nat) + ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat + AUX1:Nat) = ori(AUX0:NzNat) + ori(AUX1:Nat) .
+  eq ori(AUX0:Int - AUX1:Int) = ori(AUX0:Int) - ori(AUX1:Int) .
+  eq ori(AUX0:Fleet : AUX1:Cargo -ren) = ori(AUX0:Fleet) : ori(AUX1:Cargo) .
+  eq ori(AUX0:Int << AUX1:Nat) = ori(AUX0:Int) << ori(AUX1:Nat) .
+  eq ori(AUX0:Nat << AUX1:Nat) = ori(AUX0:Nat) << ori(AUX1:Nat) .
+  eq ori(AUX0:Int <= AUX1:Int) = ori(AUX0:Int) <= ori(AUX1:Int) .
+  eq ori(AUX0:Nat <= AUX1:Nat) = ori(AUX0:Nat) <= ori(AUX1:Nat) .
+  eq ori(AUX0:Int < AUX1:Int) = ori(AUX0:Int) < ori(AUX1:Int) .
+  eq ori(AUX0:Nat < AUX1:Nat) = ori(AUX0:Nat) < ori(AUX1:Nat) .
+  eq ori(AUX0:[Bool] =/= AUX1:[Bool]) = ori(AUX0:[Bool]) =/= ori(AUX1:[Bool]) .
+  eq ori(AUX0:[Bool] == AUX1:[Bool]) = ori(AUX0:[Bool]) == ori(AUX1:[Bool]) .
+  eq ori(AUX0:[Cargo] == AUX1:[Cargo]) = ori(AUX0:[Cargo]) == ori(AUX1:[Cargo]) .
+  eq ori(AUX0:[Fleet] == AUX1:[Fleet]) = ori(AUX0:[Fleet]) == ori(AUX1:[Fleet]) .
+  eq ori(AUX0:[Int] == AUX1:[Int]) = ori(AUX0:[Int]) == ori(AUX1:[Int]) .
+  eq ori(AUX0:[State] == AUX1:[State]) = ori(AUX0:[State]) == ori(AUX1:[State]) .
+  eq ori(AUX0:Int >= AUX1:Int) = ori(AUX0:Int) >= ori(AUX1:Int) .
+  eq ori(AUX0:Nat >= AUX1:Nat) = ori(AUX0:Nat) >= ori(AUX1:Nat) .
+  eq ori(AUX0:Int >> AUX1:Nat) = ori(AUX0:Int) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Nat >> AUX1:Nat) = ori(AUX0:Nat) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Int > AUX1:Int) = ori(AUX0:Int) > ori(AUX1:Int) .
+  eq ori(AUX0:Nat > AUX1:Nat) = ori(AUX0:Nat) > ori(AUX1:Nat) .
+  eq ori(AUX0:Int ^ AUX1:Nat) = ori(AUX0:Int) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Nat ^ AUX1:Nat) = ori(AUX0:Nat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt ^ AUX1:Nat) = ori(AUX0:NzInt) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat ^ AUX1:Nat) = ori(AUX0:NzNat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Bool and-then AUX1:Bool) = ori(AUX0:Bool) and-then ori(AUX1:Bool) .
+  eq ori(AUX0:Bool and AUX1:Bool) = ori(AUX0:Bool) and ori(AUX1:Bool) .
+  eq ori(AUX0:NzInt divides AUX1:Int) = ori(AUX0:NzInt) divides ori(AUX1:Int) .
+  eq ori(AUX0:NzNat divides AUX1:Nat) = ori(AUX0:NzNat) divides ori(AUX1:Nat) .
+  eq ori(AUX0:Bool implies AUX1:Bool) = ori(AUX0:Bool) implies ori(AUX1:Bool) .
+  eq ori(AUX0:Bool or-else AUX1:Bool) = ori(AUX0:Bool) or-else ori(AUX1:Bool) .
+  eq ori(AUX0:Bool or AUX1:Bool) = ori(AUX0:Bool) or ori(AUX1:Bool) .
+  eq ori(AUX0:Int quo AUX1:NzInt) = ori(AUX0:Int) quo ori(AUX1:NzInt) .
+  eq ori(AUX0:Nat quo AUX1:NzNat) = ori(AUX0:Nat) quo ori(AUX1:NzNat) .
+  eq ori(AUX0:Int rem AUX1:NzInt) = ori(AUX0:Int) rem ori(AUX1:NzInt) .
+  eq ori(AUX0:Nat rem AUX1:NzNat) = ori(AUX0:Nat) rem ori(AUX1:NzNat) .
+  eq ori(AUX0:Bool xor AUX1:Bool) = ori(AUX0:Bool) xor ori(AUX1:Bool) .
+  eq ori(AUX0:Int xor AUX1:Int) = ori(AUX0:Int) xor ori(AUX1:Int) .
+  eq ori(AUX0:Nat xor AUX1:Nat) = ori(AUX0:Nat) xor ori(AUX1:Nat) .
+  eq ori(AUX0:Int | AUX1:Int) = ori(AUX0:Int) | ori(AUX1:Int) .
+  eq ori(AUX0:Nat | AUX1:Nat) = ori(AUX0:Nat) | ori(AUX1:Nat) .
+  eq ori(AUX0:NzInt | AUX1:Int) = ori(AUX0:NzInt) | ori(AUX1:Int) .
+  eq ori(AUX0:NzNat | AUX1:Nat) = ori(AUX0:NzNat) | ori(AUX1:Nat) .
+  eq ori(abs(AUX0:Int)) = abs(ori(AUX0:Int)) .
+  eq ori(abs(AUX0:NzInt)) = abs(ori(AUX0:NzInt)) .
+  eq ori(c-ren(AUX0:Int)) = c(ori(AUX0:Int)) .
+  eq ori(gcd(AUX0:Int, AUX1:Int)) = gcd(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(gcd(AUX0:NzInt, AUX1:Int)) = gcd(ori(AUX0:NzInt), ori(AUX1:Int)) .
+  eq ori(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ori(AUX0:Bool) then ori(AUX1:[Bool]) else ori(AUX2:[Bool]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Cargo] else AUX2:[Cargo] fi) = if ori(AUX0:Bool) then ori(AUX1:[Cargo]) else ori(AUX2:[Cargo]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Fleet] else AUX2:[Fleet] fi) = if ori(AUX0:Bool) then ori(AUX1:[Fleet]) else ori(AUX2:[Fleet]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Int] else AUX2:[Int] fi) = if ori(AUX0:Bool) then ori(AUX1:[Int]) else ori(AUX2:[Int]) fi .
+  eq ori(if AUX0:Bool then AUX1:[State] else AUX2:[State] fi) = if ori(AUX0:Bool) then ori(AUX1:[State]) else ori(AUX2:[State]) fi .
+  eq ori(isFull-ren(AUX0:Cargo)) = isFull(ori(AUX0:Cargo)) .
+  eq ori(lcm(AUX0:Int, AUX1:Int)) = lcm(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(lcm(AUX0:NzInt, AUX1:NzInt)) = lcm(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(max(AUX0:Int, AUX1:Int)) = max(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(max(AUX0:Nat, AUX1:Int)) = max(ori(AUX0:Nat), ori(AUX1:Int)) .
+  eq ori(max(AUX0:Nat, AUX1:Nat)) = max(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(max(AUX0:NzInt, AUX1:NzInt)) = max(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(max(AUX0:NzNat, AUX1:Int)) = max(ori(AUX0:NzNat), ori(AUX1:Int)) .
+  eq ori(max(AUX0:NzNat, AUX1:Nat)) = max(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:Int, AUX1:Int)) = min(ori(AUX0:Int), ori(AUX1:Int)) .
+  eq ori(min(AUX0:Nat, AUX1:Nat)) = min(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:NzInt, AUX1:NzInt)) = min(ori(AUX0:NzInt), ori(AUX1:NzInt)) .
+  eq ori(min(AUX0:NzNat, AUX1:NzNat)) = min(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(modExp(AUX0:[Int], AUX1:[Int], AUX2:[Int])) = modExp(ori(AUX0:[Int]), ori(AUX1:[Int]), ori(AUX2:[Int])) .
+  eq ori(not AUX0:Bool) = not ori(AUX0:Bool) .
+  eq ori(s AUX0:Nat) = s AUX0:Nat .
+  eq ori(sd(AUX0:Nat, AUX1:Nat)) = sd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(size-ren(AUX0:Cargo)) = size(ori(AUX0:Cargo)) .
+  eq ori(weight-ren(AUX0:Cargo)) = weight(ori(AUX0:Cargo)) .
+  eq ori(~ AUX0:Int) = ~ ori(AUX0:Int) .
+  eq ren(0) = 0 .
+  eq ren(false) = false .
+  eq ren(maxW) = maxW-ren .
+  eq ren(nil) = nil-ren .
+  eq ren(none) = none-ren .
+  eq ren(true) = true .
+  eq ren(- AUX0:Int) = - ren(AUX0:Int) .
+  eq ren(- AUX0:NzInt) = - ren(AUX0:NzInt) .
+  eq ren(- AUX0:NzNat) = - ren(AUX0:NzNat) .
+  eq ren(< AUX0:Int,AUX1:Int | AUX2:Cargo >) = < ren(AUX0:Int),ren(AUX1:Int) | ren(AUX2:Cargo) >-ren .
+  eq ren(AUX0:Int & AUX1:Int) = ren(AUX0:Int) & ren(AUX1:Int) .
+  eq ren(AUX0:Nat & AUX1:Int) = ren(AUX0:Nat) & ren(AUX1:Int) .
+  eq ren(AUX0:Nat & AUX1:Nat) = ren(AUX0:Nat) & ren(AUX1:Nat) .
+  eq ren(AUX0:Int * AUX1:Int) = ren(AUX0:Int) * ren(AUX1:Int) .
+  eq ren(AUX0:Nat * AUX1:Nat) = ren(AUX0:Nat) * ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt * AUX1:NzInt) = ren(AUX0:NzInt) * ren(AUX1:NzInt) .
+  eq ren(AUX0:NzNat * AUX1:NzNat) = ren(AUX0:NzNat) * ren(AUX1:NzNat) .
+  eq ren(AUX0:Int + AUX1:Int) = ren(AUX0:Int) + ren(AUX1:Int) .
+  eq ren(AUX0:Nat + AUX1:Nat) = ren(AUX0:Nat) + ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat + AUX1:Nat) = ren(AUX0:NzNat) + ren(AUX1:Nat) .
+  eq ren(AUX0:Int - AUX1:Int) = ren(AUX0:Int) - ren(AUX1:Int) .
+  eq ren(AUX0:Fleet : AUX1:Cargo) = ren(AUX0:Fleet) : ren(AUX1:Cargo) -ren .
+  eq ren(AUX0:Int << AUX1:Nat) = ren(AUX0:Int) << ren(AUX1:Nat) .
+  eq ren(AUX0:Nat << AUX1:Nat) = ren(AUX0:Nat) << ren(AUX1:Nat) .
+  eq ren(AUX0:Int <= AUX1:Int) = ren(AUX0:Int) <= ren(AUX1:Int) .
+  eq ren(AUX0:Nat <= AUX1:Nat) = ren(AUX0:Nat) <= ren(AUX1:Nat) .
+  eq ren(AUX0:Int < AUX1:Int) = ren(AUX0:Int) < ren(AUX1:Int) .
+  eq ren(AUX0:Nat < AUX1:Nat) = ren(AUX0:Nat) < ren(AUX1:Nat) .
+  eq ren(AUX0:[Bool] =/= AUX1:[Bool]) = ren(AUX0:[Bool]) =/= ren(AUX1:[Bool]) .
+  eq ren(AUX0:[Bool] == AUX1:[Bool]) = ren(AUX0:[Bool]) == ren(AUX1:[Bool]) .
+  eq ren(AUX0:[Cargo] == AUX1:[Cargo]) = ren(AUX0:[Cargo]) == ren(AUX1:[Cargo]) .
+  eq ren(AUX0:[Fleet] == AUX1:[Fleet]) = ren(AUX0:[Fleet]) == ren(AUX1:[Fleet]) .
+  eq ren(AUX0:[Int] == AUX1:[Int]) = ren(AUX0:[Int]) == ren(AUX1:[Int]) .
+  eq ren(AUX0:[State] == AUX1:[State]) = ren(AUX0:[State]) == ren(AUX1:[State]) .
+  eq ren(AUX0:Int >= AUX1:Int) = ren(AUX0:Int) >= ren(AUX1:Int) .
+  eq ren(AUX0:Nat >= AUX1:Nat) = ren(AUX0:Nat) >= ren(AUX1:Nat) .
+  eq ren(AUX0:Int >> AUX1:Nat) = ren(AUX0:Int) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Nat >> AUX1:Nat) = ren(AUX0:Nat) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Int > AUX1:Int) = ren(AUX0:Int) > ren(AUX1:Int) .
+  eq ren(AUX0:Nat > AUX1:Nat) = ren(AUX0:Nat) > ren(AUX1:Nat) .
+  eq ren(AUX0:Int ^ AUX1:Nat) = ren(AUX0:Int) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Nat ^ AUX1:Nat) = ren(AUX0:Nat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt ^ AUX1:Nat) = ren(AUX0:NzInt) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat ^ AUX1:Nat) = ren(AUX0:NzNat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Bool and-then AUX1:Bool) = ren(AUX0:Bool) and-then ren(AUX1:Bool) .
+  eq ren(AUX0:Bool and AUX1:Bool) = ren(AUX0:Bool) and ren(AUX1:Bool) .
+  eq ren(AUX0:NzInt divides AUX1:Int) = ren(AUX0:NzInt) divides ren(AUX1:Int) .
+  eq ren(AUX0:NzNat divides AUX1:Nat) = ren(AUX0:NzNat) divides ren(AUX1:Nat) .
+  eq ren(AUX0:Bool implies AUX1:Bool) = ren(AUX0:Bool) implies ren(AUX1:Bool) .
+  eq ren(AUX0:Bool or-else AUX1:Bool) = ren(AUX0:Bool) or-else ren(AUX1:Bool) .
+  eq ren(AUX0:Bool or AUX1:Bool) = ren(AUX0:Bool) or ren(AUX1:Bool) .
+  eq ren(AUX0:Int quo AUX1:NzInt) = ren(AUX0:Int) quo ren(AUX1:NzInt) .
+  eq ren(AUX0:Nat quo AUX1:NzNat) = ren(AUX0:Nat) quo ren(AUX1:NzNat) .
+  eq ren(AUX0:Int rem AUX1:NzInt) = ren(AUX0:Int) rem ren(AUX1:NzInt) .
+  eq ren(AUX0:Nat rem AUX1:NzNat) = ren(AUX0:Nat) rem ren(AUX1:NzNat) .
+  eq ren(AUX0:Bool xor AUX1:Bool) = ren(AUX0:Bool) xor ren(AUX1:Bool) .
+  eq ren(AUX0:Int xor AUX1:Int) = ren(AUX0:Int) xor ren(AUX1:Int) .
+  eq ren(AUX0:Nat xor AUX1:Nat) = ren(AUX0:Nat) xor ren(AUX1:Nat) .
+  eq ren(AUX0:Int | AUX1:Int) = ren(AUX0:Int) | ren(AUX1:Int) .
+  eq ren(AUX0:Nat | AUX1:Nat) = ren(AUX0:Nat) | ren(AUX1:Nat) .
+  eq ren(AUX0:NzInt | AUX1:Int) = ren(AUX0:NzInt) | ren(AUX1:Int) .
+  eq ren(AUX0:NzNat | AUX1:Nat) = ren(AUX0:NzNat) | ren(AUX1:Nat) .
+  eq ren(abs(AUX0:Int)) = abs(ren(AUX0:Int)) .
+  eq ren(abs(AUX0:NzInt)) = abs(ren(AUX0:NzInt)) .
+  eq ren(c(AUX0:Int)) = c-ren(ren(AUX0:Int)) .
+  eq ren(gcd(AUX0:Int, AUX1:Int)) = gcd(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(gcd(AUX0:NzInt, AUX1:Int)) = gcd(ren(AUX0:NzInt), ren(AUX1:Int)) .
+  eq ren(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ren(AUX0:Bool) then ren(AUX1:[Bool]) else ren(AUX2:[Bool]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Cargo] else AUX2:[Cargo] fi) = if ren(AUX0:Bool) then ren(AUX1:[Cargo]) else ren(AUX2:[Cargo]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Fleet] else AUX2:[Fleet] fi) = if ren(AUX0:Bool) then ren(AUX1:[Fleet]) else ren(AUX2:[Fleet]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Int] else AUX2:[Int] fi) = if ren(AUX0:Bool) then ren(AUX1:[Int]) else ren(AUX2:[Int]) fi .
+  eq ren(if AUX0:Bool then AUX1:[State] else AUX2:[State] fi) = if ren(AUX0:Bool) then ren(AUX1:[State]) else ren(AUX2:[State]) fi .
+  eq ren(isFull(AUX0:Cargo)) = isFull-ren(ren(AUX0:Cargo)) .
+  eq ren(lcm(AUX0:Int, AUX1:Int)) = lcm(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(lcm(AUX0:NzInt, AUX1:NzInt)) = lcm(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(max(AUX0:Int, AUX1:Int)) = max(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(max(AUX0:Nat, AUX1:Int)) = max(ren(AUX0:Nat), ren(AUX1:Int)) .
+  eq ren(max(AUX0:Nat, AUX1:Nat)) = max(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(max(AUX0:NzInt, AUX1:NzInt)) = max(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(max(AUX0:NzNat, AUX1:Int)) = max(ren(AUX0:NzNat), ren(AUX1:Int)) .
+  eq ren(max(AUX0:NzNat, AUX1:Nat)) = max(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:Int, AUX1:Int)) = min(ren(AUX0:Int), ren(AUX1:Int)) .
+  eq ren(min(AUX0:Nat, AUX1:Nat)) = min(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:NzInt, AUX1:NzInt)) = min(ren(AUX0:NzInt), ren(AUX1:NzInt)) .
+  eq ren(min(AUX0:NzNat, AUX1:NzNat)) = min(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(modExp(AUX0:[Int], AUX1:[Int], AUX2:[Int])) = modExp(ren(AUX0:[Int]), ren(AUX1:[Int]), ren(AUX2:[Int])) .
+  eq ren(not AUX0:Bool) = not ren(AUX0:Bool) .
+  eq ren(s AUX0:Nat) = s AUX0:Nat .
+  eq ren(sd(AUX0:Nat, AUX1:Nat)) = sd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(size(AUX0:Cargo)) = size-ren(ren(AUX0:Cargo)) .
+  eq ren(weight(AUX0:Cargo)) = weight-ren(ren(AUX0:Cargo)) .
+  eq ren(~ AUX0:Int) = ~ ren(AUX0:Int) .
+  eq size(nil) = 0 .
+  eq size(c(W:Int),CG:Cargo) = 1 + size(CG:Cargo) .
+  eq size-ren(fail) = (fail).Int .
+  eq weight(nil) = 0 .
+  eq weight(c(W:Int),CG:Cargo) = W:Int + weight(CG:Cargo) .
+  eq weight-ren(fail) = (fail).Int .
+  ceq < MAXW1:Int,MAXS1:Int | c-ren(W1:Int),c-ren(W1':Int) -ren >-ren = (fail).Fleet if not ori(W1:Int <= 5 and W1:Int >= 0) .
+  ceq < MAXW:Int,MAXS:Int | CG:Cargo >-ren = (fail).Fleet if not ori(weight-ren(CG:Cargo) <= MAXW:Int and size-ren(CG:Cargo) <= MAXS:Int) .
+  ceq AUX0:Fleet fail -ren = (fail).Fleet if AUX0:Fleet =/= none-ren .
+  ceq fail AUX1:Fleet -ren = (fail).Fleet if AUX1:Fleet =/= none-ren .
+  ceq AUX0:Cargo,fail -ren = (fail).Cargo if AUX0:Cargo =/= nil-ren .
+  ceq CG1:Cargo,c-ren(W:Int),CG2:Cargo -ren -ren = (fail).Cargo if not ori(isFull-ren(c-ren(W:Int)) implies isFull-ren(CG1:Cargo)) .
+  ceq fail,AUX1:Cargo -ren = (fail).Cargo if AUX1:Cargo =/= nil-ren .
+  ceq c-ren(W:Int) = (fail).Cargo if not ori(W:Int <= 5 and W:Int >= 0) .
+  ceq ori(AUX0:Fleet AUX1:Fleet -ren) = ori(AUX0:Fleet) ori(AUX1:Fleet) if AUX0:Fleet =/= none-ren /\ AUX1:Fleet =/= none-ren .
+  ceq ori(AUX0:Cargo,AUX1:Cargo -ren) = ori(AUX0:Cargo),ori(AUX1:Cargo) if AUX0:Cargo =/= nil-ren /\ AUX1:Cargo =/= nil-ren .
+  ceq ren(AUX0:Fleet AUX1:Fleet) = ren(AUX0:Fleet) ren(AUX1:Fleet) -ren if AUX0:Fleet =/= none /\ AUX1:Fleet =/= none .
+  ceq ren(AUX0:Cargo,AUX1:Cargo) = ren(AUX0:Cargo),ren(AUX1:Cargo) -ren if AUX0:Cargo =/= nil /\ AUX1:Cargo =/= nil .
+  crl (FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : c(W:Int),CG1:Cargo => (FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo,c(W:Int) >) : CG1:Cargo if weight(CG:Cargo,c(W:Int)) <= MAXW:Int /\ ren((FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo,c(W:Int) >) : CG1:Cargo) =/= (fail).State [ label stow ] .
+  crl (FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int),CG2:Cargo => (FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int + 1),CG2:Cargo if not isFull(c(W:Int)) /\ ren((FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int + 1),CG2:Cargo) =/= (fail).State [ label load ] .
+  crl (FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int),CG2:Cargo => (FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int - 1),CG2:Cargo if ren((FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int - 1),CG2:Cargo) =/= (fail).State [ label unload ] .
+  crl (FL:Fleet < MAXW:Int,MAXS:Int | c(W:Int),CG:Cargo >) : CG1:Cargo => (FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int) if ren((FL:Fleet < MAXW:Int,MAXS:Int | CG:Cargo >) : CG1:Cargo,c(W:Int)) =/= (fail).State [ label unstow ] .
+endm

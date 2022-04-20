@@ -1,0 +1,172 @@
+mod PHILO-FIXED is
+  inc BOOL .
+  pr NAT .
+  sorts Chopstick Conf PState Philo Status .
+  subsort Chopstick < Conf .
+  subsort Philo < Conf .
+  op <_`,_`,_> : Nat Nat Conf -> PState [ ctor ] .
+  op <_`,_`,_>-ren : Nat Nat Conf -> PState [ ctor ] .
+  op _;_ : Conf Conf -> Conf [ assoc comm ctor id: none ] .
+  op _;_-ren : Conf Conf -> Conf [ assoc comm ctor id: none-ren ] .
+  op collatz : Nat -> Nat .
+  op collatz-ren : Nat -> Nat .
+  op fail : -> Universal [ poly (0) ] .
+  op hungry : -> Status [ ctor ] .
+  op hungry-ren : -> Status [ ctor ] .
+  op left : Nat -> Nat .
+  op left-ren : Nat -> Nat .
+  op none : -> Conf [ ctor ] .
+  op none-ren : -> Conf [ ctor ] .
+  op ori : Universal -> Universal [ memo strat (0) poly (1 0) ] .
+  op ph : Nat Status Nat -> Philo [ ctor ] .
+  op ph-ren : Nat Status Nat -> Philo [ ctor ] .
+  op ren : Universal -> Universal [ memo strat (1 0) poly (1 0) ] .
+  op right : Nat Nat -> Nat .
+  op right-ren : Nat Nat -> Nat .
+  op stk : Nat -> Chopstick [ ctor ] .
+  op stk-ren : Nat -> Chopstick [ ctor ] .
+  op think : -> Status [ ctor ] .
+  op think-ren : -> Status [ ctor ] .
+  eq < AUX0:Nat,AUX1:Nat,fail >-ren = (fail).PState .
+  eq < AUX0:Nat,fail,AUX2:Conf >-ren = (fail).PState .
+  eq < fail,AUX1:Nat,AUX2:Conf >-ren = (fail).PState .
+  eq collatz(P:Nat) = if P:Nat rem 2 == 0 then P:Nat quo 2 else 1 + P:Nat * 3 fi .
+  eq collatz-ren(fail) = (fail).Nat .
+  eq left(I:NzNat) = I:NzNat .
+  eq left-ren(fail) = (fail).Nat .
+  eq ori(0) = 0 .
+  eq ori(false) = false .
+  eq ori(hungry-ren) = hungry .
+  eq ori(none-ren) = none .
+  eq ori(think-ren) = think .
+  eq ori(true) = true .
+  eq ori(< AUX0:Nat,AUX1:Nat,AUX2:Conf >-ren) = < ori(AUX0:Nat),ori(AUX1:Nat),ori(AUX2:Conf) > .
+  eq ori(AUX0:Nat & AUX1:Nat) = ori(AUX0:Nat) & ori(AUX1:Nat) .
+  eq ori(AUX0:Nat * AUX1:Nat) = ori(AUX0:Nat) * ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat * AUX1:NzNat) = ori(AUX0:NzNat) * ori(AUX1:NzNat) .
+  eq ori(AUX0:Nat + AUX1:Nat) = ori(AUX0:Nat) + ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat + AUX1:Nat) = ori(AUX0:NzNat) + ori(AUX1:Nat) .
+  eq ori(AUX0:Nat << AUX1:Nat) = ori(AUX0:Nat) << ori(AUX1:Nat) .
+  eq ori(AUX0:Nat <= AUX1:Nat) = ori(AUX0:Nat) <= ori(AUX1:Nat) .
+  eq ori(AUX0:Nat < AUX1:Nat) = ori(AUX0:Nat) < ori(AUX1:Nat) .
+  eq ori(AUX0:[Bool] =/= AUX1:[Bool]) = ori(AUX0:[Bool]) =/= ori(AUX1:[Bool]) .
+  eq ori(AUX0:[Bool] == AUX1:[Bool]) = ori(AUX0:[Bool]) == ori(AUX1:[Bool]) .
+  eq ori(AUX0:[Conf] == AUX1:[Conf]) = ori(AUX0:[Conf]) == ori(AUX1:[Conf]) .
+  eq ori(AUX0:[Nat] == AUX1:[Nat]) = ori(AUX0:[Nat]) == ori(AUX1:[Nat]) .
+  eq ori(AUX0:[PState] == AUX1:[PState]) = ori(AUX0:[PState]) == ori(AUX1:[PState]) .
+  eq ori(AUX0:[Status] == AUX1:[Status]) = ori(AUX0:[Status]) == ori(AUX1:[Status]) .
+  eq ori(AUX0:Nat >= AUX1:Nat) = ori(AUX0:Nat) >= ori(AUX1:Nat) .
+  eq ori(AUX0:Nat >> AUX1:Nat) = ori(AUX0:Nat) >> ori(AUX1:Nat) .
+  eq ori(AUX0:Nat > AUX1:Nat) = ori(AUX0:Nat) > ori(AUX1:Nat) .
+  eq ori(AUX0:Nat ^ AUX1:Nat) = ori(AUX0:Nat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat ^ AUX1:Nat) = ori(AUX0:NzNat) ^ ori(AUX1:Nat) .
+  eq ori(AUX0:Bool and AUX1:Bool) = ori(AUX0:Bool) and ori(AUX1:Bool) .
+  eq ori(AUX0:NzNat divides AUX1:Nat) = ori(AUX0:NzNat) divides ori(AUX1:Nat) .
+  eq ori(AUX0:Bool implies AUX1:Bool) = ori(AUX0:Bool) implies ori(AUX1:Bool) .
+  eq ori(AUX0:Bool or AUX1:Bool) = ori(AUX0:Bool) or ori(AUX1:Bool) .
+  eq ori(AUX0:Nat quo AUX1:NzNat) = ori(AUX0:Nat) quo ori(AUX1:NzNat) .
+  eq ori(AUX0:Nat rem AUX1:NzNat) = ori(AUX0:Nat) rem ori(AUX1:NzNat) .
+  eq ori(AUX0:Bool xor AUX1:Bool) = ori(AUX0:Bool) xor ori(AUX1:Bool) .
+  eq ori(AUX0:Nat xor AUX1:Nat) = ori(AUX0:Nat) xor ori(AUX1:Nat) .
+  eq ori(AUX0:Nat | AUX1:Nat) = ori(AUX0:Nat) | ori(AUX1:Nat) .
+  eq ori(AUX0:NzNat | AUX1:Nat) = ori(AUX0:NzNat) | ori(AUX1:Nat) .
+  eq ori(collatz-ren(AUX0:Nat)) = collatz(ori(AUX0:Nat)) .
+  eq ori(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ori(AUX0:Bool) then ori(AUX1:[Bool]) else ori(AUX2:[Bool]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Conf] else AUX2:[Conf] fi) = if ori(AUX0:Bool) then ori(AUX1:[Conf]) else ori(AUX2:[Conf]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Nat] else AUX2:[Nat] fi) = if ori(AUX0:Bool) then ori(AUX1:[Nat]) else ori(AUX2:[Nat]) fi .
+  eq ori(if AUX0:Bool then AUX1:[PState] else AUX2:[PState] fi) = if ori(AUX0:Bool) then ori(AUX1:[PState]) else ori(AUX2:[PState]) fi .
+  eq ori(if AUX0:Bool then AUX1:[Status] else AUX2:[Status] fi) = if ori(AUX0:Bool) then ori(AUX1:[Status]) else ori(AUX2:[Status]) fi .
+  eq ori(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(left-ren(AUX0:Nat)) = left(ori(AUX0:Nat)) .
+  eq ori(max(AUX0:Nat, AUX1:Nat)) = max(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(max(AUX0:NzNat, AUX1:Nat)) = max(ori(AUX0:NzNat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:Nat, AUX1:Nat)) = min(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(min(AUX0:NzNat, AUX1:NzNat)) = min(ori(AUX0:NzNat), ori(AUX1:NzNat)) .
+  eq ori(modExp(AUX0:[Nat], AUX1:[Nat], AUX2:[Nat])) = modExp(ori(AUX0:[Nat]), ori(AUX1:[Nat]), ori(AUX2:[Nat])) .
+  eq ori(not AUX0:Bool) = not ori(AUX0:Bool) .
+  eq ori(ph-ren(AUX0:Nat, AUX1:Status, AUX2:Nat)) = ph(ori(AUX0:Nat), ori(AUX1:Status), ori(AUX2:Nat)) .
+  eq ori(right-ren(AUX0:Nat, AUX1:Nat)) = right(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(s AUX0:Nat) = s AUX0:Nat .
+  eq ori(sd(AUX0:Nat, AUX1:Nat)) = sd(ori(AUX0:Nat), ori(AUX1:Nat)) .
+  eq ori(stk-ren(AUX0:Nat)) = stk(ori(AUX0:Nat)) .
+  eq ph-ren(AUX0:Nat, AUX1:Status, fail) = (fail).Conf .
+  eq ph-ren(AUX0:Nat, fail, AUX2:Nat) = (fail).Conf .
+  eq ph-ren(fail, AUX1:Status, AUX2:Nat) = (fail).Conf .
+  eq ren(0) = 0 .
+  eq ren(false) = false .
+  eq ren(hungry) = hungry-ren .
+  eq ren(none) = none-ren .
+  eq ren(think) = think-ren .
+  eq ren(true) = true .
+  eq ren(< AUX0:Nat,AUX1:Nat,AUX2:Conf >) = < ren(AUX0:Nat),ren(AUX1:Nat),ren(AUX2:Conf) >-ren .
+  eq ren(AUX0:Nat & AUX1:Nat) = ren(AUX0:Nat) & ren(AUX1:Nat) .
+  eq ren(AUX0:Nat * AUX1:Nat) = ren(AUX0:Nat) * ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat * AUX1:NzNat) = ren(AUX0:NzNat) * ren(AUX1:NzNat) .
+  eq ren(AUX0:Nat + AUX1:Nat) = ren(AUX0:Nat) + ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat + AUX1:Nat) = ren(AUX0:NzNat) + ren(AUX1:Nat) .
+  eq ren(AUX0:Nat << AUX1:Nat) = ren(AUX0:Nat) << ren(AUX1:Nat) .
+  eq ren(AUX0:Nat <= AUX1:Nat) = ren(AUX0:Nat) <= ren(AUX1:Nat) .
+  eq ren(AUX0:Nat < AUX1:Nat) = ren(AUX0:Nat) < ren(AUX1:Nat) .
+  eq ren(AUX0:[Bool] =/= AUX1:[Bool]) = ren(AUX0:[Bool]) =/= ren(AUX1:[Bool]) .
+  eq ren(AUX0:[Bool] == AUX1:[Bool]) = ren(AUX0:[Bool]) == ren(AUX1:[Bool]) .
+  eq ren(AUX0:[Conf] == AUX1:[Conf]) = ren(AUX0:[Conf]) == ren(AUX1:[Conf]) .
+  eq ren(AUX0:[Nat] == AUX1:[Nat]) = ren(AUX0:[Nat]) == ren(AUX1:[Nat]) .
+  eq ren(AUX0:[PState] == AUX1:[PState]) = ren(AUX0:[PState]) == ren(AUX1:[PState]) .
+  eq ren(AUX0:[Status] == AUX1:[Status]) = ren(AUX0:[Status]) == ren(AUX1:[Status]) .
+  eq ren(AUX0:Nat >= AUX1:Nat) = ren(AUX0:Nat) >= ren(AUX1:Nat) .
+  eq ren(AUX0:Nat >> AUX1:Nat) = ren(AUX0:Nat) >> ren(AUX1:Nat) .
+  eq ren(AUX0:Nat > AUX1:Nat) = ren(AUX0:Nat) > ren(AUX1:Nat) .
+  eq ren(AUX0:Nat ^ AUX1:Nat) = ren(AUX0:Nat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat ^ AUX1:Nat) = ren(AUX0:NzNat) ^ ren(AUX1:Nat) .
+  eq ren(AUX0:Bool and AUX1:Bool) = ren(AUX0:Bool) and ren(AUX1:Bool) .
+  eq ren(AUX0:NzNat divides AUX1:Nat) = ren(AUX0:NzNat) divides ren(AUX1:Nat) .
+  eq ren(AUX0:Bool implies AUX1:Bool) = ren(AUX0:Bool) implies ren(AUX1:Bool) .
+  eq ren(AUX0:Bool or AUX1:Bool) = ren(AUX0:Bool) or ren(AUX1:Bool) .
+  eq ren(AUX0:Nat quo AUX1:NzNat) = ren(AUX0:Nat) quo ren(AUX1:NzNat) .
+  eq ren(AUX0:Nat rem AUX1:NzNat) = ren(AUX0:Nat) rem ren(AUX1:NzNat) .
+  eq ren(AUX0:Bool xor AUX1:Bool) = ren(AUX0:Bool) xor ren(AUX1:Bool) .
+  eq ren(AUX0:Nat xor AUX1:Nat) = ren(AUX0:Nat) xor ren(AUX1:Nat) .
+  eq ren(AUX0:Nat | AUX1:Nat) = ren(AUX0:Nat) | ren(AUX1:Nat) .
+  eq ren(AUX0:NzNat | AUX1:Nat) = ren(AUX0:NzNat) | ren(AUX1:Nat) .
+  eq ren(collatz(AUX0:Nat)) = collatz-ren(ren(AUX0:Nat)) .
+  eq ren(gcd(AUX0:Nat, AUX1:Nat)) = gcd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(gcd(AUX0:NzNat, AUX1:Nat)) = gcd(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(if AUX0:Bool then AUX1:[Bool] else AUX2:[Bool] fi) = if ren(AUX0:Bool) then ren(AUX1:[Bool]) else ren(AUX2:[Bool]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Conf] else AUX2:[Conf] fi) = if ren(AUX0:Bool) then ren(AUX1:[Conf]) else ren(AUX2:[Conf]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Nat] else AUX2:[Nat] fi) = if ren(AUX0:Bool) then ren(AUX1:[Nat]) else ren(AUX2:[Nat]) fi .
+  eq ren(if AUX0:Bool then AUX1:[PState] else AUX2:[PState] fi) = if ren(AUX0:Bool) then ren(AUX1:[PState]) else ren(AUX2:[PState]) fi .
+  eq ren(if AUX0:Bool then AUX1:[Status] else AUX2:[Status] fi) = if ren(AUX0:Bool) then ren(AUX1:[Status]) else ren(AUX2:[Status]) fi .
+  eq ren(lcm(AUX0:Nat, AUX1:Nat)) = lcm(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(lcm(AUX0:NzNat, AUX1:NzNat)) = lcm(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(left(AUX0:Nat)) = left-ren(ren(AUX0:Nat)) .
+  eq ren(max(AUX0:Nat, AUX1:Nat)) = max(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(max(AUX0:NzNat, AUX1:Nat)) = max(ren(AUX0:NzNat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:Nat, AUX1:Nat)) = min(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(min(AUX0:NzNat, AUX1:NzNat)) = min(ren(AUX0:NzNat), ren(AUX1:NzNat)) .
+  eq ren(modExp(AUX0:[Nat], AUX1:[Nat], AUX2:[Nat])) = modExp(ren(AUX0:[Nat]), ren(AUX1:[Nat]), ren(AUX2:[Nat])) .
+  eq ren(not AUX0:Bool) = not ren(AUX0:Bool) .
+  eq ren(ph(AUX0:Nat, AUX1:Status, AUX2:Nat)) = ph-ren(ren(AUX0:Nat), ren(AUX1:Status), ren(AUX2:Nat)) .
+  eq ren(right(AUX0:Nat, AUX1:Nat)) = right-ren(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(s AUX0:Nat) = s AUX0:Nat .
+  eq ren(sd(AUX0:Nat, AUX1:Nat)) = sd(ren(AUX0:Nat), ren(AUX1:Nat)) .
+  eq ren(stk(AUX0:Nat)) = stk-ren(ren(AUX0:Nat)) .
+  eq right(I:NzNat, N:Nat) = s (I:NzNat rem N:Nat) .
+  eq right-ren(AUX0:Nat, fail) = (fail).Nat .
+  eq right-ren(fail, AUX1:Nat) = (fail).Nat .
+  eq stk-ren(fail) = (fail).Conf .
+  ceq < P:Nat,N:Nat,CF:Conf ; ph-ren(I:NzNat, hungry-ren, 2) -ren >-ren = (fail).PState if not ori(N:Nat >= 0) .
+  ceq < P:Nat,N:Nat,CF:Conf ; ph-ren(I:NzNat, think-ren, 0) -ren >-ren = (fail).PState if not ori(I:NzNat > 0) .
+  ceq AUX0:Conf ; fail -ren = (fail).Conf if AUX0:Conf =/= none-ren .
+  ceq fail ; AUX1:Conf -ren = (fail).Conf if AUX1:Conf =/= none-ren .
+  ceq ori(AUX0:Conf ; AUX1:Conf -ren) = ori(AUX0:Conf) ; ori(AUX1:Conf) if AUX0:Conf =/= none-ren /\ AUX1:Conf =/= none-ren .
+  ceq ren(AUX0:Conf ; AUX1:Conf) = ren(AUX0:Conf) ; ren(AUX1:Conf) -ren if AUX0:Conf =/= none /\ AUX1:Conf =/= none .
+  crl < P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, hungry, 2) > => < P:Nat,N:Nat,(stk(left(I:NzNat)) ; CF:Conf ; stk(right(I:NzNat, N:Nat))) ; ph(I:NzNat, think, 0) > if ren(< P:Nat,N:Nat,(stk(left(I:NzNat)) ; CF:Conf ; stk(right(I:NzNat, N:Nat))) ; ph(I:NzNat, think, 0) >) =/= (fail).PState [ label stop ] .
+  crl < P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, think, 0) > => < P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, hungry, 0) > if ren(< P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, hungry, 0) >) =/= (fail).PState [ label wake ] .
+  crl < P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, think, 0) > => < collatz(P:Nat),N:Nat,CF:Conf ; ph(I:NzNat, think, 0) > if P:Nat > 1 /\ ren(< collatz(P:Nat),N:Nat,CF:Conf ; ph(I:NzNat, think, 0) >) =/= (fail).PState [ label solve ] .
+  crl < P:Nat,N:Nat,CF:Conf ; ph(N:Nat, think, 0) > => < P:Nat,N:Nat + 1,((CF:Conf ; stk(N:Nat + 1)) ; ph(N:Nat + 1, think, 0)) ; ph(N:Nat, think, 0) > if N:Nat rem 3 == 0 or P:Nat rem (N:Nat * 4) == 0 /\ ren(< P:Nat,N:Nat + 1,((CF:Conf ; stk(N:Nat + 1)) ; ph(N:Nat + 1, think, 0)) ; ph(N:Nat, think, 0) >) =/= (fail).PState [ label join ] .
+  crl < P:Nat,N:Nat,CF:Conf ; stk(J:NzNat) ; ph(I:NzNat, hungry, C:Nat) > => < P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, hungry, C:Nat + 1) > if J:NzNat == left(I:NzNat) or J:NzNat == right(I:NzNat, N:Nat) /\ ren(< P:Nat,N:Nat,CF:Conf ; ph(I:NzNat, hungry, C:Nat + 1) >) =/= (fail).PState [ label grab ] .
+  crl < P:Nat,N:Nat,CF:Conf ; stk(N:Nat) ; ph(N:Nat, think, 0) > => < P:Nat,sd(N:Nat, 1),CF:Conf > if N:Nat > 2 /\ ren(< P:Nat,sd(N:Nat, 1),CF:Conf >) =/= (fail).PState [ label leave ] .
+endm

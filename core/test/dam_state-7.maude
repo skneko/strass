@@ -13,9 +13,10 @@ mod DAM-PRED is
     eq openSpillways([ S,O ] SC) = if O =/= close then 1 + openSpillways(SC) else openSpillways(SC) fi .
 endm
 
-select TEST-CONTEXT .
-
-erew writeToFile("../examples/dam/fixed/dam_state-7.maude", 
-    fix('DAM, 'DAM-PRED, readFileToEnd("../examples/dam/state-7.constraints"))) .
+erew in TEST-CONTEXT : test(
+    "../examples/dam/dam.maude",
+    "../examples/dam/state-7.constraints",
+    'DAM, 'DAM-PRED,
+    "../examples/dam/fixed/dam_state-7.maude") .
 
 quit

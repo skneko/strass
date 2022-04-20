@@ -1,9 +1,0 @@
-load test.maude
-load ../examples/semaphore/semaphore.maude
-
-select TEST-CONTEXT .
-
-erew writeToFile("../examples/semaphore/fixed/semaphore_state.maude", 
-    fix('SEMAPHORE, 'EMPTY, readFileToEnd("../examples/semaphore/state.constraints"))) .
-
-quit

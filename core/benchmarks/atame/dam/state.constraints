@@ -1,0 +1,4 @@
+{ SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool } | V:Rat < 50000000
+{ [ S1:SpillwayId , O1:Aperture ] [ S2:SpillwayId , O2:Aperture ] [ S3:SpillwayId , O3:Aperture ] ; V:Rat ; T:TimeStamp ; AC:Bool } | (V:Rat > 40000000 implies ((O1:Aperture == open3 and O2:Aperture =/= close and O3:Aperture =/= close) or (O2:Aperture == open3 and O1:Aperture =/= close and O3:Aperture =/= close) or (O3:Aperture == open3 and O1:Aperture =/= close and O2:Aperture =/= close)))
+{ SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool } | (V:Rat < 10000000 implies openSpillways(SC:Spillways) == 0)
+{ SC:Spillways ; V:Rat ; T:TimeStamp ; AC:Bool } | (V:Rat >= 10000000 and V:Rat <= 40000000 implies openSpillways(SC:Spillways) == 2)

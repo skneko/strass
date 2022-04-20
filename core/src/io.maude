@@ -32,8 +32,15 @@ mod IO-FILE is
     op writeToFile : String String -> Configuration .
     eq writeToFile(Path, Text) =
         <>
-        < --skn-io-helper-singleton : FileWriter | text: Text >
-        openFile(fileManager, --skn-io-helper-singleton, Path, "w") .
+        startFileWriter(--skn-io-helper-singleton, Path, Text) .
+
+    op newFileWriter : Oid String -> Object .
+    eq newFileWriter(O, Text) = < O : FileWriter | text: Text > .
+
+    op startFileWriter : Oid String String -> Configuration .
+    eq startFileWriter(O, Path, Text) =
+        newFileWriter(O, Text)
+        openFile(fileManager, O, Path, "w") .
 
     rl < O : FileWriter | text: Text > openedFile(O, fileManager, FHOut)
     => < O : FileWriter | text: Text > write(FHOut, O, Text) .
@@ -58,34 +65,47 @@ mod IO-FILE is
     op readFileToEnd : String ~> String .
     eq readFileToEnd(Path) = $getText(
         <>
-        < --skn-io-helper-singleton : FileReader | text?: readError, finished: false >
-        openFile(fileManager, --skn-io-helper-singleton, Path, "r")) .
+        startFileReader(--skn-io-helper-singleton, Path)) .
 
     op $getText : Configuration ~> String .
     eq $getText(<> finishedReadingFile(--skn-io-helper-singleton, Text?)) = Text? .
 
-    rl < O : FileReader | text?: readError, finished: false > 
+    op newFileReader : Oid -> Object .
+    eq newFileReader(O) =
+        < O : FileReader | text?: readError, finished: false > .
+
+    op startFileReader : Oid String -> Configuration .
+    eq startFileReader(O, Path) = 
+        newFileReader(O)
+        openFile(fileManager, O, Path, "r") .
+
+    rl [start] :
+       < O : FileReader | text?: readError, finished: false > 
         openedFile(O, fileManager, FHIn)
     => < O : FileReader | text?: "", finished: false > 
         getLine(FHIn, O) .
 
-    crl < O : FileReader | text?: Text, finished: false > 
+    crl [loop] :
+       < O : FileReader | text?: Text, finished: false > 
         gotLine(O, FHIn, Line)
     => < O : FileReader | text?: (Text + Line), finished: false > 
         getLine(FHIn, O) 
     if length(Line) > 0 .
 
-    rl < O : FileReader | text?: Text?, finished: false > 
+    rl [error] :
+       < O : FileReader | text?: Text?, finished: false > 
         fileError(O, fileManager, Reason:String)
     => fileError(O, fileManager, Reason:String) finishedReadingFile(O, readError) .
 
-    crl < O : FileReader | text?: Text, finished: false > 
+    crl [close] :
+       < O : FileReader | text?: Text, finished: false > 
         gotLine(O, FHIn, Line)
     => < O : FileReader | text?: Text, finished: true > 
         closeFile(FHIn, O)
     if length(Line) == 0 .
 
-    rl < O : FileReader | text?: Text?, finished: true >
+    rl [finish] :
+       < O : FileReader | text?: Text?, finished: true >
         closedFile(O, FHIn)
     => finishedReadingFile(O, Text?) .
 endm

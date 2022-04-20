@@ -1,9 +1,10 @@
 load test.maude
 load ../examples/semaphore-nt/semaphore-nt.maude
 
-select TEST-CONTEXT .
-
-erew writeToFile("../examples/semaphore-nt/fixed/semaphore-nt_state.maude", 
-    fix('SEMAPHORE-NT, 'EMPTY, readFileToEnd("../examples/semaphore-nt/state.constraints"))) .
+erew in TEST-CONTEXT : test(
+    "../examples/semaphore-nt/semaphore-nt.maude",
+    "../examples/semaphore-nt/state.constraints",
+    'SEMAPHORE-NT,
+    "../examples/semaphore-nt/fixed/semaphore-nt_state.maude") .
 
 quit

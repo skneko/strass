@@ -1,0 +1,4 @@
+(on(X1:Block,X2:Block) & on(Y1:Block,Y2:Block)) # X1:Block =/= Y1:Block
+(on(X1:Block,X2:Block) & table(Y:Block) & table(Z:Block)) # (X1:Block =/= Y:Block) and (X1:Block =/= Z:Block)
+(hold(X:Block) & hold(Y:Block)) # false
+(table(X:Block) & hold(Y:Block)) # (X:Block =/= Y:Block)

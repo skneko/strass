@@ -1,0 +1,26 @@
+mod BLOCKS is inc INT .
+  sorts Block Prop PropSet State .
+  subsort Prop < PropSet < State .
+  ops a b c : -> Block .
+  op table : Block -> Prop . *** block is on the table
+  op on : Block Block -> Prop . *** block A is on block B
+  op clear : Block -> Prop . *** block is clear
+  op hold : Block -> Prop . *** robot arm holds the block
+  op empty : -> PropSet . *** robot arm is empty
+  op none : -> PropSet .
+  op _&_ : PropSet PropSet -> PropSet [ctor assoc comm id: none] .
+  op [_] : PropSet -> State [ctor] .
+  op size : Block -> Nat .
+  
+  vars X Y : Block .
+  var PS : PropSet .
+  
+  eq [sizeA] : size(a) = 1 .
+  eq [sizeB] : size(b) = 2 .
+  eq [sizeC] : size(c) = 3 .
+
+  rl [pickup] : [ clear(X) & table(X) & PS ] => [ hold(X) & PS ] .
+  rl [putdown] : [ hold(X) & PS ] => [ empty & clear(X) & table(X) & PS ] .
+  rl [unstack] : [ empty & clear(X) & on(X,Y) & PS ] => [ hold(X) & clear(Y) & PS ] .
+  crl [stack] : [ hold(X) & clear(Y) & PS ] => [ empty & clear(X) & on(X,Y) & PS ] if size(X) < size(Y) .
+endm

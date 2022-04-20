@@ -1,0 +1,12 @@
+load ../src/pretty-print.maude
+load ../src/io.maude
+
+mod DESCEND is
+    pr PRETTY-PRINT .
+    pr IO .
+
+    var H : Header . var T : Term .
+
+    op descend : Header Term -> Configuration .
+    eq descend(H, T) = print(toStringTerm(upModule(H, false), T) + "\n") .
+endm
