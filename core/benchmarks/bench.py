@@ -251,7 +251,12 @@ def export_summary(results, path):
 
     writer.writerow(csv_header)
     for result in results:
-        program, constraints, limit = result["path"].stem.split("_")
+        split = result["path"].stem.split("_")
+        if len(split) == 3:
+            program, constraints, limit = split
+        elif len(split) == 2:
+            program, limit = split
+            constraints = ""
         row = [program, constraints, limit, min(result["solution_number"])]
         row += unpack_stats(calculate_stats(result["rewrites"]))
         row += unpack_stats(calculate_stats(result["cpu_time"]))
@@ -275,7 +280,7 @@ def benchmark(args=parse_args()):
     parsed = parse_output(results, args.iters)
 
     print("\n==== Summary ============")
-    print(f"Format: program constraints limit\t\t({args.iters} iterations each)")
+    print(f"Format: program [constraints] limit\t\t({args.iters} iterations each)")
     print()
     print_summary(parsed, args.cpu_time)
 
