@@ -73,60 +73,60 @@ endm
 smod DAM-NOCMD-FIXED is
 	protecting DAM-NOCMD .
 	protecting DAM-PRED .
-	strat Aperture : @ Aperture .
 	strat Aperture! : @ Aperture .
 	strat Aperture* : @ Aperture .
 	strat Aperture+ : @ Aperture .
-	strat DamState : @ DamState .
+	strat Aperture-state : @ Aperture .
 	strat DamState! : @ DamState .
 	strat DamState* : @ DamState .
 	strat DamState+ : @ DamState .
-	strat SpillwayId : @ SpillwayId .
+	strat DamState-state : @ DamState .
 	strat SpillwayId! : @ SpillwayId .
 	strat SpillwayId* : @ SpillwayId .
 	strat SpillwayId+ : @ SpillwayId .
-	strat Spillways : @ Spillways .
+	strat SpillwayId-state : @ SpillwayId .
 	strat Spillways! : @ Spillways .
 	strat Spillways* : @ Spillways .
 	strat Spillways+ : @ Spillways .
-	strat State : @ State .
+	strat Spillways-state : @ Spillways .
 	strat State! : @ State .
 	strat State* : @ State .
 	strat State+ : @ State .
+	strat State-path : @ State .
 	strat State-state : @ State .
-	strat TimeStamp : @ TimeStamp .
 	strat TimeStamp! : @ TimeStamp .
 	strat TimeStamp* : @ TimeStamp .
 	strat TimeStamp+ : @ TimeStamp .
+	strat TimeStamp-state : @ TimeStamp .
 	strat s2 : @ State .
 	strat s3 : @ State .
 	strat s4 : @ State .
 	strat s5 : @ State .
-	sd Aperture := idle .
 	sd Aperture! := (all) ! .
 	sd Aperture* := (all) * .
 	sd Aperture+ := (all) + .
-	sd DamState := idle .
+	sd Aperture-state := idle .
 	sd DamState! := (all) ! .
 	sd DamState* := (all) * .
 	sd DamState+ := (all) + .
-	sd SpillwayId := idle .
+	sd DamState-state := idle .
 	sd SpillwayId! := (all) ! .
 	sd SpillwayId* := (all) * .
 	sd SpillwayId+ := (all) + .
-	sd Spillways := idle .
+	sd SpillwayId-state := idle .
 	sd Spillways! := (all) ! .
 	sd Spillways* := (all) * .
 	sd Spillways+ := (all) + .
-	sd State := (((close1-C) ; (State-state)) | ((close2-1) ; (State-state)) | ((close3-2) ; (State-state)) | ((open1-2) ; (State-state)) | ((open2-3) ; (State-state)) | (openC-1) ; (State-state)) ; ((volume) ; (State-state)) .
-	sd State! := (State-state) ; ((State) ; (((all) ; (State)) !)) .
-	sd State* := (State-state) ; ((State) ; (((all) ; (State)) *)) .
-	sd State+ := (State-state) ; ((State) ; (((all) ; (State)) +)) .
+	sd Spillways-state := idle .
+	sd State! := (State-state) ; ((State-path) ; (((all) ; (State-path)) !)) .
+	sd State* := (State-state) ; ((State-path) ; (((all) ; (State-path)) *)) .
+	sd State+ := (State-state) ; ((State-path) ; (((all) ; (State-path)) +)) .
+	sd State-path := (((close1-C) ; (State-state)) | ((close2-1) ; (State-state)) | ((close3-2) ; (State-state)) | ((open1-2) ; (State-state)) | ((open2-3) ; (State-state)) | (openC-1) ; (State-state)) ; ((volume) ; (State-state)) .
 	sd State-state := (s2) ; ((s3) ; ((s4) ; (s5))) .
-	sd TimeStamp := idle .
 	sd TimeStamp! := (all) ! .
 	sd TimeStamp* := (all) * .
 	sd TimeStamp+ := (all) + .
+	sd TimeStamp-state := idle .
 	sd s2 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp} s.t. V:Rat < 50000000 = false) .
 	sd s3 := not(amatch {[S1:SpillwayId, O1:Aperture][S2:SpillwayId, O2:Aperture][S3:SpillwayId, O3:Aperture] ; V:Rat ; T:TimeStamp} s.t. V:Rat > 40000000 implies O1:Aperture == open3 and O2:Aperture =/= close and O3:Aperture =/= close or O2:Aperture == open3 and O1:Aperture =/= close and O3:Aperture =/= close or O3:Aperture == open3 and O1:Aperture =/= close and O2:Aperture =/= close = false) .
 	sd s4 := not(amatch {SC:Spillways ; V:Rat ; T:TimeStamp} s.t. V:Rat < 10000000 implies openSpillways(SC:Spillways) == 0 = false) .

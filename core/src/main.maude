@@ -165,7 +165,8 @@ fmod STRASS-CONSTRAINTS-PARSING is
     var TCs : TaggedConstraintSet .
 
     op $checkGlobals : TaggedConstraintSet -> Bool .
-    eq $checkGlobals((Tag:Sort |-> [global] C:Constraint, Tag':Sort |-> [global] C':Constraint, TCs)) = false .
+    eq $checkGlobals((Tag:Sort |-> [global] C:Constraint, Tag:Sort |-> [global] C':Constraint, TCs)) = false .
+    eq $checkGlobals((constraintParseFailure(LineNum), TCs)) = true .
     eq $checkGlobals(TCs) = true [owise] . 
 
     ***( Action sublanguage parsing )***
@@ -424,16 +425,16 @@ fmod STRASS-GENERATION is
 
     op makeConstraintStratDeclSet : TaggedConstraintSet -> StratDeclSet .
     eq makeConstraintStratDeclSet((S |-> [NIdx] CS, TCs)) =
-        (strat $stateStratName(NIdx) : nil @ S [ none ] .)
+        (strat $stateIndexStratName(NIdx) : nil @ S [ none ] .)
         makeConstraintStratDeclSet(TCs) .
     eq makeConstraintStratDeclSet((S |-> [global] C, TCs)) = makeConstraintStratDeclSet(TCs) .
     eq makeConstraintStratDeclSet(empty) = none .
 
     op makeSortRelatedStratDeclSet : SortDependencyMap TaggedConstraintSet -> StratDeclSet .
     eq makeSortRelatedStratDeclSet((S |-> Ss, SDM), TCs) = 
-        (strat S : nil @ S [ none ] .)
+        (strat $sortStateStratName(S) : nil @ S [ none ] .)
         if hasGlobalPathFor(S, TCs)
-        then (strat $stateSearchStratName(S) : nil @ S [ none ] .)
+        then (strat $sortPathStratName(S) : nil @ S [ none ] .)
         else none
         fi
         makeSearchStratDecls(S)
@@ -462,7 +463,7 @@ fmod STRASS-GENERATION is
 
     op makeStateStratDef : Nat Term Term -> StratDefinition .
     eq makeStateStratDef(NIdx, P, G) =
-        (sd $stateStratName(NIdx)[[empty]] := makeStateStratBody(P, G) [ none ] .) .
+        (sd $stateIndexStratName(NIdx)[[empty]] := makeStateStratBody(P, G) [ none ] .) .
 
     op makeStateStratBody : Term Term -> Strategy .
     eq makeStateStratBody(P, G) = not (amatch P s.t. (G = 'false.Bool)) .
@@ -477,21 +478,19 @@ fmod STRASS-GENERATION is
     op makeLocalStratDefs : Sort TaggedConstraintSet -> StratDefSet .
     eq makeLocalStratDefs(S, TCs) =
         if hasGlobalPathFor(S, TCs) 
-        then
-            (sd S[[empty]] := $makeLocalStratDefPath(S, TCs) [ none ] .)
-            (sd $stateSearchStratName(S)[[empty]] := $makeLocalStratDefState(TCs) [ none ] .)
-        else
-            (sd S[[empty]] := $makeLocalStratDefState(TCs) [ none ] .)
-        fi .
+        then (sd $sortPathStratName(S)[[empty]] := $makeLocalStratDefPath(S, TCs) [ none ] .)
+        else none
+        fi
+        (sd $sortStateStratName(S)[[empty]] := $makeLocalStratDefState(TCs) [ none ] .) .
 
     op $makeLocalStratDefState : TaggedConstraintSet -> Strategy .
     eq $makeLocalStratDefState((S |-> [NIdx] CS, TCs)) =
-        $stateStratName(NIdx)[[empty]] ; $makeLocalStratDefState(TCs) .
+        $stateIndexStratName(NIdx)[[empty]] ; $makeLocalStratDefState(TCs) .
     eq $makeLocalStratDefState((S |-> [global] C, TCs)) = $makeLocalStratDefState(TCs) .
     eq $makeLocalStratDefState(TCs) = idle [owise] .
 
     op $makeLocalStratDefPath : Sort TaggedConstraintSet -> Strategy .
-    ceq $makeLocalStratDefPath(S, TCs) = interleave(A, $stateSearchStratName(S)[[empty]])
+    ceq $makeLocalStratDefPath(S, TCs) = interleave(A, $sortStateStratName(S)[[empty]])
     if (S |-> [global] path A, Tail:TaggedConstraintSet) := TCs .
 
     op makeSearchStratDefs : Sort Bool Bool -> StratDefSet .
@@ -502,13 +501,13 @@ fmod STRASS-GENERATION is
             (sd $suffix(S, "!")[[empty]] := all ! [ none ] .)
         else 
             if UsePathStrategy:Bool then
-                (sd $suffix(S, "*")[[empty]] := $stateSearchStratName(S)[[empty]] ; S[[empty]] ; ((all ; S[[empty]]) *) [ none ] .)
-                (sd $suffix(S, "+")[[empty]] := $stateSearchStratName(S)[[empty]] ; S[[empty]] ; ((all ; S[[empty]]) +) [ none ] .)
-                (sd $suffix(S, "!")[[empty]] := $stateSearchStratName(S)[[empty]] ; S[[empty]] ; ((all ; S[[empty]]) !) [ none ] .)
+                (sd $suffix(S, "*")[[empty]] := $sortStateStratName(S)[[empty]] ; $sortPathStratName(S)[[empty]] ; ((all ; $sortPathStratName(S)[[empty]]) *) [ none ] .)
+                (sd $suffix(S, "+")[[empty]] := $sortStateStratName(S)[[empty]] ; $sortPathStratName(S)[[empty]] ; ((all ; $sortPathStratName(S)[[empty]]) +) [ none ] .)
+                (sd $suffix(S, "!")[[empty]] := $sortStateStratName(S)[[empty]] ; $sortPathStratName(S)[[empty]] ; ((all ; $sortPathStratName(S)[[empty]]) !) [ none ] .)
             else
-                (sd $suffix(S, "*")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) *) [ none ] .)
-                (sd $suffix(S, "+")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) +) [ none ] .)
-                (sd $suffix(S, "!")[[empty]] := S[[empty]] ; ((all ; S[[empty]]) !) [ none ] .)
+                (sd $suffix(S, "*")[[empty]] := $sortStateStratName(S)[[empty]] ; ((all ; $sortStateStratName(S)[[empty]]) *) [ none ] .)
+                (sd $suffix(S, "+")[[empty]] := $sortStateStratName(S)[[empty]] ; ((all ; $sortStateStratName(S)[[empty]]) +) [ none ] .)
+                (sd $suffix(S, "!")[[empty]] := $sortStateStratName(S)[[empty]] ; ((all ; $sortStateStratName(S)[[empty]]) !) [ none ] .)
             fi
         fi .
 
@@ -547,11 +546,14 @@ fmod STRASS-GENERATION is
 
     ***( Auxiliary functions )***
 
-    op $stateStratName : Nat -> Qid .
-    eq $stateStratName(NIdx) = qid("s" + string(NIdx, 10)) .
+    op $stateIndexStratName : Nat -> Qid .
+    eq $stateIndexStratName(NIdx) = qid("s" + string(NIdx, 10)) .
 
-    op $stateSearchStratName : Qid -> Qid .
-    eq $stateSearchStratName(S) = $suffix(S, "-state") .
+    op $sortStateStratName : Qid -> Qid .
+    eq $sortStateStratName(S) = $suffix(S, "-state") .
+
+    op $sortPathStratName : Qid -> Qid .
+    eq $sortPathStratName(S) = $suffix(S, "-path") .
 
     op $suffix : Qid String -> Qid .
     eq $suffix(Q:Qid, S:String) = qid(string(Q:Qid) + S:String) .
@@ -610,4 +612,8 @@ mod STRASS is
         makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs))
     if (mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) := upgradeToSystemModule(M)
     /\ (mod HP is IsP sorts SsP . SubSsP OpsP MAsP EsP RsP endm) := upgradeToSystemModule(MP) .
+
+    op parseConstraints : Qid Qid String -> TaggedConstraintSet .
+    eq parseConstraints(Q, QP, RawCs) =
+        parseConstraints(upModule(Q, false), upModule(QP, false), RawCs) .
 endm

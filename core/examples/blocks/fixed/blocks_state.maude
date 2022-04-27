@@ -38,26 +38,26 @@ endfm
 smod BLOCKS-FIXED is
 	protecting BLOCKS .
 	protecting EMPTY .
-	strat Block : @ Block .
 	strat Block! : @ Block .
 	strat Block* : @ Block .
 	strat Block+ : @ Block .
-	strat State : @ State .
+	strat Block-state : @ Block .
 	strat State! : @ State .
 	strat State* : @ State .
 	strat State+ : @ State .
+	strat State-state : @ State .
 	strat s1 : @ PropSet .
 	strat s2 : @ PropSet .
 	strat s3 : @ PropSet .
 	strat s4 : @ PropSet .
-	sd Block := idle .
 	sd Block! := (all) ! .
 	sd Block* := (all) * .
 	sd Block+ := (all) + .
-	sd State := (s1) ; ((s2) ; ((s3) ; (s4))) .
-	sd State! := (State) ; (((all) ; (State)) !) .
-	sd State* := (State) ; (((all) ; (State)) *) .
-	sd State+ := (State) ; (((all) ; (State)) +) .
+	sd Block-state := idle .
+	sd State! := (State-state) ; (((all) ; (State-state)) !) .
+	sd State* := (State-state) ; (((all) ; (State-state)) *) .
+	sd State+ := (State-state) ; (((all) ; (State-state)) +) .
+	sd State-state := (s1) ; ((s2) ; ((s3) ; (s4))) .
 	sd s1 := not(amatch on(X1:Block, X2:Block) & on(Y1:Block, Y2:Block) s.t. X1:Block =/= Y1:Block = false) .
 	sd s2 := not(amatch on(X1:Block, X2:Block) & table(Y:Block) & table(Z:Block) s.t. X1:Block =/= Y:Block and X1:Block =/= Z:Block = false) .
 	sd s3 := not(amatch hold(X:Block) & hold(Y:Block) s.t. false = false) .

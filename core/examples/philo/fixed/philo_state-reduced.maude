@@ -41,32 +41,32 @@ endfm
 smod PHILO-FIXED is
 	protecting PHILO .
 	protecting EMPTY .
-	strat Conf : @ Conf .
 	strat Conf! : @ Conf .
 	strat Conf* : @ Conf .
 	strat Conf+ : @ Conf .
-	strat PState : @ PState .
+	strat Conf-state : @ Conf .
 	strat PState! : @ PState .
 	strat PState* : @ PState .
 	strat PState+ : @ PState .
-	strat Status : @ Status .
+	strat PState-state : @ PState .
 	strat Status! : @ Status .
 	strat Status* : @ Status .
 	strat Status+ : @ Status .
+	strat Status-state : @ Status .
 	strat s1 : @ PState .
 	strat s2 : @ PState .
-	sd Conf := idle .
 	sd Conf! := (all) ! .
 	sd Conf* := (all) * .
 	sd Conf+ := (all) + .
-	sd PState := (s1) ; (s2) .
-	sd PState! := (PState) ; (((all) ; (PState)) !) .
-	sd PState* := (PState) ; (((all) ; (PState)) *) .
-	sd PState+ := (PState) ; (((all) ; (PState)) +) .
-	sd Status := idle .
+	sd Conf-state := idle .
+	sd PState! := (PState-state) ; (((all) ; (PState-state)) !) .
+	sd PState* := (PState-state) ; (((all) ; (PState-state)) *) .
+	sd PState+ := (PState-state) ; (((all) ; (PState-state)) +) .
+	sd PState-state := (s1) ; (s2) .
 	sd Status! := (all) ! .
 	sd Status* := (all) * .
 	sd Status+ := (all) + .
+	sd Status-state := idle .
 	sd s1 := not(amatch < P:Nat, N:Nat, CF:Conf ; ph(I:NzNat, hungry, 2) > s.t. N:Nat >= 0 = false) .
 	sd s2 := not(amatch < P:Nat, N:Nat, CF:Conf ; ph(I:NzNat, think, 0) > s.t. I:NzNat > 0 = false) .
 endsm

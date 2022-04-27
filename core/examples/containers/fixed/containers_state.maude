@@ -62,34 +62,34 @@ endfm
 smod CONTAINERS-FIXED is
 	protecting CONTAINERS .
 	protecting EMPTY .
-	strat Cargo : @ Cargo .
 	strat Cargo! : @ Cargo .
 	strat Cargo* : @ Cargo .
 	strat Cargo+ : @ Cargo .
-	strat Fleet : @ Fleet .
+	strat Cargo-state : @ Cargo .
 	strat Fleet! : @ Fleet .
 	strat Fleet* : @ Fleet .
 	strat Fleet+ : @ Fleet .
-	strat State : @ State .
+	strat Fleet-state : @ Fleet .
 	strat State! : @ State .
 	strat State* : @ State .
 	strat State+ : @ State .
+	strat State-state : @ State .
 	strat s1 : @ Container .
 	strat s2 : @ Ship .
 	strat s3 : @ Cargo .
 	strat s4 : @ Ship .
-	sd Cargo := (s3) ; (s1) .
-	sd Cargo! := (Cargo) ; (((all) ; (Cargo)) !) .
-	sd Cargo* := (Cargo) ; (((all) ; (Cargo)) *) .
-	sd Cargo+ := (Cargo) ; (((all) ; (Cargo)) +) .
-	sd Fleet := (s3) ; ((s2) ; (s4)) .
-	sd Fleet! := (Fleet) ; (((all) ; (Fleet)) !) .
-	sd Fleet* := (Fleet) ; (((all) ; (Fleet)) *) .
-	sd Fleet+ := (Fleet) ; (((all) ; (Fleet)) +) .
-	sd State := (s3) ; ((s1) ; ((s2) ; (s4))) .
-	sd State! := (State) ; (((all) ; (State)) !) .
-	sd State* := (State) ; (((all) ; (State)) *) .
-	sd State+ := (State) ; (((all) ; (State)) +) .
+	sd Cargo! := (Cargo-state) ; (((all) ; (Cargo-state)) !) .
+	sd Cargo* := (Cargo-state) ; (((all) ; (Cargo-state)) *) .
+	sd Cargo+ := (Cargo-state) ; (((all) ; (Cargo-state)) +) .
+	sd Cargo-state := (s3) ; (s1) .
+	sd Fleet! := (Fleet-state) ; (((all) ; (Fleet-state)) !) .
+	sd Fleet* := (Fleet-state) ; (((all) ; (Fleet-state)) *) .
+	sd Fleet+ := (Fleet-state) ; (((all) ; (Fleet-state)) +) .
+	sd Fleet-state := (s3) ; ((s2) ; (s4)) .
+	sd State! := (State-state) ; (((all) ; (State-state)) !) .
+	sd State* := (State-state) ; (((all) ; (State-state)) *) .
+	sd State+ := (State-state) ; (((all) ; (State-state)) +) .
+	sd State-state := (s3) ; ((s1) ; ((s2) ; (s4))) .
 	sd s1 := not(amatch c(W:Int) s.t. W:Int >= 0 and W:Int <= 5 = false) .
 	sd s2 := not(amatch < MAXW:Int, MAXS:Int | CG:Cargo > s.t. weight(CG:Cargo) <= MAXW:Int and size(CG:Cargo) <= MAXS:Int = false) .
 	sd s3 := not(amatch CG1:Cargo, c(W:Int), CG2:Cargo s.t. isFull(c(W:Int)) implies isFull(CG1:Cargo) = false) .

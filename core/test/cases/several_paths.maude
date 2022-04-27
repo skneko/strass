@@ -21,7 +21,7 @@ mod TEST is
     + "b # true\n" 
     + "c # true\n" 
     + "path for S : (r1 | r2) *\n"
-    + "path for S : rx !" .
+    + "path for X : rx !" .
 endm
 
 erew print(fix('PROGRAM, 'EMPTY, constraints)) .

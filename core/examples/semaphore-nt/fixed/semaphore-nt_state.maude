@@ -52,42 +52,42 @@ endfm
 smod SEMAPHORE-NT-FIXED is
 	protecting SEMAPHORE-NT .
 	protecting EMPTY .
-	strat GlobalState : @ GlobalState .
 	strat GlobalState! : @ GlobalState .
 	strat GlobalState* : @ GlobalState .
 	strat GlobalState+ : @ GlobalState .
-	strat PSet : @ PSet .
+	strat GlobalState-state : @ GlobalState .
 	strat PSet! : @ PSet .
 	strat PSet* : @ PSet .
 	strat PSet+ : @ PSet .
-	strat PState : @ PState .
+	strat PSet-state : @ PSet .
 	strat PState! : @ PState .
 	strat PState* : @ PState .
 	strat PState+ : @ PState .
-	strat Semaphore : @ Semaphore .
+	strat PState-state : @ PState .
 	strat Semaphore! : @ Semaphore .
 	strat Semaphore* : @ Semaphore .
 	strat Semaphore+ : @ Semaphore .
+	strat Semaphore-state : @ Semaphore .
 	strat s1 : @ PSet .
 	strat s2 : @ GlobalState .
 	strat s3 : @ Process .
 	strat s4 : @ GlobalState .
-	sd GlobalState := (s2) ; ((s4) ; ((s1) ; (s3))) .
-	sd GlobalState! := (GlobalState) ; (((all) ; (GlobalState)) !) .
-	sd GlobalState* := (GlobalState) ; (((all) ; (GlobalState)) *) .
-	sd GlobalState+ := (GlobalState) ; (((all) ; (GlobalState)) +) .
-	sd PSet := (s1) ; (s3) .
-	sd PSet! := (PSet) ; (((all) ; (PSet)) !) .
-	sd PSet* := (PSet) ; (((all) ; (PSet)) *) .
-	sd PSet+ := (PSet) ; (((all) ; (PSet)) +) .
-	sd PState := idle .
+	sd GlobalState! := (GlobalState-state) ; (((all) ; (GlobalState-state)) !) .
+	sd GlobalState* := (GlobalState-state) ; (((all) ; (GlobalState-state)) *) .
+	sd GlobalState+ := (GlobalState-state) ; (((all) ; (GlobalState-state)) +) .
+	sd GlobalState-state := (s2) ; ((s4) ; ((s1) ; (s3))) .
+	sd PSet! := (PSet-state) ; (((all) ; (PSet-state)) !) .
+	sd PSet* := (PSet-state) ; (((all) ; (PSet-state)) *) .
+	sd PSet+ := (PSet-state) ; (((all) ; (PSet-state)) +) .
+	sd PSet-state := (s1) ; (s3) .
 	sd PState! := (all) ! .
 	sd PState* := (all) * .
 	sd PState+ := (all) + .
-	sd Semaphore := idle .
+	sd PState-state := idle .
 	sd Semaphore! := (all) ! .
 	sd Semaphore* := (all) * .
 	sd Semaphore+ := (all) + .
+	sd Semaphore-state := idle .
 	sd s1 := not(amatch p N:Nat{PS:PState} p N:Nat{PS':PState} s.t. false = false) .
 	sd s2 := not(amatch B:Bool || N:Nat || p N:Nat{critical} p M:Nat{critical} s.t. false = false) .
 	sd s3 := not(amatch p N:Nat{idle} s.t. N:Nat > 0 = false) .
