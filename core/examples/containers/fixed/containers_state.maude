@@ -59,7 +59,7 @@ fmod EMPTY is
 	protecting EXT-BOOL .
 endfm
 
-smod CONTAINERS-FIXED is
+smod CONTAINERS-SAFE is
 	protecting CONTAINERS .
 	protecting EMPTY .
 	strat Cargo! : @ Cargo .

@@ -38,7 +38,7 @@ fmod EMPTY is
 	protecting EXT-BOOL .
 endfm
 
-smod PHILO-FIXED is
+smod PHILO-SAFE is
 	protecting PHILO .
 	protecting EMPTY .
 	strat Conf! : @ Conf .

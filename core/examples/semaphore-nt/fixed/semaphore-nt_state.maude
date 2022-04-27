@@ -49,7 +49,7 @@ fmod EMPTY is
 	protecting EXT-BOOL .
 endfm
 
-smod SEMAPHORE-NT-FIXED is
+smod SEMAPHORE-NT-SAFE is
 	protecting SEMAPHORE-NT .
 	protecting EMPTY .
 	strat GlobalState! : @ GlobalState .

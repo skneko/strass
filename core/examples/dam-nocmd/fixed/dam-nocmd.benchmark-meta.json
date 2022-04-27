@@ -5,5 +5,5 @@
 			"strat": "State*"
 		}
 	],
-	"module": "DAM-NOCMD-FIXED"
+	"module": "DAM-NOCMD-SAFE"
 }

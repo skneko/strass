@@ -35,7 +35,7 @@ fmod EMPTY is
 	protecting EXT-BOOL .
 endfm
 
-smod BLOCKS-FIXED is
+smod BLOCKS-SAFE is
 	protecting BLOCKS .
 	protecting EMPTY .
 	strat Block! : @ Block .

@@ -70,7 +70,7 @@ mod DAM-PRED is
 	eq openSpillways(SC:Spillways[S:SpillwayId, O:Aperture]) = if O:Aperture =/= close then 1 + openSpillways(SC:Spillways) else openSpillways(SC:Spillways) fi .
 endm
 
-smod DAM-NOCMD-FIXED is
+smod DAM-NOCMD-SAFE is
 	protecting DAM-NOCMD .
 	protecting DAM-PRED .
 	strat Aperture! : @ Aperture .
