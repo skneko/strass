@@ -1,49 +1,49 @@
 mod CONTAINERS is 
-   pr INT + EXT-BOOL .
+    pr INT + EXT-BOOL .
 
-   sorts Container Cargo Ship Fleet State .
-   subsort Container < Cargo .
-   subsort Ship < Fleet .
+    sorts Container Cargo Ship Fleet State .
+    subsort Container < Cargo .
+    subsort Ship < Fleet .
     
-   op c : Int -> Container [ctor] .
-   op <_,_|_> : Int Int Cargo -> Ship [ctor] .
-   op _:_ : Fleet Cargo -> State .
-   ops weight size : Cargo -> Int .
-   op isFull : Cargo -> Bool .
-   op maxW : -> Int .
+    op c : Int -> Container [ctor] .
+    op <_,_|_> : Int Int Cargo -> Ship [ctor] .
+    op _:_ : Fleet Cargo -> State .
+    ops weight size : Cargo -> Int .
+    op isFull : Cargo -> Bool .
+    op maxW : -> Int .
 
-   op none : -> Fleet .
-   op __ : Fleet Fleet -> Fleet [ctor assoc comm id: none] .
+    op none : -> Fleet .
+    op __ : Fleet Fleet -> Fleet [ctor assoc comm id: none] .
         
-   op nil : -> Cargo .
-   op _,_ : Cargo Cargo -> Cargo [ctor assoc id: nil] .
-      
-   vars W MAXW MAXS : Int .
-   vars CG CG1 CG2 : Cargo .
-   var FL : Fleet .
-   
-   eq weight(nil) = 0 .
-   eq weight(c(W),CG) = W + weight(CG) .
-  
-   eq size(nil) = 0 .
-   eq size(c(W),CG) = 1 + size(CG) .
-   
-   eq maxW = 5 .
-   
-   eq isFull(nil) = true .
-   eq isFull(c(W) , CG) = (W == maxW) and isFull(CG) .
-   
-   crl [stow] : < MAXW , MAXS | CG > FL : c(W) , CG1 => 
+    op nil : -> Cargo .
+    op _,_ : Cargo Cargo -> Cargo [ctor assoc id: nil] .
+    
+    vars W MAXW MAXS : Int .
+    vars CG CG1 CG2 : Cargo .
+    var FL : Fleet .
+
+    eq weight(nil) = 0 .
+    eq weight(c(W),CG) = W + weight(CG) .
+
+    eq size(nil) = 0 .
+    eq size(c(W),CG) = 1 + size(CG) .
+
+    eq maxW = 5 .
+
+    eq isFull(nil) = true .
+    eq isFull(c(W) , CG) = (W == maxW) and isFull(CG) .
+
+    crl [stow] : < MAXW , MAXS | CG > FL : c(W) , CG1 => 
                 < MAXW , MAXS | CG,c(W) > FL : CG1
                 if weight(CG,c(W)) <= MAXW .
 
-   rl [unstow] : < MAXW , MAXS | c(W) , CG > FL : CG1 => 
-                 < MAXW , MAXS | CG > FL : CG1 , c(W) .
+    rl [unstow] : < MAXW , MAXS | c(W) , CG > FL : CG1 => 
+                < MAXW , MAXS | CG > FL : CG1 , c(W) .
 
-   crl [load] : < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 => 
+    crl [load] : < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 => 
                 < MAXW , MAXS | CG > FL : CG1 , c(W + 1) , CG2 
                 if not(isFull(c(W))) .
 
-   rl [unload] : < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 => 
-                 < MAXW , MAXS | CG > FL : CG1 , c(W - 1), CG2 .
+    rl [unload] : < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 => 
+                < MAXW , MAXS | CG > FL : CG1 , c(W - 1), CG2 .
 endm

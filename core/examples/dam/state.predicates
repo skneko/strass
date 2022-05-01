@@ -1,0 +1,7 @@
+var S : SpillwayId .
+var O : Aperture .
+var SC : Spillways .
+
+op openSpillways : Spillways -> Nat .
+eq openSpillways(empty) = 0 .
+eq openSpillways([ S,O ] SC) = if O =/= close then 1 + openSpillways(SC) else openSpillways(SC) fi .

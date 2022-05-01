@@ -1,59 +1,59 @@
 mod DAM is
-  protecting RAT . 
-  
-  sorts SpillwayId Aperture Spillway Spillways DamState TimeStamp .
-  subsort Spillway < Spillways .
-  subsort Nat < TimeStamp .
-  sort State .
-  
-  ops s1 s2 s3 : -> SpillwayId [ctor] .
-  ops close open1 open2 open3 : -> Aperture [ctor] .
-  op `[_`,_`] : SpillwayId Aperture -> Spillway [ctor] .
-  
-  op empty : -> Spillways [ctor] . 
-  op __ : Spillways Spillways -> Spillways [ctor assoc comm id: empty] .
-  
-  vars T T1 T2 : TimeStamp .
-  
-  op _ in [_`,_`] : TimeStamp TimeStamp TimeStamp -> Bool .
-  eq T in [T1,T2] = T >= T1 and T <= T2 .
-  
-  op `{_;_;_;_`} : Spillways Rat TimeStamp Bool -> State .  
- 
-  var S : SpillwayId .
-  vars O1 O2 O3 : Aperture .
-  vars V V' H : Rat .
-  var SC : Spillways .
-  var B : Bool .
-      
-  rl [openC-1] : { [S,close] SC ; V ; T ; true } => { [S,open1] SC ; V ; T ; false } .
-  rl [open1-2] : { [S,open1] SC ; V ; T ; true } => { [S,open2] SC ; V ; T ; false } .
-  rl [open2-3] : { [S,open2] SC ; V ; T ; true } => { [S,open3] SC ; V ; T ; false } .
-  
-  rl [close1-C] : { [S, open1] SC ; V ; T ; true } => { [S,close] SC ; V ; T ; false } .
-  rl [close2-1] : { [S, open2] SC ; V ; T ; true } => { [S,open1] SC ; V ; T ; false } .
-  rl [close3-2] : { [S, open3] SC ; V ; T ; true } => { [S,open2] SC ; V ; T ; false } .
-  
-  rl [nocmd] : { SC ; V ; T ; true } => { SC ; V ; T ; false } . 
-  
-  op deltaT : -> TimeStamp .
-  eq deltaT = 5 .
-  
-  op inflow : -> Rat . 
-  eq inflow = 2000 .
-  
-  op aperture : Aperture -> Rat .
-  eq aperture(close) = 0 .
-  eq aperture(open1) = 200 .
-  eq aperture(open2) = 400 .
-  eq aperture(open3) = 1200 .
-  
-  var O : Aperture .  
-  
-  op outflow : Spillways -> Rat .
-  eq outflow(empty) = 0 .
-  eq outflow([S,O] SC) = aperture(O) + outflow(SC) .
- 
-  crl [volume] :  { SC ; V ; T ; false } => { SC ; V' ; (T + deltaT) ; true }  
-                                          if V' := (V + inflow * deltaT) - (outflow(SC) * deltaT) .
+    protecting RAT . 
+
+    sorts SpillwayId Aperture Spillway Spillways DamState TimeStamp .
+    subsort Spillway < Spillways .
+    subsort Nat < TimeStamp .
+    sort State .
+
+    ops s1 s2 s3 : -> SpillwayId [ctor] .
+    ops close open1 open2 open3 : -> Aperture [ctor] .
+    op `[_`,_`] : SpillwayId Aperture -> Spillway [ctor] .
+
+    op empty : -> Spillways [ctor] . 
+    op __ : Spillways Spillways -> Spillways [ctor assoc comm id: empty] .
+
+    vars T T1 T2 : TimeStamp .
+
+    op _ in [_`,_`] : TimeStamp TimeStamp TimeStamp -> Bool .
+    eq T in [T1,T2] = T >= T1 and T <= T2 .
+
+    op `{_;_;_;_`} : Spillways Rat TimeStamp Bool -> State .  
+
+    var S : SpillwayId .
+    vars O1 O2 O3 : Aperture .
+    vars V V' H : Rat .
+    var SC : Spillways .
+    var B : Bool .
+        
+    rl [openC-1] : { [S,close] SC ; V ; T ; true } => { [S,open1] SC ; V ; T ; false } .
+    rl [open1-2] : { [S,open1] SC ; V ; T ; true } => { [S,open2] SC ; V ; T ; false } .
+    rl [open2-3] : { [S,open2] SC ; V ; T ; true } => { [S,open3] SC ; V ; T ; false } .
+
+    rl [close1-C] : { [S, open1] SC ; V ; T ; true } => { [S,close] SC ; V ; T ; false } .
+    rl [close2-1] : { [S, open2] SC ; V ; T ; true } => { [S,open1] SC ; V ; T ; false } .
+    rl [close3-2] : { [S, open3] SC ; V ; T ; true } => { [S,open2] SC ; V ; T ; false } .
+
+    rl [nocmd] : { SC ; V ; T ; true } => { SC ; V ; T ; false } . 
+
+    op deltaT : -> TimeStamp .
+    eq deltaT = 5 .
+
+    op inflow : -> Rat . 
+    eq inflow = 2000 .
+
+    op aperture : Aperture -> Rat .
+    eq aperture(close) = 0 .
+    eq aperture(open1) = 200 .
+    eq aperture(open2) = 400 .
+    eq aperture(open3) = 1200 .
+
+    var O : Aperture .  
+
+    op outflow : Spillways -> Rat .
+    eq outflow(empty) = 0 .
+    eq outflow([S,O] SC) = aperture(O) + outflow(SC) .
+
+    crl [volume] :  { SC ; V ; T ; false } => { SC ; V' ; (T + deltaT) ; true }  
+                                            if V' := (V + inflow * deltaT) - (outflow(SC) * deltaT) .
 endm
