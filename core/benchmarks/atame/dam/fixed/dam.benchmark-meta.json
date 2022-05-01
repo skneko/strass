@@ -5,5 +5,5 @@
 			"strat": "all *"
 		}
 	],
-	"module": "DAM-FIXED"
+	"module": "DAM-SAFE"
 }

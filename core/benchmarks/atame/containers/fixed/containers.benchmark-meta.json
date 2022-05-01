@@ -5,5 +5,5 @@
 			"strat": "all *"
 		}
 	],
-	"module": "CONTAINERS-FIXED"
+	"module": "CONTAINERS-SAFE"
 }
