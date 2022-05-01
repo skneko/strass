@@ -8,8 +8,9 @@ import java.util.concurrent.TimeUnit;
 import es.upv.vrain.elp.strass.dto.ErrorCode;
 
 public class Settings {
-	public static final String[] MAUDE_COMMAND = new String[] { "maude", "-no-advise", "-no-banner", "-no-wrap", "-no-tecla", "-batch" };
-	public static final String[] MAUDE_FILES_TO_LOAD = new String[] { "~/elp/strass/core/src/main.maude", "~/elp/strass/core/src/io.maude" };
+	public static final String BASE_PATH = System.getProperty("catalina.base") + "/webapps/strass";
+	public static final String[] MAUDE_COMMAND = new String[] { BASE_PATH + "/WEB-INF/maudev/maudev.linux", "-no-advise", "-no-banner", "-no-wrap", "-no-tecla", "-batch" };
+	public static final String[] MAUDE_FILES_TO_LOAD = new String[] { BASE_PATH + "/WEB-INF/maude_src/main.maude", BASE_PATH + "/WEB-INF/maude_src/io.maude" };
 	
 	public static final long TIMEOUT = 1;
 	public static final TimeUnit TIMEOUT_UNIT = TimeUnit.MINUTES;

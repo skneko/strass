@@ -24,9 +24,11 @@ public class MaudeInterpreter extends NativeProcess {
 			System.out.println("Returned:\n" + rawResponse.getOutput() + "\n---\n" + rawResponse.getErrorOutput());
 			
 			return new MaudeOutputParser(rawResponse).parse();
-		} catch (TimeoutException _e) {
+		} catch (TimeoutException e) {
+			e.printStackTrace();
 			return MaudeExecutionResponse.fromServiceErrors(ServiceControlledError.TIMED_OUT);
-		} catch (IOException | InterruptedException _e) {
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
 			return MaudeExecutionResponse.fromServiceErrors(ServiceControlledError.NATIVE_EXECUTION_ERROR);
 		}
 	}

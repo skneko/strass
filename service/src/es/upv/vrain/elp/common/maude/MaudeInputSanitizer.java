@@ -1,5 +1,7 @@
 package es.upv.vrain.elp.common.maude;
 
+import java.util.regex.Matcher;
+
 import es.upv.vrain.elp.common.utils.StringUtils;
 
 public class MaudeInputSanitizer {
@@ -12,6 +14,7 @@ public class MaudeInputSanitizer {
 	
 	public String stringLiteralContent(String string) {
 		string = string.replaceAll("\"", "\\\"");	// replace " by \" to prevent Maude command injection
+		string = string.replaceAll("\\r?\\n", Matcher.quoteReplacement("\\n"));
 		return string;
 	}
 }

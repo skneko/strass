@@ -119,7 +119,7 @@ public class StrassService {
 							"Unable to yield a result for your request. Are the input parameters correct?"));
 		} else {
 			resultToReturn = resultToReturn.substring(
-					resultToReturn.indexOf("load"),
+					resultToReturn.indexOf("***"),
 					resultToReturn.lastIndexOf("endsm") + "endsm".length());
 		}
 		
