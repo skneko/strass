@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import os, sys
+import os, sys, io
 import glob
 import subprocess
 
@@ -14,6 +14,7 @@ import re
 maude_options = "-no-banner -no-wrap -no-ansi-color -no-tecla -batch"
 maude_solution_regex = re.compile(
     r"Solution\s+(\d+)\s*rewrites:\s+(\d+)\s+in\s+(\d+)ms\s+cpu\s+\((\d+)ms\s+real\)\s+\((\d+|~)\s+rewrites\/second\)\s*result\s+([^:]+):\s+(.*?)\s+(?:No more solutions\.|Bye\.)")
+line_count_initial_capacity = 8
 
 csv_header = [
     "program", "constraints", "limit",
@@ -36,7 +37,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("files", type=Path, nargs='+')
     parser.add_argument("-l", "--limits", nargs='+', required=True)
-    parser.add_argument("-i", "--iters", type=int, nargs=1, default=3)
+    parser.add_argument("-i", "--iters", type=int, default=3)
     parser.add_argument("-o", "--out-dir", type=Path, default=Path("./out"))
     parser.add_argument("-e", "--export", type=Path, default=None)
     parser.add_argument("--cpu-time", action="store_true")
@@ -104,7 +105,25 @@ def generate_problems(out_dir, paths, limits):
 
     return problem_paths
 
-# Running in Maude
+# Running in Maude  
+
+def get_maude_last_solution(process):
+    line_count_capacity = line_count_initial_capacity
+
+    buffer = [None] * line_count_capacity
+    i = 0
+    for line in io.TextIOWrapper(process.stdout, encoding="utf-8"):
+        if line.startswith("Solution"):
+            i = 0
+
+        if i >= line_count_capacity:
+            buffer += [None] * line_count_capacity
+            line_count_capacity *= 2
+
+        buffer[i] = line
+        i += 1
+
+    return "".join(buffer[:i])
 
 def run_problems(out_dir, paths, iters):
     result_paths = []
@@ -127,11 +146,14 @@ def run_problems(out_dir, paths, iters):
                 for _ in range(i): print("*", end="")
                 print()
 
-                completed = subprocess.run(command, shell=True, capture_output=True)
+                with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+                    last_solution = get_maude_last_solution(process)
+                    stderr = process.stderr.read()
 
                 out_file.write(f">>> Iter {i + 1} of {iters}\n".encode("utf-8"))
-                out_file.write(completed.stderr)
-                out_file.write(completed.stdout)
+                out_file.write(stderr)
+                out_file.write("... output partially omitted ...\n".encode("utf-8"))
+                out_file.write(last_solution.encode("utf-8"))
                 out_file.write("\n<<<\n".encode("utf-8"))
                 out_file.flush()
 
