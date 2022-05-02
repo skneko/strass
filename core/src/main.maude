@@ -367,25 +367,32 @@ fmod STRASS-ANALYSIS-DEPENDENCIES is
     eq $$usageDependencies(S, nil) = none .
 
     var SDM' : SortDependencyMap .
+    var Seen : SortSet .
 
     op transitiveClosure : SortDependencyMap -> SortDependencyMap .
     eq transitiveClosure(SDM) = $transitiveClosure(SDM, SDM) .
 
     op $transitiveClosure : SortDependencyMap SortDependencyMap -> SortDependencyMap .
     eq $transitiveClosure((S |-> Ss, SDM), SDM') =
-        S |-> $$transitiveClosure(Ss, SDM'), 
+        S |-> $$transitiveClosure(Ss, none, SDM'), 
         $transitiveClosure(SDM, SDM') .
     eq $transitiveClosure(empty, SDM') = empty .
 
-    op $$transitiveClosure : SortSet SortDependencyMap -> SortSet .
-    eq $$transitiveClosure((S ; Ss), SDM) =
-        S ;
-        if SDM[S] =/= undefined 
-        then $$transitiveClosure(SDM[S], SDM)
-        else none
+    op $$transitiveClosure : SortSet SortSet SortDependencyMap -> SortSet .
+    eq $$transitiveClosure((S ; Ss), Seen, SDM) =
+        if S in Seen
+        then none
+        else S ; $$transitiveClosure($adjacent(S, SDM), (Seen ; S), SDM)  
         fi ;
-        $$transitiveClosure(Ss, SDM) .
-    eq $$transitiveClosure(none, SDM) = none .
+        $$transitiveClosure(Ss, (Seen ; S), SDM) .
+    eq $$transitiveClosure(none, Seen, SDM) = none .
+
+    op $adjacent : Sort SortDependencyMap -> SortSet .
+    eq $adjacent(S, SDM) =
+        if SDM[S] =/= undefined 
+        then SDM[S]
+        else none
+        fi .
 
     ***( Auxiliary functions )***
 
