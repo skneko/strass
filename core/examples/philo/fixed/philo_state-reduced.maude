@@ -41,6 +41,8 @@ endfm
 smod PHILO-SAFE is
 	protecting PHILO .
 	protecting EMPTY .
+	including BOOL .
+	protecting EXT-BOOL .
 	strat Conf! : @ Conf .
 	strat Conf* : @ Conf .
 	strat Conf+ : @ Conf .

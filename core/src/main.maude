@@ -380,7 +380,8 @@ fmod STRASS-ANALYSIS-DEPENDENCIES is
     op $$transitiveClosure : SortSet SortDependencyMap -> SortSet .
     eq $$transitiveClosure((S ; Ss), SDM) =
         S ;
-        if SDM[S] =/= undefined then SDM[S]
+        if SDM[S] =/= undefined 
+        then $$transitiveClosure(SDM[S], SDM)
         else none
         fi ;
         $$transitiveClosure(Ss, SDM) .
@@ -601,7 +602,7 @@ mod STRASS is
             removeDuplicateImports(
                 extendWithGuardOperators(upModule(QP, false))),
             removeDuplicateImports(
-                generateRepairStrats(Q, QP, RawCs))) .
+                extendWithGuardOperators(generateRepairStrats(Q, QP, RawCs)))) .
 
     op generateRepairStrats : Qid Qid String -> StratModule .
     eq generateRepairStrats(Q, QP, RawCs) = 

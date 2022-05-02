@@ -49,7 +49,7 @@ fmod META-LEVEL-EXT is
     vars Ops Ops' : OpDeclSet . 
     vars MAs MAs' : MembAxSet . 
     vars Es Es' : EquationSet . vars Rs Rs' : RuleSet .
-    var SDcs : StratDeclSet . var SDfs : StratDefSet .
+    vars SDcs SDcs' : StratDeclSet . vars SDfs SDfs' : StratDefSet .
 
     op removeDuplicateImports : Module -> Module .
     eq removeDuplicateImports(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
@@ -88,11 +88,13 @@ fmod META-LEVEL-EXT is
     eq $containsImport(ME, (extending ME' .) Is) = ME == ME' or-else $containsImport(ME, Is) .
     eq $containsImport(ME, nil) = false .
 
-    op upgradeToSystemModule : FModule -> SModule .
+    op upgradeToSystemModule : Module -> Module .
     eq upgradeToSystemModule(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
         mod H is Is sorts Ss . SubSs Ops MAs Es none endm .
     eq upgradeToSystemModule(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) =
         mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm .
+    eq upgradeToSystemModule(smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) =
+        smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm .
 
     op mergeModules : Module Module -> Module .
     ceq mergeModules(M, M') =
@@ -118,6 +120,48 @@ fmod META-LEVEL-EXT is
         endfm
     if (fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) := M
     /\ (fmod H' is Is' sorts Ss' . SubSs' Ops' MAs' Es' endfm) := M' .
+    ceq mergeModules(M, M') =
+        smod H is
+            $removeImport(H', Is) $removeImport(H, Is')
+            sorts Ss ; Ss' .
+            SubSs SubSs'
+            Ops Ops'
+            MAs MAs'
+            Es Es'
+            Rs Rs'
+            SDcs SDcs'
+            SDfs SDfs'
+        endsm
+    if (smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) := M
+    /\ (smod H' is Is' sorts Ss' . SubSs' Ops' MAs' Es' Rs' SDcs' SDfs' endsm) := M' .
+    ceq mergeModules(M, M') =
+        smod H is
+            $removeImport(H', Is) $removeImport(H, Is')
+            sorts Ss ; Ss' .
+            SubSs SubSs'
+            Ops Ops'
+            MAs MAs'
+            Es Es'
+            Rs Rs'
+            SDcs
+            SDfs
+        endsm
+    if (smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) := M
+    /\ (mod H' is Is' sorts Ss' . SubSs' Ops' MAs' Es' Rs' endm) := M' .
+    ceq mergeModules(M, M') =
+        smod H is
+            $removeImport(H', Is) $removeImport(H, Is')
+            sorts Ss ; Ss' .
+            SubSs SubSs'
+            Ops Ops'
+            MAs MAs'
+            Es Es'
+            Rs Rs'
+            SDcs'
+            SDfs'
+        endsm
+    if (mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) := M
+    /\ (smod H' is Is' sorts Ss' . SubSs' Ops' MAs' Es' Rs' SDcs' SDfs' endsm) := M' .
     eq mergeModules(M, M') =
         mergeModules(upgradeToSystemModule(M), upgradeToSystemModule(M')) [owise] .
 

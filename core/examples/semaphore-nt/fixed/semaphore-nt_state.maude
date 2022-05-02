@@ -52,6 +52,8 @@ endfm
 smod SEMAPHORE-NT-SAFE is
 	protecting SEMAPHORE-NT .
 	protecting EMPTY .
+	including BOOL .
+	protecting EXT-BOOL .
 	strat GlobalState! : @ GlobalState .
 	strat GlobalState* : @ GlobalState .
 	strat GlobalState+ : @ GlobalState .
