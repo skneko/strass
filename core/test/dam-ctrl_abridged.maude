@@ -1,8 +1,8 @@
 load test.maude
-load ../examples/dam-nocmd/dam-nocmd.maude
+load ../examples/dam-ctrl/dam-ctrl.maude
 
 mod DAM-PRED is
-    pr DAM-NOCMD .
+    pr DAM-CTRL .
 
     var S : SpillwayId .
     var O : Aperture .
@@ -14,9 +14,9 @@ mod DAM-PRED is
 endm
 
 erew in TEST-CONTEXT : test(
-    "../examples/dam-nocmd/dam-nocmd.maude",
-    "../examples/dam-nocmd/complete.constraints",
-    'DAM-NOCMD, 'DAM-PRED,
-    "../examples/dam-nocmd/fixed/dam-nocmd_complete.maude") .
+    "../examples/dam-ctrl/dam-ctrl.maude",
+    "../examples/dam-ctrl/abridged.constraints",
+    'DAM-CTRL, 'DAM-PRED,
+    "../examples/dam-ctrl/fixed/dam-ctrl_abridged.maude") .
 
 quit

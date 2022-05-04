@@ -2,7 +2,7 @@
 
 --- Rationals are needed to model basin water volume and 
 --- its related parameters (e.g., inflow, outflow)
-mod DAM-NOCMD is
+mod DAM-CTRL is
     protecting RAT . 
 
     sorts SpillwayId Aperture Spillway Spillways DamState TimeStamp .
