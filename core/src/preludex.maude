@@ -51,6 +51,20 @@ fmod META-LEVEL-EXT is
     vars Es Es' : EquationSet . vars Rs Rs' : RuleSet .
     vars SDcs SDcs' : StratDeclSet . vars SDfs SDfs' : StratDefSet .
 
+    op organizeImports : Module -> Module .
+    eq organizeImports(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
+        fmod H is organizeImports(Is) sorts Ss . SubSs Ops MAs Es endfm .
+    eq organizeImports(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) =
+        mod H is organizeImports(Is) sorts Ss . SubSs Ops MAs Es Rs endm .
+    eq organizeImports(smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) =
+        smod H is organizeImports(Is) sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm .
+    eq organizeImports(fth Q is Is sorts Ss . SubSs Ops MAs Es endfth) =
+        fth Q is organizeImports(Is) sorts Ss . SubSs Ops MAs Es endfth .
+    eq organizeImports(th Q is Is sorts Ss . SubSs Ops MAs Es Rs endth) =
+        th Q is organizeImports(Is) sorts Ss . SubSs Ops MAs Es Rs endth .
+    eq organizeImports(sth Q is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsth) =
+        sth Q is organizeImports(Is) sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsth .
+
     op removeDuplicateImports : Module -> Module .
     eq removeDuplicateImports(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
         fmod H is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es endfm .
@@ -66,6 +80,14 @@ fmod META-LEVEL-EXT is
         sth Q is removeDuplicateImports(Is) sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsth .
 
     vars ME ME' : ModuleExpression .
+
+    op organizeImports : ImportList -> ImportList .
+    eq organizeImports(Is) = removeDuplicateImports(removeDefaultImports(Is)) .
+
+    op removeDefaultImports : ImportList -> ImportList .
+    eq removeDefaultImports((including 'BOOL .) Is) = removeDefaultImports(Is) .
+    eq removeDefaultImports(nil) = nil .
+    eq removeDefaultImports(I:Import Is) = I:Import removeDefaultImports(Is) [owise] .
 
     op removeDuplicateImports : ImportList -> ImportList .
     eq removeDuplicateImports((protecting ME .) Is) =

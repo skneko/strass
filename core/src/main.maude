@@ -474,7 +474,8 @@ fmod STRASS-GENERATION is
         (sd $stateIndexStratName(NIdx)[[empty]] := makeStateStratBody(P, G) [ none ] .) .
 
     op makeStateStratBody : Term Term -> Strategy .
-    eq makeStateStratBody(P, G) = not (amatch P s.t. (G = 'false.Bool)) .
+    eq makeStateStratBody(P, 'false.Bool) = not (amatch P s.t. nil) .
+    eq makeStateStratBody(P, G) = not (amatch P s.t. (G = 'false.Bool)) [owise] .
 
     op makeSortRelatedStratDefs : SortDependencyMap TaggedConstraintSet -> StratDefSet .
     eq makeSortRelatedStratDefs((S |-> Ss, SDM), TCs) =
@@ -581,12 +582,11 @@ fmod STRASS-FORMATTING is
     pr STRASS-GENERATION .
     pr PRETTY-PRINT .
 
-    vars MP MS : Module .
+    vars MS : Module .
 
-    op programContents : Module Module -> String .
-    eq programContents(MP, MS) = 
+    op programContents : Module -> String .
+    eq programContents(MS) = 
         programHeader
-        + "\n--- Notice: extended by STRASS, not the original definition\n" + toString(MP)
         + "\n" + toString(MS) .
 
     op programHeader : -> String .
@@ -606,10 +606,11 @@ mod STRASS is
     op fix : Qid Qid String -> String .
     eq fix(Q, QP, RawCs) = 
         programContents(
-            removeDuplicateImports(
-                extendWithGuardOperators(upModule(QP, false))),
-            removeDuplicateImports(
-                extendWithGuardOperators(generateRepairStrats(Q, QP, RawCs)))) .
+            organizeImports(
+                extendWithGuardOperators(
+                    mergeModules(
+                        generateRepairStrats(Q, QP, RawCs),
+                        upModule(QP, false))))) .
 
     op generateRepairStrats : Qid Qid String -> StratModule .
     eq generateRepairStrats(Q, QP, RawCs) = 
