@@ -1,5 +1,7 @@
 import { writable, derived } from "svelte/store";
 
+export const maxStepAllowed = writable(1);
+
 export const program = writable("");
 export const rootModuleName = writable("<root-module>");
 export const predicatesAddendum = writable("");

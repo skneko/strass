@@ -23,7 +23,7 @@
       constraints: "state"
     },
     {
-      id: "dam-nocmd",
+      id: "dam-ctrl",
       name: "Dam Controller",
       constraints: "abridged"
     },
@@ -45,7 +45,10 @@
     for (let example of examples) {
       selectElem.options.add(new Option(example.name, example.id));
     }
-    selectElem.value = $selectedExampleId;
+
+    selectedExampleId.subscribe(value => {
+      selectElem.value = value;
+    });
   });
 
   async function handleChange(event: Event & { currentTarget: EventTarget & HTMLSelectElement; }) {

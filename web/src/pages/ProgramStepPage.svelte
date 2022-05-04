@@ -6,11 +6,13 @@
   import DiagnosticList from "@components/DiagnosticList.svelte";
   import Alert from "@components/Alert.svelte";
   import ExampleSelector from "@components/ExampleSelector.svelte";
+  import UploadFileButton from "@components/UploadFileButton.svelte";
   import { program, rootModuleName } from "@stores/wizardSession";
   import { Strass } from "api/strass";
   import { convertToMonacoMarkerData } from "api/strass/monacoIntegration";
   import { collectModuleNames } from "api/strass/maude";
   import { rootPath } from "@stores/context";
+import { selectedExampleId } from "stores/wizardSession";
   
   let editor: CodeEditor;
   let diagnostics: Strass.Diagnostic[] = [];
@@ -21,7 +23,7 @@
   
   const wizardStepProps = {
     step: 1,
-    header: "Provide your Maude program",
+    header: "Provide the Maude input program",
     onNext: async () => {
       $program = editor.getMonacoEditor().getValue();
 
@@ -76,6 +78,18 @@
     alertNoModules = false;
     diagnostics = [];
   }
+
+  function handleFileUploaded(event) {
+    let file = event.detail.files[0];
+
+    let reader = new FileReader();
+    reader.onload = (e) => {
+      $program = e.target.result;
+      $selectedExampleId = "empty";
+      handleExampleChanged();
+    };
+    reader.readAsText(file);
+  }
 </script>
 
 <WizardStepLayout {...wizardStepProps}>
@@ -91,7 +105,14 @@
     {/if}
   </div>
 
-  <ExampleSelector on:change={handleExampleChanged}/>
+  <div style="display: flex; flex-flow: row nowrap; gap: 5px;">
+    <div style="flex-grow: 1;">
+      <ExampleSelector on:change={handleExampleChanged}/>
+    </div>
+    <div style="flex-grow: 0;">
+      <UploadFileButton on:uploaded={handleFileUploaded} accept={".maude"}/>
+    </div>
+  </div>
   <br/>
   <CodeEditor bind:this={editor} initialValue={$program}/>
   {#if diagnostics && diagnostics.length > 0}

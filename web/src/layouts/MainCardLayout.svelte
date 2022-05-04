@@ -9,4 +9,8 @@
     margin-right: auto;
     margin-left: auto;
   }
+
+  .card {
+	  border: 2px solid black;
+  }
 </style>

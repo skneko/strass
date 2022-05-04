@@ -1,15 +1,34 @@
 <script lang="ts">
   import MainCardLayout from "@layouts/MainCardLayout.svelte";
+  import { maxStepAllowed } from "@stores/wizardSession";
+  import { rootPath } from "stores/context";
+  import { onMount } from "svelte";
+  import { navigate } from "svelte-routing";
 
-  export let step: Number | null;
+  export let step: Number | null = null;
+  export let showStep = true;
   export let header = "";
   export let onBack: () => void | null = null;
   export let onNext: () => void | null = null;
+  export let escapeRoute = "";
+
+  function onNextWrapper() {
+    if (step != null) {
+      $maxStepAllowed += 1;
+    }
+    onNext();
+  }
+
+  onMount(() => {
+    if (step != null && step > $maxStepAllowed) {
+      navigate(`${$rootPath}${escapeRoute}`);
+    }
+  });
 </script>
 
 <MainCardLayout>
   <div class="card-header bg-primary bg-gradient text-white">
-    {#if step}
+    {#if showStep && step}
       <span class="em-capsule">STEP {step}</span>
     {/if}
     <span class="step-header">{header}</span>
@@ -29,7 +48,7 @@
     <div class="bottom-stripe-right">
       <slot name="bottom-stripe-right">
         {#if onNext}
-          <button type="button" class="btn btn-primary" on:click={onNext}>Next</button>
+          <button type="button" class="btn btn-primary" on:click={onNextWrapper}>Next</button>
         {/if}
       </slot>
     </div>
@@ -37,6 +56,10 @@
 </MainCardLayout>
 
 <style>
+  .card-header {
+    border-bottom: 2px solid black;
+  }
+
   .em-capsule {
     background: rgba(0, 0, 0, 0.2);
     background-blend-mode: darken;

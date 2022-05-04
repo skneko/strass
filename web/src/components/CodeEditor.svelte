@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { editor } from "monaco-editor";
   import loader from "@monaco-editor/loader";
+  import { grammar as maudeGrammar } from "editor/grammars/maude";
+  import { grammar as constraintsGrammar } from "editor/grammars/strass-constraints";
   import { onMount } from "svelte";
 
   let elem: HTMLDivElement;
@@ -17,8 +19,17 @@
 
   onMount(async () => {
     loader.init().then(monaco => {
+      monaco.languages.register({ id: "maude" });
+      //@ts-ignore
+      monaco.languages.setMonarchTokensProvider("maude", maudeGrammar);
+
+      monaco.languages.register({ id: "strass-constraints" });
+      //@ts-ignore
+      monaco.languages.setMonarchTokensProvider("strass-constraints", constraintsGrammar);
+
       editor = monaco.editor.create(elem, {
         value: initialValue,
+        language: "maude",
         ...options
       })
     });
@@ -33,7 +44,7 @@
 
 <style>
   .editor {
-    border: 2px solid grey;
+    border: 2px solid black;
     border-radius: 0.25em;
   }
 </style>

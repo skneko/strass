@@ -63,7 +63,7 @@
   <ul class="list-group list-group-flush">
     <li class="list-group-item">
       <h5 class="card-title">Predicates</h5>
-      <pre>mod {$addendumModuleName} is<br>    protecting {$rootModuleName} .</pre>
+      <pre>mod {$addendumModuleName} is<br>    protecting {$rootModuleName} .<br>    protecting EXT-BOOL .</pre>
       <CodeEditor bind:this={addendumEditor} height="200px" options={editorOptions} initialValue={$predicatesAddendum}/>    
       <pre>endm</pre>
       {#if predicateDiagnostics}
@@ -73,7 +73,8 @@
     </li>
     <li class="list-group-item">
       <h5 class="card-title">Assertions</h5>
-      <CodeEditor bind:this={constraintsEditor} height="200px" options={editorOptions} initialValue={$constraints}/>    
+      <CodeEditor bind:this={constraintsEditor} height="200px" initialValue={$constraints}
+          options={{language: "strass-constraints", ...editorOptions}}/>    
     </li>
   </ul>
 </WizardStepLayout>
