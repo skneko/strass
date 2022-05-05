@@ -72,7 +72,7 @@ fmod STRASS-META-CONSTRAINT-ACTION-LANGUAGE is
 
     op idle : -> __STRASS_Action [ctor] .
     op all : -> __STRASS_Action [ctor] .
-    op all-except : __STRASS_RuleLabelSet -> __STRASS_Action [ctor] .
+    op all- : __STRASS_RuleLabelSet -> __STRASS_Action [ctor] .
     op _|_ : __STRASS_Action __STRASS_Action -> __STRASS_Action [ctor assoc comm id: idle prec 11 gather (e E)] .
     op _;_ : __STRASS_Action __STRASS_Action -> __STRASS_Action [ctor assoc id: idle prec 9 gather (e E)] .
     op _* : __STRASS_Action -> __STRASS_Action [ctor] .
@@ -177,7 +177,7 @@ fmod STRASS-CONSTRAINTS-PARSING is
     op downAction : Term QidSet ~> Strategy .
     eq downAction('idle.__STRASS_Action, RlLs) = idle .
     eq downAction('all.__STRASS_Action, RlLs) = all .
-    eq downAction('all-except [ T ], RlLs) = $stratLabelOr(RlLs \ $downToQidSet(T)) . 
+    eq downAction('all- [ T ], RlLs) = $stratLabelOr(RlLs \ $downToQidSet(T)) . 
     eq downAction('_|_ [ T , T' ], RlLs) = downAction(T, RlLs) | downAction(T', RlLs) .
     eq downAction('_;_ [ T , T' ], RlLs) = downAction(T, RlLs) ; downAction(T', RlLs) .
     eq downAction('_*[ T ], RlLs) = downAction(T, RlLs) * .
