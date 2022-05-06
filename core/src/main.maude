@@ -145,8 +145,8 @@ fmod STRASS-CONSTRAINTS-PARSING is
     op $$parseOneConstraint : Module Module Nat ResultPair? ~> TaggedConstraint .
     ceq $$parseOneConstraint(M, MPx, LineNum, R:ResultPair) =
         $$$parseOneConstraint(LineNum,
-            metaParse(M, metaPrettyPrint(M, P:Term), anyType),
-            metaParse(MPx, metaPrettyPrint(MPx, G:Term), 'Bool))
+            metaParse(M, metaPrettyPrint(M, P:Term, none), anyType),
+            metaParse(MPx, metaPrettyPrint(MPx, G:Term, none), 'Bool))
     if { '_#_ [ P:Term, G:Term ] , '__STRASS_MonomorphizedConstraint } := R:ResultPair .
     ceq $$parseOneConstraint(M, MPx, LineNum, R:ResultPair) =
         $$$parseOneConstraint(M, LineNum, ATy:Term, A:Term)
