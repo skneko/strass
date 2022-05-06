@@ -36,3 +36,6 @@ mod TEST-CONTEXT is
         + "\n\n"
         + fix(MainModule, PredicateModule, Constraints)) .
 endm
+
+set profile on .
+set clear profile on .

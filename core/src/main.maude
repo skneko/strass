@@ -101,7 +101,12 @@ fmod STRASS-CONSTRAINTS-PARSING is
 
     eq constraintParseFailure(LineNum), TC:TaggedConstraint = constraintParseFailure(LineNum) .
 
-    vars M MP MPx MT : Module . var Raw : String .
+    var M : Module .    --- flattened input root module
+    var MP : Module .   --- flattened input predicate module
+    var MPx : Module .  --- extended predicate module (M + MP + guard operators)
+    var MT : Module .   --- parsing context module (MPx + constraint language ops)
+
+    var Raw : String .
     var Ty Ty' : Type .
 
     op parseConstraints : Module Module String ~> TaggedConstraintSet .
@@ -115,8 +120,8 @@ fmod STRASS-CONSTRAINTS-PARSING is
     eq $parseConstraints(M, MP, Raw) = 
         $$parseConstraints(
             M, 
-            mergeModules(extendWithGuardOperators(MP), M),
-            $generateParsingContext(M, mergeModules(extendWithGuardOperators(MP), M)),
+            mergeModules(extendWithGuardOperators(MP, true), M),
+            $generateParsingContext(M, mergeModules(extendWithGuardOperators(MP, true), M)),
             1,
             Raw) .
 
@@ -215,9 +220,9 @@ fmod STRASS-CONSTRAINTS-PARSING is
 
     ***( Module and parsing context handling )***
 
-    op extendWithGuardOperators : Module -> Module .
-    eq extendWithGuardOperators(M) =
-        mergeModules(M, upModule('STRASS-META-CONSTRAINT-GUARD-OPERATORS, false)) .
+    op extendWithGuardOperators : Module Bool -> Module .
+    eq extendWithGuardOperators(M, Flatten:Bool) =
+        mergeModules(M, upModule('STRASS-META-CONSTRAINT-GUARD-OPERATORS, Flatten:Bool)) .
 
     op $generateParsingContext : Module Module -> Module .
     eq $generateParsingContext(M, MPx) = 
@@ -268,7 +273,7 @@ fmod STRASS-CONSTRAINTS-PARSING is
                 none
                 none
             endm,
-            upModule('STRASS-META-CONSTRAINT-ACTION-LANGUAGE, false)) .
+            upModule('STRASS-META-CONSTRAINT-ACTION-LANGUAGE, true)) .
 
     var Q : Qid . var Qs : QidSet .
 
@@ -420,6 +425,27 @@ fmod STRASS-GENERATION is
     pr STRASS-ANALYSIS .
     pr CONVERSION .
 
+    op sortsToTrim : -> SortSet .
+    eq sortsToTrim =
+        'Bool ; 'Zero ; 'NzNat ; 'Nat ; 'NzInt ; 'Int ; 'PosRat ; 'NzRat ; 'Rat ; 'FiniteFloat ; 'Float ; 'String ; 'Char ; 
+        'FindResult ; 'DecFloat ; 'Bound ; 'Qid ; 'Sort ; 'Kind ; 'Type ; 'Constant ; 'Variable ; 'TermQid ; 'GroundTerm ;
+        'Term ; 'NeGroundTermList ; 'GroundTermList ; 'NeTermList ; 'TermList ; 'Assignment ; 'Substitution ; 'Context ; 
+        'NeCTermList ; 'GTermList ; 'EqCondition ; 'Condition ; 'UsingPair ; 'UsingPairSet ; 'RuleApplication ; 'CallStrategy ;
+        'Strategy ; 'StrategyLsortist ; 'SubsortDecl ; 'SubsortDeclSet ; 'EmptyQidSet ; 'NeSortSet ; 'NeKindSet ; 'NeTypeSet ; 
+        'SortSet ; 'KindSet ; 'TypeSet ; 'NeTypeList ; 'TypeList ; 'TypeListSet ; 'Attr ; 'AttrSet ; 'Renaming ; 'RenamingSet ;
+        'Expression ; 'ViewExpression ; 'ModuleExpression ; 'EmptyCommaList ; 'NeParameterList ; 'ParameterList ; 'ParameterDecl ;
+        'NeParameterDeclList ; 'ParameterDeclList ; 'Import ; 'ImportList ; 'Hook ; 'NeHookList ; 'HookList ; 'OpDecl ; 'OpDeclSet ; 
+        'MembAx ; 'MembAxSet ; 'Equation ; 'EquationSet ; 'Rule ; 'RuleSet ; 'StratDecl ; 'StratDeclSet ; 'StratDefinition ; 
+        'StratDefSet ; 'FModule ; 'SModule ; 'FTheory ; 'STheory ; 'Module ; 'StratModule ; 'StratTheory ; 'SortMapping ;
+        'SortMappingSet ; 'OpMapping ; 'OpMappingSet ; 'StratMapping ; 'StratMappingSet ; 'View ; 'NeVariableSet ; 'VariableSet ;
+        'Parent ; 'Type? ; 'PrintOption ; 'PrintOptionSet ; 'SrewriteOption ; 'UnificandPair ; 'UnificationProblem ; 
+        'ResultPair ; 'ResultTriple ; 'Result4Tuple ; 'MatchPair ; 'TraceStep ; 'Trace ; 'UnificationPair ; 'UnificationTriple ; 
+        'Variant ; 'MatchOrUnificationPair ; 'NarrowingApplyResult ; 'NarrowingSearchResult ; 'NarrowingSearchPathResult ;
+        'NarrowingStep ; 'NarrowingTrace ; 'SmtResult ; 'ResultPair? ; 'ResultTriple? ; 'Result4Tuple? ; 'MatchPair? ; 'TraceStep? ;
+        'Trace? ; 'UnificationPair? ; 'UnificationTriple? ; 'Variant? ; 'MatchOrUnificationPair? ; 'NarrowingApplyResult? ; 
+        'NarrowingSearchResult? ; 'NarrowingSearchPathResult? ; 'NarrowingStep? ; 'NarrowingTrace? ; 'SmtResult? ; 'Attribute ; 
+        'AttributeSet ; 'Oid ; 'Cid ; 'Object ; 'Msg ; 'Portal ; 'Configuration .
+
     ***( Strategy body generation )***
 
     var SDM : SortDependencyMap . var S : Sort . var Ss : SortSet .
@@ -440,12 +466,15 @@ fmod STRASS-GENERATION is
 
     op makeSortRelatedStratDeclSet : SortDependencyMap TaggedConstraintSet -> StratDeclSet .
     eq makeSortRelatedStratDeclSet((S |-> Ss, SDM), TCs) = 
-        (strat $sortStateStratName(S) : nil @ S [ none ] .)
-        if hasGlobalPathFor(S, TCs)
-        then (strat $sortPathStratName(S) : nil @ S [ none ] .)
-        else none
+        if $filterByKey(S ; Ss, TCs) == empty and-then S in sortsToTrim then none
+        else
+            (strat $sortStateStratName(S) : nil @ S [ none ] .)
+            if hasGlobalPathFor(S, TCs)
+            then (strat $sortPathStratName(S) : nil @ S [ none ] .)
+            else none
+            fi
+            makeSearchStratDecls(S)
         fi
-        makeSearchStratDecls(S)
         makeSortRelatedStratDeclSet(SDM, TCs) .
     eq makeSortRelatedStratDeclSet(empty, TCs) = none .
 
@@ -479,8 +508,11 @@ fmod STRASS-GENERATION is
 
     op makeSortRelatedStratDefs : SortDependencyMap TaggedConstraintSet -> StratDefSet .
     eq makeSortRelatedStratDefs((S |-> Ss, SDM), TCs) =
-        makeLocalStratDefs(S, $filterByKey(S ; Ss, TCs))
-        makeSearchStratDefs(S, $filterByKey(S ; Ss, TCs) == empty, hasGlobalPathFor(S, TCs))
+        if $filterByKey(S ; Ss, TCs) == empty and-then S in sortsToTrim then none
+        else
+            makeLocalStratDefs(S, $filterByKey(S ; Ss, TCs))
+            makeSearchStratDefs(S, $filterByKey(S ; Ss, TCs) == empty, hasGlobalPathFor(S, TCs))
+        fi
         makeSortRelatedStratDefs(SDM, TCs) .
     eq makeSortRelatedStratDefs(empty, TCs) = none .
 
@@ -596,12 +628,13 @@ endfm
 mod STRASS is
     pr STRASS-FORMATTING .
 
-    vars M MP : Module . vars Q QP : Qid . var RawCs : String .
+    vars M Mf MPf : Module . vars Q QP : Qid . var RawCs : String .
     vars H HP : Header . vars Is IsP : ImportList . 
     vars Ss SsP : SortSet . vars SubSs SubSsP : SubsortDeclSet . 
     vars Ops OpsP : OpDeclSet . 
     vars MAs MAsP : MembAxSet . 
     vars Es EsP : EquationSet . vars Rs RsP : RuleSet .
+    vars SDcs SDcsP : StratDeclSet . vars SDfs SDfsP : StratDefSet .
 
     op fix : Qid Qid String -> String .
     eq fix(Q, QP, RawCs) = 
@@ -610,19 +643,20 @@ mod STRASS is
                 extendWithGuardOperators(
                     mergeModules(
                         generateRepairStrats(Q, QP, RawCs),
-                        upModule(QP, false))))) .
+                        upModule(QP, false)),
+                    false))) .
 
     op generateRepairStrats : Qid Qid String -> StratModule .
     eq generateRepairStrats(Q, QP, RawCs) = 
-        generateRepairStrats(upModule(Q, false), upModule(QP, false), RawCs) .
+        generateRepairStrats(upModule(Q, false), upModule(Q, true), upModule(QP, true), RawCs) .
 
-    op generateRepairStrats : Module Module String -> StratModule .
-    ceq generateRepairStrats(M, MP, RawCs) =
-        makeStratModule(H, HP, arrangedSortDependencies(M), parseConstraints(M, MP, RawCs))
-    if (mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) := upgradeToSystemModule(M)
-    /\ (mod HP is IsP sorts SsP . SubSsP OpsP MAsP EsP RsP endm) := upgradeToSystemModule(MP) .
+    op generateRepairStrats : Module Module Module String -> StratModule .
+    ceq generateRepairStrats(M, Mf, MPf, RawCs) =
+        makeStratModule(H, HP, arrangedSortDependencies(Mf), parseConstraints(Mf, MPf, RawCs))
+    if (smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) := upgradeToStratModule(M)
+    /\ (smod HP is IsP sorts SsP . SubSsP OpsP MAsP EsP RsP SDcsP SDfsP endsm) := upgradeToStratModule(MPf) .
 
     op parseConstraints : Qid Qid String -> TaggedConstraintSet .
     eq parseConstraints(Q, QP, RawCs) =
-        parseConstraints(upModule(Q, false), upModule(QP, false), RawCs) .
+        parseConstraints(upModule(Q, true), upModule(QP, true), RawCs) .
 endm

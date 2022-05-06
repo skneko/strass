@@ -1,0 +1,19 @@
+load ../test.maude
+
+mod PARENT is
+    sort A .
+
+    op a : -> A .
+endm
+
+mod CHILD is
+    protecting PARENT .
+
+    sort B .
+
+    op b : -> B .
+endm
+
+erew in TEST-CONTEXT : print(fix('CHILD, 'EMPTY, "a # true\nb # true")) .
+
+quit

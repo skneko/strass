@@ -110,12 +110,12 @@ fmod META-LEVEL-EXT is
     eq $containsImport(ME, (extending ME' .) Is) = ME == ME' or-else $containsImport(ME, Is) .
     eq $containsImport(ME, nil) = false .
 
-    op upgradeToSystemModule : Module -> Module .
-    eq upgradeToSystemModule(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
-        mod H is Is sorts Ss . SubSs Ops MAs Es none endm .
-    eq upgradeToSystemModule(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) =
-        mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm .
-    eq upgradeToSystemModule(smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) =
+    op upgradeToStratModule : Module -> Module .
+    eq upgradeToStratModule(fmod H is Is sorts Ss . SubSs Ops MAs Es endfm) =
+        smod H is Is sorts Ss . SubSs Ops MAs Es none none none endsm .
+    eq upgradeToStratModule(mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) =
+        smod H is Is sorts Ss . SubSs Ops MAs Es Rs none none endsm .
+    eq upgradeToStratModule(smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm) =
         smod H is Is sorts Ss . SubSs Ops MAs Es Rs SDcs SDfs endsm .
 
     op mergeModules : Module Module -> Module .
@@ -185,7 +185,7 @@ fmod META-LEVEL-EXT is
     if (mod H is Is sorts Ss . SubSs Ops MAs Es Rs endm) := M
     /\ (smod H' is Is' sorts Ss' . SubSs' Ops' MAs' Es' Rs' SDcs' SDfs' endsm) := M' .
     eq mergeModules(M, M') =
-        mergeModules(upgradeToSystemModule(M), upgradeToSystemModule(M')) [owise] .
+        mergeModules(upgradeToStratModule(M), upgradeToStratModule(M')) [owise] .
 
     op $removeImport : Header ImportList -> ImportList .
     eq $removeImport(H, (protecting H .) Is) = $removeImport(H, Is) .

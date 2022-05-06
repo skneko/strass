@@ -56,6 +56,10 @@ endm
 smod CONTAINERS-SAFE is
 	protecting CONTAINERS .
 	protecting EXT-BOOL .
+	strat Bool! : @ Bool .
+	strat Bool* : @ Bool .
+	strat Bool+ : @ Bool .
+	strat Bool-state : @ Bool .
 	strat Cargo! : @ Cargo .
 	strat Cargo* : @ Cargo .
 	strat Cargo+ : @ Cargo .
@@ -64,6 +68,10 @@ smod CONTAINERS-SAFE is
 	strat Fleet* : @ Fleet .
 	strat Fleet+ : @ Fleet .
 	strat Fleet-state : @ Fleet .
+	strat Int! : @ Int .
+	strat Int* : @ Int .
+	strat Int+ : @ Int .
+	strat Int-state : @ Int .
 	strat State! : @ State .
 	strat State* : @ State .
 	strat State+ : @ State .
@@ -72,6 +80,10 @@ smod CONTAINERS-SAFE is
 	strat s2 : @ Ship .
 	strat s3 : @ Cargo .
 	strat s4 : @ Ship .
+	sd Bool! := (Bool-state) ; (((all) ; (Bool-state)) !) .
+	sd Bool* := (Bool-state) ; (((all) ; (Bool-state)) *) .
+	sd Bool+ := (Bool-state) ; (((all) ; (Bool-state)) +) .
+	sd Bool-state := (s3) ; (s1) .
 	sd Cargo! := (Cargo-state) ; (((all) ; (Cargo-state)) !) .
 	sd Cargo* := (Cargo-state) ; (((all) ; (Cargo-state)) *) .
 	sd Cargo+ := (Cargo-state) ; (((all) ; (Cargo-state)) +) .
@@ -80,6 +92,10 @@ smod CONTAINERS-SAFE is
 	sd Fleet* := (Fleet-state) ; (((all) ; (Fleet-state)) *) .
 	sd Fleet+ := (Fleet-state) ; (((all) ; (Fleet-state)) +) .
 	sd Fleet-state := (s3) ; ((s1) ; ((s2) ; (s4))) .
+	sd Int! := (Int-state) ; (((all) ; (Int-state)) !) .
+	sd Int* := (Int-state) ; (((all) ; (Int-state)) *) .
+	sd Int+ := (Int-state) ; (((all) ; (Int-state)) +) .
+	sd Int-state := (s3) ; (s1) .
 	sd State! := (State-state) ; (((all) ; (State-state)) !) .
 	sd State* := (State-state) ; (((all) ; (State-state)) *) .
 	sd State+ := (State-state) ; (((all) ; (State-state)) +) .
