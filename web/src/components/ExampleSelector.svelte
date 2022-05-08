@@ -47,7 +47,9 @@
     }
 
     selectedExampleId.subscribe(value => {
-      selectElem.value = value;
+      if (selectElem) {
+        selectElem.value = value;
+      } 
     });
   });
 

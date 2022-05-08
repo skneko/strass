@@ -11,7 +11,7 @@
   const wizardStepProps = {
     step: 3,
     showStep: false,
-    header: "Fixed program result",
+    header: "Fixed program",
     onBack: () => navigate(`${$rootPath}/constraints`)
   };
   

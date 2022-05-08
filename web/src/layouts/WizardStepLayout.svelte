@@ -1,6 +1,8 @@
 <script lang="ts">
   import MainCardLayout from "@layouts/MainCardLayout.svelte";
   import { maxStepAllowed } from "@stores/wizardSession";
+  import ArrowLeft from "svelte-bootstrap-icons/lib/ArrowLeft/ArrowLeft.svelte";
+  import ArrowRight from "svelte-bootstrap-icons/lib/ArrowRight/ArrowRight.svelte";
   import { rootPath } from "stores/context";
   import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
@@ -12,9 +14,16 @@
   export let onNext: () => void | null = null;
   export let escapeRoute = "";
 
+  function onBackWrapper() {
+    if (step != null) {
+      $maxStepAllowed = Math.max($maxStepAllowed - 1, 1);;
+    }
+    onBack();
+  }
+
   function onNextWrapper() {
     if (step != null) {
-      $maxStepAllowed += 1;
+      $maxStepAllowed += 1; 
     }
     onNext();
   }
@@ -41,14 +50,14 @@
     <div class="bottom-stripe-left">
       <slot name="bottom-stripe-left">
         {#if onBack}
-          <button type="button" class="btn btn-secondary" on:click={onBack}>Back</button>
+          <button type="button" class="btn btn-secondary" on:click={onBackWrapper}><ArrowLeft/> Back</button>
         {/if}
       </slot>
     </div>
     <div class="bottom-stripe-right">
       <slot name="bottom-stripe-right">
         {#if onNext}
-          <button type="button" class="btn btn-primary" on:click={onNextWrapper}>Next</button>
+          <button type="button" class="btn btn-primary" on:click={onNextWrapper}>Next <ArrowRight/></button>
         {/if}
       </slot>
     </div>
