@@ -16,10 +16,8 @@
   };
   
   let fixRequest = Strass.fixProgram({
-    programWithAddendum: $program 
-      + `\nmod ${$addendumModuleName} is pr ${$rootModuleName} .\n`
-      + $predicatesAddendum
-      + "\nendm",
+    programWithAddendum: Strass.joinProgramWithAddendum(
+      $program, $predicatesAddendum, $rootModuleName, $addendumModuleName),
     rootModuleName: $rootModuleName,
     addendumModuleName: $addendumModuleName,
     constraints: $constraints

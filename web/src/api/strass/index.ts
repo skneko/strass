@@ -49,6 +49,16 @@ export namespace Strass {
         constraints: string
     }
 
+    export async function checkConstraints(payload: FixPayload): Promise<ResultAndDiagnostics> {
+        return await fetchAs(baseUrl + `/constraints/check`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+    }
+
     export async function fixProgram(payload: FixPayload): Promise<ResultAndDiagnostics> {
         return await fetchAs(baseUrl + `/program/fix`, {
             method: "POST",
@@ -57,5 +67,12 @@ export namespace Strass {
             },
             body: JSON.stringify(payload)
         });
+    }
+
+    export function joinProgramWithAddendum(program: string, predicatesAddendum: string, rootModuleName: string, addendumModuleName: string): string {
+        return program 
+            + `\nmod ${addendumModuleName} is pr ${rootModuleName} .\n`
+            + predicatesAddendum
+            + "\nendm";
     }
 }

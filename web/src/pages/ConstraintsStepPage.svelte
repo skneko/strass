@@ -1,12 +1,14 @@
 <script lang="ts">
-  import type { Strass } from "api/strass";
+  import type { monaco } from "monaco-editor";
   import WizardStepLayout from "@layouts/WizardStepLayout.svelte";
   import CodeEditor from "@components/CodeEditor.svelte";
   import DiagnosticList from "@components/DiagnosticList.svelte";
   import Alert from "@components/Alert.svelte";
   import { navigate } from "svelte-routing";
-  import { predicatesAddendum, rootModuleName, addendumModuleName, constraints } from "@stores/wizardSession";
+  import { program, predicatesAddendum, rootModuleName, addendumModuleName, constraints } from "@stores/wizardSession";
   import { rootPath } from "@stores/context";
+  import { Strass } from "api/strass";
+  import { convertToMonacoMarkerData } from "api/strass/monacoIntegration";
 
   let addendumEditor: CodeEditor;
   let constraintsEditor: CodeEditor;
@@ -17,15 +19,15 @@
     }
   };
 
-  let predicateDiagnostics: Strass.Diagnostic[];
+  let constraintsDiagnostics: Strass.Diagnostic[];
 
-  let alertProgramInvalid = false;
+  let alertAddendumInvalid = false;
   let alertEmptyConstraints = false;
   
   const wizardStepProps = {
     step: 2,
     header: "Specify assertions for your program",
-    onNext: () => {
+    onNext: async () => {
       $predicatesAddendum = addendumEditor.getMonacoEditor().getValue();
       $constraints = constraintsEditor.getMonacoEditor().getValue();
 
@@ -36,6 +38,41 @@
         return;
       } else {
         alertEmptyConstraints = false;
+      }
+
+      try {
+        let [addendumResult, constraintsResult] = await Promise.all([
+          Strass.checkProgram(
+            Strass.joinProgramWithAddendum($program, $predicatesAddendum, $rootModuleName, $addendumModuleName)),
+          Strass.checkConstraints({
+            programWithAddendum: Strass.joinProgramWithAddendum(
+              $program, $predicatesAddendum, $rootModuleName, $addendumModuleName),
+            rootModuleName: $rootModuleName,
+            addendumModuleName: $addendumModuleName,
+            constraints: $constraints
+          })
+        ]);
+
+        if (!addendumResult.success) {
+          shouldContinue = false;
+          alertAddendumInvalid = true;
+        } else {
+          alertAddendumInvalid = false;
+        }
+
+        if (!constraintsResult.success) {
+          let model = constraintsEditor.getMonacoEditor().getModel();
+          monaco.editor.setModelMarkers(model, "STRASS API Response",
+            constraintsResult.diagnostics.map(diagnostic => convertToMonacoMarkerData(diagnostic, model)).filter(x => !!x));
+          
+          shouldContinue = false;
+          constraintsDiagnostics = constraintsResult.diagnostics;
+        } else {
+          constraintsDiagnostics = [];
+        }
+      } catch (e) {
+        alert("Error: " + e); // TODO
+        shouldContinue = false;
       }
 
       if (shouldContinue) {
@@ -52,8 +89,11 @@
 
 <WizardStepLayout {...wizardStepProps}>
   <div slot="alerts">
-    {#if alertProgramInvalid}
-    <Alert title="Invalid predicate module" level="error">Please review the problems listed below and try again.</Alert>
+    {#if alertAddendumInvalid}
+    <Alert title="Invalid predicates module" level="error">Please review the introduced predicates and try again.</Alert>
+    {/if}
+    {#if constraintsDiagnostics && constraintsDiagnostics.length > 0}
+    <Alert title="Invalid assertions" level="error">Please review the problems listed below and try again.</Alert>
     {/if}
     {#if alertEmptyConstraints}
     <Alert title="No assertions provided" level="error">You must introduce at least one assertion.</Alert>
@@ -66,15 +106,15 @@
       <pre>mod {$addendumModuleName} is<br>    protecting {$rootModuleName} .<br>    protecting EXT-BOOL .</pre>
       <CodeEditor bind:this={addendumEditor} height="200px" options={editorOptions} initialValue={$predicatesAddendum}/>    
       <pre>endm</pre>
-      {#if predicateDiagnostics}
-      <br/>
-      <DiagnosticList diagnostics={predicateDiagnostics}/>
-      {/if}
     </li>
     <li class="list-group-item">
       <h5 class="card-title">Assertions</h5>
       <CodeEditor bind:this={constraintsEditor} height="200px" initialValue={$constraints}
-          options={{language: "strass-constraints", ...editorOptions}}/>    
+          options={{language: "strass-constraints", ...editorOptions}}/>
+      {#if constraintsDiagnostics && constraintsDiagnostics.length > 0}
+      <br/>
+      <DiagnosticList diagnostics={constraintsDiagnostics}/>
+      {/if}  
     </li>
   </ul>
 </WizardStepLayout>

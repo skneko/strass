@@ -30,6 +30,10 @@
       editor = monaco.editor.create(elem, {
         value: initialValue,
         language: "maude",
+        lineDecorationsWidth: 0,
+        minimap: {
+          scale: 0.3
+        },
         ...options
       })
     });

@@ -1,6 +1,9 @@
 package es.upv.vrain.elp.strass;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import javax.ws.rs.Consumes;
@@ -27,6 +30,8 @@ import es.upv.vrain.elp.strass.dto.ResultAndDiagnosticsDto;
 @Path("")
 public class StrassService {
 	static final MaudeInputSanitizer sanitizer = new MaudeInputSanitizer();
+	
+	static final Pattern PARSE_ERROR_REGEX = Pattern.compile("constraintParseFailure\\((\\w+),\\s*(\\d+)\\)|incorrectGlobalsParseFailure\\((\\w+)\\)");
 	
 	static final String[] maudeCommand =
 			Stream.of(Settings.MAUDE_COMMAND, Settings.MAUDE_FILES_TO_LOAD)
@@ -66,6 +71,68 @@ public class StrassService {
 		ResultAndDiagnosticsDto dto = ResultAndDiagnosticsDto.fromMaudeExecution(output);
 		dto.suppressResult();
 		return dto;
+	}
+	
+	@POST @Path("constraints/check")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response checkConstraintsValid(FixProgramInputDto input) {
+		if (StringUtils.isNullOrEmpty(input.getProgramWithAddendum())) {
+    		return Response.status(Response.Status.BAD_REQUEST)
+    				.entity(ResultAndDiagnosticsDto.fromDiagnostics(
+    						new Diagnostic(ErrorCode.MISSING_REQUIRED_ARGUMENTS, "The program is required.")))
+    				.build();
+    	}
+    	if (StringUtils.isNullOrEmpty(input.getRootModuleName()) || StringUtils.isNullOrEmpty(input.getAddendumModuleName())) {
+    		return Response.status(Response.Status.BAD_REQUEST)
+    				.entity(ResultAndDiagnosticsDto.fromDiagnostics(
+    						new Diagnostic(ErrorCode.MISSING_REQUIRED_ARGUMENTS, "The module names are required.")))
+    				.build();
+    	}
+		
+    	MaudeScript script = new MaudeScript(input.getProgramWithAddendum());
+ 		if (script.hasCommands()) {
+ 			return Response.status(Response.Status.BAD_REQUEST)
+ 					.entity(ResultAndDiagnosticsDto.fromDiagnostics(
+ 							new Diagnostic(ErrorCode.CONTAINS_COMMANDS, "The program cannot contain commands.")))
+ 					.build();
+ 		}
+		
+ 		String rootModule = sanitizer.qid(input.getRootModuleName());
+		String addendumModule = sanitizer.qid(input.getAddendumModuleName());
+		String constraints = sanitizer.stringLiteralContent(input.getConstraints());
+		String command = String.format(
+				"rew in STRASS : parseConstraints('%s, '%s, \"%s\") .", 
+				rootModule, 
+				addendumModule, 
+				constraints);
+		script.appendLine(command);
+		script.appendLine("quit .");
+		
+		MaudeExecutionResponse output = runMaude(script);
+		
+		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
+		Matcher errorMatcher = PARSE_ERROR_REGEX.matcher(output.getBody());
+		while (errorMatcher.find()) {
+			String reason;
+			switch (errorMatcher.group(1)) {
+			case "repeatedForSameSort": reason = "path assertion defined more than once for the same sort"; break;
+			case "contextNoParse": reason = "does not look like a valid assertion"; break;
+			case "bothSidesNoParse": reason = "failed to parse both sides of this state assertion. Did you import all the required definitions in the predicates?"; break;
+			case "patternNoParse": reason = "failed to parse the pattern (left hand side) of this state assertion"; break;
+			case "guardNoParse": reason = "failed to parse guard (right hand side). Did you import all the required definitions in the predicates?"; break;
+			case "actionNoParse": reason = "failed to parse the provided strategy expression"; break;
+			default: reason = "unknown error";
+			}
+			
+			if (errorMatcher.groupCount() >= 3) {
+				reason = "line " + errorMatcher.group(2) + ": " + reason;
+			}
+			
+			diagnostics.add(new Diagnostic(ErrorCode.CONSTRAINT_PARSE_FAILURE, reason));
+		}
+		
+		return ResultAndDiagnosticsDto.from("", diagnostics).toResponse().status(Response.Status.OK).build();
 	}
 	
     @POST @Path("program/fix")

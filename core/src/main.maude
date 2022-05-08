@@ -93,13 +93,18 @@ fmod STRASS-CONSTRAINTS-PARSING is
 
     ***( Constraint expression parsing )***
 
-    op incorrectGlobalsParseFailure : -> [TaggedConstraintSet] [format (r! o)] .
-    op constraintParseFailure : Nat -> [TaggedConstraint] [format (r! o)] .
+    sorts IncorrectGlobalsParseFailureReason ConstraintParseFailureReason .
+    ops repeatedForSameSort : -> IncorrectGlobalsParseFailureReason .
+    ops contextNoParse bothSidesNoParse patternNoParse guardNoParse actionNoParse : -> ConstraintParseFailureReason .
+
+    op incorrectGlobalsParseFailure : IncorrectGlobalsParseFailureReason -> [TaggedConstraint] [format (r! o)] .
+    op constraintParseFailure : ConstraintParseFailureReason Nat -> [TaggedConstraint] [format (r! o)] .
     op actionParseFailure : -> [Strategy] [format (r! o)] .
 
     var LineNum : Nat .
 
-    eq constraintParseFailure(LineNum), TC:TaggedConstraint = constraintParseFailure(LineNum) .
+    eq constraintParseFailure(R:ConstraintParseFailureReason, LineNum), TC:TaggedConstraint = 
+        constraintParseFailure(R:ConstraintParseFailureReason, LineNum) .
 
     var M : Module .    --- flattened input root module
     var MP : Module .   --- flattened input predicate module
@@ -113,7 +118,7 @@ fmod STRASS-CONSTRAINTS-PARSING is
     eq parseConstraints(M, MP, Raw) =
         if $checkGlobals($parseConstraints(M, MP, Raw)) 
         then $parseConstraints(M, MP, Raw)
-        else incorrectGlobalsParseFailure 
+        else incorrectGlobalsParseFailure(repeatedForSameSort), $parseConstraints(M, MP, Raw)
         fi .
     
     op $parseConstraints : Module Module String ~> TaggedConstraintSet .
@@ -151,27 +156,29 @@ fmod STRASS-CONSTRAINTS-PARSING is
     ceq $$parseOneConstraint(M, MPx, LineNum, R:ResultPair) =
         $$$parseOneConstraint(M, LineNum, ATy:Term, A:Term)
     if { 'path`for_:_ [ ATy:Term, A:Term ] , '__STRASS_MonomorphizedConstraint } := R:ResultPair .
-    eq $$parseOneConstraint(M, MPx, LineNum, R:[ResultPair?]) = constraintParseFailure(LineNum) [owise] .
+    eq $$parseOneConstraint(M, MPx, LineNum, R:[ResultPair?]) = constraintParseFailure(contextNoParse, LineNum) [owise] .
 
     op $$$parseOneConstraint : Nat ResultPair? ResultPair? ~> TaggedConstraint .
     ceq $$$parseOneConstraint(LineNum, RP:ResultPair, RG:ResultPair) =
         toSort(Ty) |-> [LineNum] P:Term # G:Term
     if { P:Term, Ty } := RP:ResultPair /\ { G:Term, Ty' } := RG:ResultPair .
-    eq $$$parseOneConstraint(LineNum, RP:[ResultPair?], RG:[ResultPair?]) = constraintParseFailure(LineNum) [owise] .
+    eq $$$parseOneConstraint(LineNum, RP:ResultPair?, RG:[ResultPair?]) = constraintParseFailure(guardNoParse, LineNum) .
+    eq $$$parseOneConstraint(LineNum, RP:[ResultPair?], RG:ResultPair?) = constraintParseFailure(patternNoParse, LineNum) .
+    eq $$$parseOneConstraint(LineNum, RP:[ResultPair?], RG:[ResultPair?]) = constraintParseFailure(bothSidesNoParse, LineNum) [owise] .
 
     op $$$parseOneConstraint : Module Nat Term Term ~> TaggedConstraint .
     ceq $$$parseOneConstraint(M, LineNum, TTy:Term, TA:Term) = toSort(Ty) |-> [global] path A:Strategy 
     if A:Strategy := downAction(TA:Term, collectRuleLabels(M))
     /\ Ty := downConstant(TTy:Term, '__STRASS_SortName) .
-    eq $$$parseOneConstraint(M, LineNum, TATy:[Term], A:[Term]) = constraintParseFailure(LineNum) [owise] .
+    eq $$$parseOneConstraint(M, LineNum, TATy:[Term], A:[Term]) = constraintParseFailure(actionNoParse, LineNum) [owise] .
 
     ***( Handle globals )***
 
-    var TCs : TaggedConstraintSet .
+    var TCs : TaggedConstraintSet . var TCs? : [TaggedConstraintSet] .
 
     op $checkGlobals : TaggedConstraintSet -> Bool .
     eq $checkGlobals((Tag:Sort |-> [global] C:Constraint, Tag:Sort |-> [global] C':Constraint, TCs)) = false .
-    eq $checkGlobals((constraintParseFailure(LineNum), TCs)) = true .
+    eq $checkGlobals((constraintParseFailure(R:ConstraintParseFailureReason, LineNum), TCs?)) = true .
     eq $checkGlobals(TCs) = true [owise] . 
 
     ***( Action sublanguage parsing )***

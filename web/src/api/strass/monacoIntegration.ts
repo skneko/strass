@@ -1,10 +1,10 @@
 import { editor, MarkerSeverity } from "monaco-editor";
 import { Strass } from ".";
 
-export function convertToMonacoMarkerData(diagnostic: Strass.Diagnostic, model: editor.ITextModel): editor.IMarkerData | null {
+export function convertToMonacoMarkerData(diagnostic: Strass.Diagnostic, model: editor.ITextModel, lineOffset = 0): editor.IMarkerData | null {
     let match = diagnostic.text.replace(/[\r\n]+/g, " ").match(/line (\d+)(?:\s+\((?:f|o|s)?mod (\S+)\))?\s*: (.*)/);
     if (match) {
-        let line = Number(match[1]);
+        let line = Number(match[1]) + lineOffset;
         // let module = match[2];
         let message = match[3];
         let severity = diagnostic.severity;

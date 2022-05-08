@@ -7,18 +7,16 @@
   import Alert from "@components/Alert.svelte";
   import ExampleSelector from "@components/ExampleSelector.svelte";
   import UploadFileButton from "@components/UploadFileButton.svelte";
-  import { program, rootModuleName } from "@stores/wizardSession";
+  import { program, rootModuleName, selectedExampleId } from "@stores/wizardSession";
+  import { rootPath } from "@stores/context";
   import { Strass } from "api/strass";
   import { convertToMonacoMarkerData } from "api/strass/monacoIntegration";
   import { collectModuleNames } from "api/strass/maude";
-  import { rootPath } from "@stores/context";
-import { selectedExampleId } from "stores/wizardSession";
   
   let editor: CodeEditor;
   let diagnostics: Strass.Diagnostic[] = [];
 
   let alertEmpty = false;
-  let alertProgramInvalid = false;
   let alertNoModules = false;
   
   const wizardStepProps = {
@@ -41,11 +39,12 @@ import { selectedExampleId } from "stores/wizardSession";
         if (!result.success) {
           let model = editor.getMonacoEditor().getModel();
           monaco.editor.setModelMarkers(model, "STRASS API Response",
-          result.diagnostics.map(diagnostic => convertToMonacoMarkerData(diagnostic, model)).filter(x => !!x));
+            result.diagnostics.map(diagnostic => convertToMonacoMarkerData(diagnostic, model)).filter(x => !!x));
           
-          alertProgramInvalid = true;
           shouldContinue = false;
           diagnostics = result.diagnostics;
+        } else {
+          diagnostics = [];
         }
       } catch (e) {
         alert("Error: " + e); // TODO
@@ -74,7 +73,6 @@ import { selectedExampleId } from "stores/wizardSession";
   function handleExampleChanged() {
     editor.getMonacoEditor().setValue($program);
     alertEmpty = false;
-    alertProgramInvalid = false;
     alertNoModules = false;
     diagnostics = [];
   }
@@ -94,7 +92,7 @@ import { selectedExampleId } from "stores/wizardSession";
 
 <WizardStepLayout {...wizardStepProps}>
   <div slot="alerts">
-    {#if alertProgramInvalid}
+    {#if diagnostics && diagnostics.length > 0}
     <Alert title="Invalid input program" level="error">Please review the problems listed below and try again.</Alert>
     {/if}
     {#if alertEmpty}
