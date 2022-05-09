@@ -28,13 +28,13 @@
       constraints: "abridged"
     },
     {
-      id: "philo",
-      name: "Philosophers",
-      constraints: "state-reduced"
+      id: "maze",
+      name: "Maze",
+      constraints: "state"
     },
     {
-      id: "semaphore-nt",
-      name: "Semaphore",
+      id: "space-invaders",
+      name: "Space Invaders",
       constraints: "state"
     }
   ];

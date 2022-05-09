@@ -1,0 +1,10 @@
+load test.maude
+load ../examples/space-invaders/space-invaders.maude
+
+erew in TEST-CONTEXT : test(
+    "../examples/space-invaders/space-invaders.maude",
+    "../examples/space-invaders/state.constraints",
+    'SPACE-INVADERS,
+    "../examples/space-invaders/fixed/space-invaders_state.maude") .
+
+quit
