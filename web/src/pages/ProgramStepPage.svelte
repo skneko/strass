@@ -16,6 +16,7 @@
   let editor: CodeEditor;
   let diagnostics: Strass.Diagnostic[] = [];
 
+  let alertGeneric = false;
   let alertEmpty = false;
   let alertNoModules = false;
   
@@ -33,6 +34,7 @@
       }
       
       let shouldContinue = true;
+      alertGeneric = false;
       
       try {
         let result = await Strass.checkProgram($program);
@@ -47,7 +49,8 @@
           diagnostics = [];
         }
       } catch (e) {
-        alert("Error: " + e); // TODO
+        console.log(e);
+        alertGeneric = true;
         shouldContinue = false;
       }
 
@@ -92,6 +95,9 @@
 
 <WizardStepLayout {...wizardStepProps}>
   <div slot="alerts">
+    {#if alertGeneric}
+    <Alert title="Something went wrong" level="error">Your request cannot be fulfilled at this moment. Please try again.</Alert>
+    {/if}
     {#if diagnostics && diagnostics.length > 0}
     <Alert title="Invalid input program" level="error">Please review the problems listed below and try again.</Alert>
     {/if}
@@ -103,7 +109,7 @@
     {/if}
   </div>
 
-  <div style="display: flex; flex-flow: row nowrap; gap: 5px;">
+  <div class="quick-intro-area" style="display: flex; flex-flow: row nowrap; gap: 5px;">
     <div style="flex-grow: 1;">
       <ExampleSelector on:change={handleExampleChanged}/>
     </div>
@@ -111,12 +117,11 @@
       <UploadFileButton on:uploaded={handleFileUploaded} accept={".maude"}/>
     </div>
   </div>
-  <br/>
   <CodeEditor bind:this={editor} initialValue={$program}/>
   {#if diagnostics && diagnostics.length > 0}
   <ul class="list-group list-group-flush">
     <li class="list-group-item">
-      <DiagnosticList diagnostics={diagnostics}/>
+      <DiagnosticList bind:diagnostics={diagnostics}/>
     </li>
   </ul>
   {/if}
@@ -126,5 +131,9 @@
   .list-group-item {
     padding-right: 0;
     padding-left: 0;
+  }
+
+  .quick-intro-area {
+    margin-bottom: 1rem;
   }
 </style>

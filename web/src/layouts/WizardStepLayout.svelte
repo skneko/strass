@@ -1,8 +1,8 @@
 <script lang="ts">
   import MainCardLayout from "@layouts/MainCardLayout.svelte";
   import { maxStepAllowed } from "@stores/wizardSession";
-  import ArrowLeft from "svelte-bootstrap-icons/lib/ArrowLeft/ArrowLeft.svelte";
-  import ArrowRight from "svelte-bootstrap-icons/lib/ArrowRight/ArrowRight.svelte";
+  import CaretLeftFill from "svelte-bootstrap-icons/lib/CaretLeftFill/CaretLeftFill.svelte";
+  import CaretRightFill from "svelte-bootstrap-icons/lib/CaretRightFill/CaretRightFill.svelte";
   import { rootPath } from "stores/context";
   import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
@@ -50,14 +50,14 @@
     <div class="bottom-stripe-left">
       <slot name="bottom-stripe-left">
         {#if onBack}
-          <button type="button" class="btn btn-secondary" on:click={onBackWrapper}><ArrowLeft/> Back</button>
+          <button type="button" class="btn btn-primary" on:click={onBackWrapper}><CaretLeftFill/> Back</button>
         {/if}
       </slot>
     </div>
     <div class="bottom-stripe-right">
       <slot name="bottom-stripe-right">
         {#if onNext}
-          <button type="button" class="btn btn-primary" on:click={onNextWrapper}>Next <ArrowRight/></button>
+          <button type="button" class="btn btn-primary" on:click={onNextWrapper}>Next <CaretRightFill/></button>
         {/if}
       </slot>
     </div>
@@ -82,7 +82,8 @@
   .step-header {
     margin-left: 5px;
     font-variant: small-caps;
-    font-family: Georgia, "Times New Roman", Times, serif;
+    font-family: "Open Sans", serif;
+    letter-spacing: 0.06em;
   }
 
   .bottom-stripe-left {
@@ -90,5 +91,9 @@
   }
   .bottom-stripe-right {
     float: right;
+  }
+
+  .card-footer {
+    background-color: rgba(0, 0, 0, 0.01);
   }
 </style>

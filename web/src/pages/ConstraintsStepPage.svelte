@@ -21,6 +21,7 @@
 
   let constraintsDiagnostics: Strass.Diagnostic[];
 
+  let alertGeneric = false;
   let alertAddendumInvalid = false;
   let alertEmptyConstraints = false;
   
@@ -32,6 +33,7 @@
       $constraints = constraintsEditor.getMonacoEditor().getValue();
 
       let shouldContinue = true;
+      alertGeneric = false;
 
       if (!$constraints.replace(/\s/g, "").length) {
         alertEmptyConstraints = true;
@@ -71,7 +73,8 @@
           constraintsDiagnostics = [];
         }
       } catch (e) {
-        alert("Error: " + e); // TODO
+        console.log(e);
+        alertGeneric = true;
         shouldContinue = false;
       }
 
@@ -89,6 +92,9 @@
 
 <WizardStepLayout {...wizardStepProps}>
   <div slot="alerts">
+    {#if alertGeneric}
+    <Alert title="Something went wrong" level="error">Your request cannot be fulfilled at this moment. Please try again.</Alert>
+    {/if}
     {#if alertAddendumInvalid}
     <Alert title="Invalid predicates module" level="error">Please review the introduced predicates and try again.</Alert>
     {/if}
@@ -103,12 +109,14 @@
   <ul class="list-group list-group-flush">
     <li class="list-group-item">
       <h5 class="card-title">Predicates</h5>
-      <pre>mod {$addendumModuleName} is<br>    protecting {$rootModuleName} .<br>    protecting EXT-BOOL .</pre>
+      Optionally, add the extra predicates used in your assertions:
+      <pre class="maude-code"><span class="maude-kw">mod</span> {$addendumModuleName} <span class="maude-kw">is</span><br>    <span class="maude-kw">protecting</span> {$rootModuleName} .<br>    <span class="maude-kw">protecting</span> EXT-BOOL .</pre>
       <CodeEditor bind:this={addendumEditor} height="200px" options={editorOptions} initialValue={$predicatesAddendum}/>    
-      <pre>endm</pre>
+      <pre class="maude-code"><span class="maude-kw">endm</span></pre>
     </li>
     <li class="list-group-item">
       <h5 class="card-title">Assertions</h5>
+      Specify one assertion per line. Assertions may be state assertions (<em>pattern</em> <code>#</code> <em>guard</em>) or path assertions (<code>path for</code> <em>sort</em><code>:</code> <em>strategy</em>).
       <CodeEditor bind:this={constraintsEditor} height="200px" initialValue={$constraints}
           options={{language: "strass-constraints", ...editorOptions}}/>
       {#if constraintsDiagnostics && constraintsDiagnostics.length > 0}
@@ -118,3 +126,26 @@
     </li>
   </ul>
 </WizardStepLayout>
+
+<style>
+  .maude-code {
+    font-size: 12px;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-bottom: 0;
+  }
+
+  .maude-kw {
+    color: #0000ff;
+  }
+
+  em {
+    font-style: italic;
+    font-weight: bold;
+    background-color: #dfdfdf;
+    color: #4a4a4a;
+    border-radius: 0.25rem;
+    font-size: 13px;
+    padding: 0.1rem;
+  }
+</style>

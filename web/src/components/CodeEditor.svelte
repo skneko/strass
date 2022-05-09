@@ -27,13 +27,22 @@
       //@ts-ignore
       monaco.languages.setMonarchTokensProvider("strass-constraints", constraintsGrammar);
 
+      monaco.editor.defineTheme("strass-theme", {
+        base: "vs",
+        inherit: true,
+        colors: {
+          "editorGutter.background": "#efefef",
+        },
+        rules: [],
+      });
+
       editor = monaco.editor.create(elem, {
         value: initialValue,
         language: "maude",
+        theme: "strass-theme",
+        fontSize: 12,
         lineDecorationsWidth: 0,
-        minimap: {
-          scale: 0.3
-        },
+        glyphMargin: false,
         ...options
       })
     });

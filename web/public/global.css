@@ -17,3 +17,8 @@ body {
 .form-select {
 	border: 2px solid black !important;
 }
+
+svg.bi {
+	bottom: .125em !important;
+    position: relative !important;
+}

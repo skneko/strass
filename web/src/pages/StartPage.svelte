@@ -19,9 +19,15 @@
 
   <Link class="btn btn-primary start-btn" to={`${$rootPath}/program`}>Start</Link>
 
-  <div class="sponsors-area">
+  <div class="backers-area">
     <a target="_blank" title="UPV" href="http://www.upv.es">
-      <img class="sponsor-logo" src={`${$rootPath}/img/logo/upv.png`} alt="UPV" />
+      <img class="backer-logo" src={`${$rootPath}/img/logo/upv.png`} alt="UPV" />
+    </a>
+    <a target="_blank" title="GVA" href="http://www.ceice.gva.es">
+      <img class="backer-logo" src={`${$rootPath}/img/logo/gva.png`} alt="GVA" />
+    </a>
+    <a target="_blank" title="MINECO" href="http://www.mineco.gob.es">
+      <img class="backer-logo" src={`${$rootPath}/img/logo/mineco.png`} alt="MINECO" />
     </a>
   </div>
 </main>
@@ -79,17 +85,16 @@
     width: 150px;
   }
 
-  .sponsors-area {
+  .backers-area {
     padding: 5px;
     margin: 0 auto;
     margin-top: 60px;
     text-align: center;
     border: 2px solid black;
     background-color: white;
-    max-width: 565px;
   }
 
-  .sponsor-logo {
+  .backer-logo {
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 5px;

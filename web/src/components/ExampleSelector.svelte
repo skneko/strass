@@ -103,3 +103,10 @@
     <option value="empty" selected>Empty (upload file or write it yourself)</option>
   </select>
 </form>
+
+<style>
+  select {
+    font-weight: 600;
+    background-color: rgb(221, 238, 253);
+  }
+</style>

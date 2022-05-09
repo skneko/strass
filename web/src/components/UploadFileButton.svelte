@@ -1,9 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import FileEarkmarkArrowUp from "svelte-bootstrap-icons/lib/FileEarmarkArrowUp/FileEarmarkArrowUp.svelte";
+
+  export let accept: string;
 
   let inputElem: HTMLInputElement;
   let files: FileList | null;
-  let accept: string;
 
   let dispatch = createEventDispatcher();
 
@@ -20,5 +22,5 @@
 
 <form>
   <input type="file" hidden bind:this={inputElem} bind:files={files} on:change={fileSelected} accept={accept} />
-  <button on:click={openDialog} class="btn btn-primary">Upload file</button>
+  <button on:click={openDialog} class="btn btn-primary"><FileEarkmarkArrowUp/> Upload file</button>
 </form>
