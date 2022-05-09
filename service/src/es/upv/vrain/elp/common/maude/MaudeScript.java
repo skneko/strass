@@ -61,10 +61,8 @@ public class MaudeScript {
 	}
 	
 	private String internalNormalize(String source) {
-		source = source.replaceAll("set include BOOL off .", "");
-		source = source.replaceAll("set include BOOL on .", "");
-		source = source.replaceAll("[\\r\\n]+", LINE_TERMINATOR);
-		source = source.trim() + "\n";
+		source = source.replaceAll("\\r?\\n", LINE_TERMINATOR);
+		source += "\n";
 		return source;
 	}
 }
