@@ -1,10 +1,10 @@
-import { fetchAs } from "../fetch";
 import { rootUrl } from "../../stores/context";
+import { fetchAs } from "../fetch";
 
 export namespace Strass {
     let baseUrl: string;
     rootUrl.subscribe(value => baseUrl = value + "/api");
-
+    
     export interface ResultAndDiagnostics {
         success: boolean,
         diagnostics: Diagnostic[],
@@ -21,7 +21,7 @@ export namespace Strass {
         Advisory = "Advisory",
         Error = "Error"
     }
-
+    
     export enum ErrorCode {
         ContainsCommands = "CONTAINS_COMMANDS",
         MissingRequiredArguments = "MISSING_REQUIRED_ARGUMENT",
@@ -31,9 +31,9 @@ export namespace Strass {
         CoreCannotCompleteExecution = "CORE_CANNOT_COMPLETE_EXECUTION",
         ConstraintParseFailure = "CONSTRAINT_PARSE_FAILURE"
     }
-
+    
     export async function checkProgram(program: string): Promise<ResultAndDiagnostics> {
-        return await fetchAs(baseUrl + `/program/check`, {
+        return await fetchAs(baseUrl + "/program/check", {
             method: "POST",
             headers: {
                 "content-type": "text/plain"
@@ -41,16 +41,16 @@ export namespace Strass {
             body: program
         });
     }
-
+    
     export interface FixPayload {
         programWithAddendum: string,
         rootModuleName: string,
         addendumModuleName: string,
         constraints: string
     }
-
+    
     export async function checkConstraints(payload: FixPayload): Promise<ResultAndDiagnostics> {
-        return await fetchAs(baseUrl + `/constraints/check`, {
+        return await fetchAs(baseUrl + "/constraints/check", {
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -58,9 +58,9 @@ export namespace Strass {
             body: JSON.stringify(payload)
         });
     }
-
+    
     export async function fixProgram(payload: FixPayload): Promise<ResultAndDiagnostics> {
-        return await fetchAs(baseUrl + `/program/fix`, {
+        return await fetchAs(baseUrl + "/program/fix", {
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -68,11 +68,11 @@ export namespace Strass {
             body: JSON.stringify(payload)
         });
     }
-
+    
     export function joinProgramWithAddendum(program: string, predicatesAddendum: string, rootModuleName: string, addendumModuleName: string): string {
-        return program 
-            + `\nmod ${addendumModuleName} is pr ${rootModuleName} .\n`
-            + predicatesAddendum
-            + "\nendm";
+        return program
+        + `\nmod ${addendumModuleName} is pr ${rootModuleName} .\n`
+        + predicatesAddendum
+        + "\nendm";
     }
 }

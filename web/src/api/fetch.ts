@@ -1,5 +1,5 @@
 export async function fetchAs<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
-    let response = await fetch(input, init);
+    const response = await fetch(input, init);
 
     if (response.ok) {
         return response.json() as Promise<T>;

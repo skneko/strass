@@ -1,4 +1,4 @@
-import { writable, derived } from "svelte/store";
+import { derived, writable } from "svelte/store";
 
 export const maxStepAllowed = writable(1);
 
@@ -8,5 +8,5 @@ export const predicatesAddendum = writable("");
 export const constraints = writable("");
 export const selectedExampleId = writable("empty");
 
-export const addendumModuleName = derived(rootModuleName, 
+export const addendumModuleName = derived(rootModuleName,
     $rootModuleName => $rootModuleName + "-PREDICATES");
