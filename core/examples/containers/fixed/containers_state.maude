@@ -1,5 +1,5 @@
 mod CONTAINERS is 
-    pr INT + EXT-BOOL .
+    protecting INT + EXT-BOOL .
 
     sorts Container Cargo Ship Fleet State .
     subsort Container < Cargo .
@@ -31,7 +31,7 @@ mod CONTAINERS is
     eq maxW = 5 .
 
     eq isFull(nil) = true .
-    eq isFull(c(W) , CG) = (W == maxW) and isFull(CG) .
+    eq isFull(c(W) , CG) = (W == maxW) and-then isFull(CG) .
 
     crl [stow] : < MAXW , MAXS | CG > FL : c(W) , CG1 => 
                 < MAXW , MAXS | CG,c(W) > FL : CG1
@@ -100,8 +100,8 @@ smod CONTAINERS-SAFE is
 	sd State* := (State-state) ; (((all) ; (State-state)) *) .
 	sd State+ := (State-state) ; (((all) ; (State-state)) +) .
 	sd State-state := (s3) ; ((s1) ; ((s2) ; (s4))) .
-	sd s1 := not(amatch c(W:Int) s.t. W:Int >= 0 and W:Int <= 5 = false) .
-	sd s2 := not(amatch < MAXW:Int, MAXS:Int | CG:Cargo > s.t. weight(CG:Cargo) <= MAXW:Int and size(CG:Cargo) <= MAXS:Int = false) .
+	sd s1 := not(amatch c(W:Int) s.t. W:Int >= 0 and-then W:Int <= 5 = false) .
+	sd s2 := not(amatch < MAXW:Int, MAXS:Int | CG:Cargo > s.t. weight(CG:Cargo) <= MAXW:Int and-then size(CG:Cargo) <= MAXS:Int = false) .
 	sd s3 := not(amatch CG1:Cargo, c(W:Int), CG2:Cargo s.t. isFull(c(W:Int)) implies isFull(CG1:Cargo) = false) .
-	sd s4 := not(amatch < MAXW1:Int, MAXS1:Int | c(W1:Int), c(W1':Int) > s.t. W1:Int >= 0 and W1:Int <= 5 = false) .
+	sd s4 := not(amatch < MAXW1:Int, MAXS1:Int | c(W1:Int), c(W1':Int) > s.t. W1:Int >= 0 and-then W1:Int <= 5 = false) .
 endsm

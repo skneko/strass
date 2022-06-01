@@ -1,9 +1,9 @@
 {
-	"cases": [
-		{
-			"term": "false || 0 || p 1 {idle} p 2 {idle}",
-			"strat": "GlobalState*"
-		}
-	],
-	"module": "SEMAPHORE-NT-SAFE"
+    "cases": [
+        {
+            "term": "false || 0 || p 1 {idle} p 2 {idle}",
+            "strat": "GlobalState*"
+        }
+    ],
+    "module": "SEMAPHORE-NT-SAFE"
 }

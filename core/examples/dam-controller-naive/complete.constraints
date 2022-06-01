@@ -1,0 +1,5 @@
+path for State : (openC-1 | open1-2 | open2-3 | close1-C | close2-1 | close3-2) ; volume
+{ SC:Spillways ; V:Rat ; T:TimeStamp } # V:Rat >= 0 and-then V:Rat < 50000000
+{ [ S1:SpillwayId , O1:Aperture ] [ S2:SpillwayId , O2:Aperture ] [ S3:SpillwayId , O3:Aperture ] ; V:Rat ; T:TimeStamp } # V:Rat > 40000000 implies (O1:Aperture == open3 and-then O2:Aperture =/= close and-then O3:Aperture =/= close) or-else (O2:Aperture == open3 and-then O1:Aperture =/= close and-then O3:Aperture =/= close) or-else (O3:Aperture == open3 and-then O1:Aperture =/= close and-then O2:Aperture =/= close)
+{ SC:Spillways ; V:Rat ; T:TimeStamp } # V:Rat < 10000000 implies openSpillways(SC:Spillways) == 0
+{ SC:Spillways ; V:Rat ; T:TimeStamp } # V:Rat >= 10000000 and-then V:Rat <= 40000000 implies openSpillways(SC:Spillways) == 2

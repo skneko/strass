@@ -1,0 +1,22 @@
+load test.maude
+load ../examples/dam-controller-naive/dam-controller-naive.maude
+
+mod DAM-CONTROLLER-NAIVE-PRED is
+    pr DAM-CONTROLLER-NAIVE .
+
+    var S : SpillwayId .
+    var O : Aperture .
+    var SC : Spillways .
+
+    op openSpillways : Spillways -> Nat .
+    eq openSpillways(empty) = 0 .
+    eq openSpillways([ S,O ] SC) = if O =/= close then 1 + openSpillways(SC) else openSpillways(SC) fi .
+endm
+
+erew in TEST-CONTEXT : test(
+    "../examples/dam-controller-naive/dam-controller-naive.maude",
+    "../examples/dam-controller-naive/abridged.constraints",
+    'DAM-CONTROLLER-NAIVE, 'DAM-CONTROLLER-NAIVE-PRED,
+    "../examples/dam-controller-naive/fixed/dam-controller-naive_abridged.maude") .
+
+quit

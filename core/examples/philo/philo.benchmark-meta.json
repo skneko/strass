@@ -1,9 +1,9 @@
 {
-	"cases": [
-		{
-			"term": "< 97, 2, stk(1) ; stk(2) ; ph(1, think, 0) ; ph(2, think, 0) >",
-			"strat": "all *"
-		}
-	],
-	"module": "PHILO"
+    "cases": [
+        {
+            "term": "< 97, 2, stk(1) ; stk(2) ; ph(1, think, 0) ; ph(2, think, 0) >",
+            "strat": "all *"
+        }
+    ],
+    "module": "PHILO"
 }

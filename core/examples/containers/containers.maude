@@ -1,5 +1,5 @@
 mod CONTAINERS is 
-    pr INT + EXT-BOOL .
+    protecting INT + EXT-BOOL .
 
     sorts Container Cargo Ship Fleet State .
     subsort Container < Cargo .
@@ -31,7 +31,7 @@ mod CONTAINERS is
     eq maxW = 5 .
 
     eq isFull(nil) = true .
-    eq isFull(c(W) , CG) = (W == maxW) and isFull(CG) .
+    eq isFull(c(W) , CG) = (W == maxW) and-then isFull(CG) .
 
     crl [stow] : < MAXW , MAXS | CG > FL : c(W) , CG1 => 
                 < MAXW , MAXS | CG,c(W) > FL : CG1

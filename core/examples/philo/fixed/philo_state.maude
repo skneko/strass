@@ -37,10 +37,18 @@ endm
 smod PHILO-SAFE is
 	protecting PHILO .
 	protecting EXT-BOOL .
+	strat Bool! : @ Bool .
+	strat Bool* : @ Bool .
+	strat Bool+ : @ Bool .
+	strat Bool-state : @ Bool .
 	strat Conf! : @ Conf .
 	strat Conf* : @ Conf .
 	strat Conf+ : @ Conf .
 	strat Conf-state : @ Conf .
+	strat Nat! : @ Nat .
+	strat Nat* : @ Nat .
+	strat Nat+ : @ Nat .
+	strat Nat-state : @ Nat .
 	strat PState! : @ PState .
 	strat PState* : @ PState .
 	strat PState+ : @ PState .
@@ -51,18 +59,28 @@ smod PHILO-SAFE is
 	strat Status-state : @ Status .
 	strat s1 : @ PState .
 	strat s2 : @ PState .
-	sd Conf! := (all) ! .
-	sd Conf* := (all) * .
-	sd Conf+ := (all) + .
-	sd Conf-state := idle .
+	strat s3 : @ Nat .
+	sd Bool! := (Bool-state) ; (((all) ; (Bool-state)) !) .
+	sd Bool* := (Bool-state) ; (((all) ; (Bool-state)) *) .
+	sd Bool+ := (Bool-state) ; (((all) ; (Bool-state)) +) .
+	sd Bool-state := s3 .
+	sd Conf! := (Conf-state) ; (((all) ; (Conf-state)) !) .
+	sd Conf* := (Conf-state) ; (((all) ; (Conf-state)) *) .
+	sd Conf+ := (Conf-state) ; (((all) ; (Conf-state)) +) .
+	sd Conf-state := s3 .
+	sd Nat! := (Nat-state) ; (((all) ; (Nat-state)) !) .
+	sd Nat* := (Nat-state) ; (((all) ; (Nat-state)) *) .
+	sd Nat+ := (Nat-state) ; (((all) ; (Nat-state)) +) .
+	sd Nat-state := s3 .
 	sd PState! := (PState-state) ; (((all) ; (PState-state)) !) .
 	sd PState* := (PState-state) ; (((all) ; (PState-state)) *) .
 	sd PState+ := (PState-state) ; (((all) ; (PState-state)) +) .
-	sd PState-state := (s1) ; (s2) .
+	sd PState-state := (s3) ; ((s1) ; (s2)) .
 	sd Status! := (all) ! .
 	sd Status* := (all) * .
 	sd Status+ := (all) + .
 	sd Status-state := idle .
 	sd s1 := not(amatch < P:Nat, N:Nat, CF:Conf ; ph(I:NzNat, hungry, 2) > s.t. N:Nat >= 0 = false) .
 	sd s2 := not(amatch < P:Nat, N:Nat, CF:Conf ; ph(I:NzNat, think, 0) > s.t. I:NzNat > 0 = false) .
+	sd s3 := not(amatch collatz(P:Nat) s.t. P:Nat >= 0 = false) .
 endsm

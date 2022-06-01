@@ -1,0 +1,10 @@
+load test.maude
+load ../examples/blocks-world/blocks-world.maude
+
+erew in TEST-CONTEXT : test(
+    "../examples/blocks-world/blocks-world.maude",
+    "../examples/blocks-world/state.constraints",
+    'BLOCKS-WORLD,
+    "../examples/blocks-world/fixed/blocks-world_state.maude") .
+
+quit

@@ -1,5 +1,6 @@
+--- A model of the popular 1978 arcade game
 mod SPACE-INVADERS is
-    pr NAT .
+    protecting NAT .
 
     sorts Octopus Squid Crab Alien Player Shot .
     subsorts Octopus Squid Crab < Alien .
@@ -19,10 +20,17 @@ mod SPACE-INVADERS is
     op .**. : -> Shot .             --- Laser hit
     eq .**. = .... .                --- Blast fades after the laser hits an alien
 
+    --- The game is based on a 5x3 grid where each cell can contain a game item 
+    --- or be empty. A cannon represents the human player. The grid also 
+    --- contains series of aliens that slowly move downwards. If an alien
+    --- reaches the bottom row, the game ends.
     op nil : -> Grid [ctor] .    
     op __ : Grid Grid -> Grid [ctor assoc id: nil format(d n d)] .
     op GAME-OVER : -> Grid [ctor] .
 
+    --- The cannon can shoot a laser in order to kill the incoming aliens before
+    --- they reach the bottom. Killing an alien removes it from the grid and 
+    --- also yields points, which are added to a global counter.
     op SCORE:__ : Nat Grid -> State [format(n d n n) ] .
     op [_:_:_] : Item Item Item -> Row [ctor] .     --- Rows have three items
     
@@ -51,10 +59,10 @@ mod SPACE-INVADERS is
     eq shoot(I1) = .||. [owise] .   --- No alien in the cell, the laser keeps its way up
 
     op down : Item Item -> Item .
-    eq down(AL,I2) = AL .            --- An alien always goes down
+    eq down(AL,I2) = AL .            --- An alien always moves downwards
     eq down(I1,I2) = I2 [owise] .
 
-    --- If there's an alien in the ground, it's Game Over
+    --- If an alien reaches the bottom row, it's Game Over
     eq SCORE: N G1 [ AL : I2 : I3 ] = SCORE: N GAME-OVER .
     eq SCORE: N G1 [ I1 : AL : I3 ] = SCORE: N GAME-OVER .
     eq SCORE: N G1 [ I1 : I2 : AL ] = SCORE: N GAME-OVER .
@@ -86,7 +94,7 @@ mod SPACE-INVADERS is
     crl [laser-1] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : .||. : I6 ] G2 => SCORE: N + score(I2) G1 [ I1 : shoot(I2) : I3 ] [ I4 : .... : I6 ] G2 if N < MAXSCORE .
     crl [laser-2] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : .||. ] G2 => SCORE: N + score(I3) G1 [ I1 : I2 : shoot(I3) ] [ I4 : I5 : .... ] G2 if N < MAXSCORE .
     
-    --- Alien advances to the ground
+    --- Alien advances to the bottom row
     crl [advance-0] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : I6 ] => SCORE: N [ octo : octo : octo ] G1 [ down(I1,I4) : down(I2,I5) : down(I3,I6) ] if N < MAXSCORE .
     crl [advance-1] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : I6 ] => SCORE: N [ squi : squi : squi ] G1 [ down(I1,I4) : down(I2,I5) : down(I3,I6) ] if N < MAXSCORE .
     crl [advance-2] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : I6 ] => SCORE: N [ crab : crab : crab ] G1 [ down(I1,I4) : down(I2,I5) : down(I3,I6) ] if N < MAXSCORE .

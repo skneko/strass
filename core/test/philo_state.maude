@@ -1,0 +1,10 @@
+load test.maude
+load ../examples/philo/philo.maude
+
+erew in TEST-CONTEXT : test(
+    "../examples/philo/philo.maude",
+    "../examples/philo/state.constraints",
+    'PHILO,
+    "../examples/philo/fixed/philo_state.maude") .
+
+quit

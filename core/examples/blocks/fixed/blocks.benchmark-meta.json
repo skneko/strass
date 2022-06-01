@@ -1,9 +1,0 @@
-{
-	"cases": [
-		{
-			"term": "[empty & clear(a) & clear(b) & clear(c) & table(a) & table(b) & table(c)]",
-			"strat": "State*"
-		}
-	],
-	"module": "BLOCKS-SAFE"
-}

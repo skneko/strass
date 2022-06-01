@@ -15,8 +15,8 @@ endm
 
 erew in TEST-CONTEXT : test(
     "../examples/dam-controller/dam-controller.maude",
-    "../examples/dam-controller/state.constraints",
+    "../examples/dam-controller/state-7.constraints",
     'DAM-CONTROLLER, 'DAM-CONTROLLER-PRED,
-    "../examples/dam-controller/fixed/dam-controller_state.maude") .
+    "../examples/dam-controller/fixed/dam-controller_state-7.maude") .
 
 quit

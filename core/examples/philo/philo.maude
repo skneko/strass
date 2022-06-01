@@ -1,4 +1,6 @@
-mod PHILO is protecting NAT .
+mod PHILO is
+    protecting NAT .
+    
     sorts Philo Status Chopstick Conf PState .
     subsorts Philo Chopstick < Conf .
 

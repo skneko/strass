@@ -1,6 +1,9 @@
-mod BLOCKS is inc INT .
+mod BLOCKS-WORLD is 
+    including INT .
+
     sorts Block Prop PropSet State .
     subsort Prop < PropSet < State .
+    
     ops a b c : -> Block .
     op table : Block -> Prop . *** block is on the table
     op on : Block Block -> Prop . *** block A is on block B

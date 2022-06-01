@@ -1,57 +1,57 @@
 load ../test.maude
 
 mod CONTAINERS is 
-   pr INT .
+    pr INT .
 
-   sorts Container Cargo Ship Fleet State SState .
-   subsort Container < Cargo .
-   subsort Ship < Fleet .
-    
-   op c : Int -> Container [ctor] .
-   op <_,_|_> : Int Int Cargo -> Ship [ctor] .
-   op _:_ : Fleet Cargo -> State .
-   ops weight size : Cargo -> Int .
-   op isFull : Cargo -> Bool .
-   op maxW : -> Int .
+    sorts Container Cargo Ship Fleet State SState .
+    subsort Container < Cargo .
+    subsort Ship < Fleet .
 
-   op none : -> Fleet .
-   op __ : Fleet Fleet -> Fleet [ctor assoc comm id: none] .
+    op c : Int -> Container [ctor] .
+    op <_,_|_> : Int Int Cargo -> Ship [ctor] .
+    op _:_ : Fleet Cargo -> State .
+    ops weight size : Cargo -> Int .
+    op isFull : Cargo -> Bool .
+    op maxW : -> Int .
+
+    op none : -> Fleet .
+    op __ : Fleet Fleet -> Fleet [ctor assoc comm id: none] .
         
-   op nil : -> Cargo .
-   op _,_ : Cargo Cargo -> Cargo [ctor assoc id: nil] .
-      
-   vars W MAXW MAXS : Int .
-   vars CG CG1 CG2 : Cargo .
-   var FL : Fleet .
-   
-   op <_|_|_> : State Nat Nat -> SState [ctor] .
-   op END : -> SState [ctor] .
-   eq [end] : < S:State | N:Nat | N:Nat > = END .
-  
-   eq weight(nil) = 0 .
-   eq weight(c(W),CG) = W + weight(CG) .
-  
-   eq size(nil) = 0 .
-   eq size(c(W),CG) = 1 + size(CG) .
-   
-   eq maxW = 5 .
-   
-   eq isFull(nil) = true .
-   eq isFull(c(W) , CG) = (W == maxW) and isFull(CG) .
-   
-   crl [stow] : < < MAXW , MAXS | CG > FL : c(W) , CG1 | N:Nat | N':Nat > => 
-                < < MAXW , MAXS | CG,c(W) > FL : CG1 | N:Nat + 1 | N':Nat > 
-                if weight(CG,c(W)) <= MAXW .
+    op nil : -> Cargo .
+    op _,_ : Cargo Cargo -> Cargo [ctor assoc id: nil] .
+        
+    vars W MAXW MAXS : Int .
+    vars CG CG1 CG2 : Cargo .
+    var FL : Fleet .
 
-   rl [unstow] : < < MAXW , MAXS | c(W) , CG > FL : CG1 | N:Nat | N':Nat > => 
-                 < < MAXW , MAXS | CG > FL : CG1 , c(W) | N:Nat + 1 | N':Nat > .
+    op <_|_|_> : State Nat Nat -> SState [ctor] .
+    op END : -> SState [ctor] .
+    eq [end] : < S:State | N:Nat | N:Nat > = END .
 
-   crl [load] : < < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 | N:Nat | N':Nat > => 
-                < < MAXW , MAXS | CG > FL : CG1 , c(W + 1) , CG2 | N:Nat + 1 | N':Nat > 
-                if not(isFull(c(W))) .
+    eq weight(nil) = 0 .
+    eq weight(c(W),CG) = W + weight(CG) .
 
-   rl [unload] : < < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 | N:Nat | N':Nat > => 
-                 < < MAXW , MAXS | CG > FL : CG1 , c(W - 1), CG2 | N:Nat + 1 | N':Nat > .
+    eq size(nil) = 0 .
+    eq size(c(W),CG) = 1 + size(CG) .
+
+    eq maxW = 5 .
+
+    eq isFull(nil) = true .
+    eq isFull(c(W) , CG) = (W == maxW) and isFull(CG) .
+
+    crl [stow] : < < MAXW , MAXS | CG > FL : c(W) , CG1 | N:Nat | N':Nat > => 
+                 < < MAXW , MAXS | CG,c(W) > FL : CG1 | N:Nat + 1 | N':Nat > 
+                 if weight(CG,c(W)) <= MAXW .
+
+    rl [unstow] : < < MAXW , MAXS | c(W) , CG > FL : CG1 | N:Nat | N':Nat > => 
+                  < < MAXW , MAXS | CG > FL : CG1 , c(W) | N:Nat + 1 | N':Nat > .
+
+    crl [load] : < < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 | N:Nat | N':Nat > => 
+                 < < MAXW , MAXS | CG > FL : CG1 , c(W + 1) , CG2 | N:Nat + 1 | N':Nat > 
+                 if not(isFull(c(W))) .
+
+    rl [unload] : < < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 | N:Nat | N':Nat > => 
+                  < < MAXW , MAXS | CG > FL : CG1 , c(W - 1), CG2 | N:Nat + 1 | N':Nat > .
 endm
 
 mod TEST is
