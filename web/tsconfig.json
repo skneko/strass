@@ -1,15 +1,32 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
-
-  "include": ["src/**/*"],
-  "exclude": ["node_modules/*", "__sapper__/*", "public/*"],
-  "compilerOptions": {
-    "baseUrl": "src",
-    "paths": {
-      "@layouts/*": ["src/layouts/*"],
-      "@pages/*": ["src/pages/*"],
-      "@components/*": ["src/components/*"],
-      "@stores/*": ["src/stores/*"]
+    "extends": "@tsconfig/svelte/tsconfig.json",
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules/*",
+        "__sapper__/*",
+        "public/*"
+    ],
+    "compilerOptions": {
+        "sourceMap": true,
+        "baseUrl": "src",
+        "paths": {
+            "@layouts/*": [
+                "layouts/*"
+            ],
+            "@pages/*": [
+                "pages/*"
+            ],
+            "@components/*": [
+                "components/*"
+            ],
+            "@stores/*": [
+                "stores/*"
+            ],
+            "@models/*": [
+                "models/*"
+            ]
+        }
     }
-  }
 }

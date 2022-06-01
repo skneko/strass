@@ -1,17 +1,20 @@
-import svelte from 'rollup-plugin-svelte';
+import alias from '@rollup/plugin-alias';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import alias from '@rollup/plugin-alias';
+import typescript from '@rollup/plugin-typescript';
+import path from 'path';
+import css from 'rollup-plugin-css-only';
 import livereload from 'rollup-plugin-livereload';
+import svelte from 'rollup-plugin-svelte';
 import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
-import typescript from '@rollup/plugin-typescript';
-import css from 'rollup-plugin-css-only';
-import path from 'path';
 
 const projectRootDir = path.resolve(__dirname);
 
 const production = !process.env.ROLLUP_WATCH;
+if (production) {
+	console.info("Production");
+}
 
 function serve() {
 	let server;
@@ -37,7 +40,7 @@ function serve() {
 export default {
 	input: 'src/main.ts',
 	output: {
-		sourcemap: true,
+		sourcemap: !production,
 		format: 'iife',
 		name: 'app',
 		file: 'public/build/bundle.js',
