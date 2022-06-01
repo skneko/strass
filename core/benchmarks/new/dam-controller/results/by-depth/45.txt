@@ -1,0 +1,15 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	    Maude 3.2.1 built: Feb 21 2022 18:21:17
+	     Copyright 1997-2022 SRI International
+		   Wed May  4 15:13:40 2022
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('DAM, true), '`{_;_;_;_;_`}['__['`[_`,_`]['s1.SpillwayId,'open3.Aperture],'`[_`,_`]['s2.SpillwayId,'open2.Aperture],'`[_`,_`]['s3.SpillwayId,'open2.Aperture]],'s_^4500['0.Zero],'s_^20['0.Zero],'0.Zero,'s_^45['0.Zero]], all *, breadthFirst, 9581405) .
+rewrites: 4 in 392152ms cpu (392157ms real) (0 rewrites/second)
+result ResultPair: {'`{_;_;_;_;_`}['__['`[_`,_`]['s1.SpillwayId,'open2.Aperture],'`[_`,_`]['s2.SpillwayId,'open2.Aperture],'`[_`,_`]['s3.SpillwayId,'open2.Aperture]],'-_['s_^17000['0.Zero]],'s_^106['0.Zero],'s_^44['0.Zero],'s_^45['0.Zero]],'DamState}
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('DAM-STRASS, true), '`{_;_;_;_;_`}['__['`[_`,_`]['s1.SpillwayId,'open3.Aperture],'`[_`,_`]['s2.SpillwayId,'open2.Aperture],'`[_`,_`]['s3.SpillwayId,'open2.Aperture]],'s_^4500['0.Zero],'s_^20['0.Zero],'0.Zero,'s_^45['0.Zero]], 'DamState*[[empty]], breadthFirst, 789) .
+rewrites: 4 in 48ms cpu (48ms real) (83 rewrites/second)
+result ResultPair: {'END.DamState,'DamState}
+Bye.

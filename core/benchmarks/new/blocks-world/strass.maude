@@ -1,0 +1,46 @@
+mod BLOCKS-WORLD is inc INT .
+  sorts Prop PropSet State .
+  subsort Prop < PropSet < State .
+  
+  op table : Nat -> Prop .
+  op on : Nat Nat -> Prop .
+  op clear : Nat -> Prop .
+  op hold : Nat -> Prop .
+  op empty : -> PropSet .
+  op none : -> PropSet .
+  op __ : PropSet PropSet -> PropSet [ctor assoc comm id: none] .
+  op [_,_:_] : Nat Nat PropSet -> State [ctor] .
+  
+  vars X Y N N' : Nat .
+  var PS : PropSet .
+  
+  op END : -> State [ctor] .
+  eq [ N , N : PS ] = END .
+  
+  rl [pickup] : [ N , N' : clear(X) table(X) PS ] => [ N + 1 , N' : hold(X) PS ] .
+  rl [putdown] : [ N , N' : hold(X) PS ] => [ N + 1 , N' : empty clear(X) table(X) PS ] .
+  rl [unstack] : [ N , N' : empty clear(X) on(X,Y) PS ] => [ N + 1 , N' : hold(X) clear(Y) PS ] .
+  rl [stack] : [ N , N' : hold(X) clear(Y) PS ] => [ N + 1 , N' : empty clear(X) on(X,Y) PS ] .
+  rl [addW] : [ N , N' : table(X) clear(X) PS ] => [ N + 1 , N' : table(X + 1) clear(X + 1) PS ] .
+endm
+
+smod BLOCKS-WORLD-STRASS is
+  pr BLOCKS-WORLD .
+  pr EXT-BOOL .
+  strat State! : @ State .
+  strat State* : @ State .
+  strat State+ : @ State .
+  strat State-state : @ State .
+  strat s1 : @ Prop .
+  strat s2 : @ PropSet .
+  strat s3 : @ PropSet .
+  strat s4 : @ PropSet .
+  sd State! := (State-state) ; (((all) ; (State-state)) !) .
+  sd State* := (State-state) ; (((all) ; (State-state)) *) .
+  sd State+ := (State-state) ; (((all) ; (State-state)) +) .
+  sd State-state := (s1) ; ((s2) ; ((s3) ; (s4))) .
+  sd s1 := not(amatch on(X:Nat, Y:Nat) s.t. X:Nat < Y:Nat = false) .
+  sd s2 := not(amatch hold(X:Nat) hold(Y:Nat) s.t. false = false) .
+  sd s3 := not(amatch empty empty s.t. false = false) .
+  sd s4 := not(amatch empty hold(Y:Nat) s.t. false = false) .
+endsm

@@ -1,0 +1,131 @@
+mod SPACE-INVADERS is
+    pr NAT .
+
+    sorts Octopus Squid Crab Alien Player Shot .
+    subsorts Octopus Squid Crab < Alien .
+    
+    sorts Item Row Grid State .
+    subsorts Alien Player Shot < Item .
+    subsort Row < Grid .
+
+    op octo : -> Octopus [ctor] .   --- Octopus alien
+    op squi : -> Squid [ctor] .     --- Squid alien
+    op crab : -> Crab [ctor] .      --- Crab alien
+    op cann : -> Player [ctor] .    --- Cannon
+    
+    op .... : -> Item [ctor] .      --- Empty item
+    op .||. : -> Shot [ctor] .      --- Laser shot
+    
+    op .**. : -> Shot .             --- Laser hit
+    eq .**. = .... .                --- Blast fades after the laser hits an alien
+
+    op nil : -> Grid [ctor] .    
+    op __ : Grid Grid -> Grid [ctor assoc id: nil format(d n d)] .
+    op GAME-OVER : -> Grid [ctor] .
+
+    op SCORE:__ : Nat Grid -> State [format(n d n n) ] .
+    op [_:_:_] : Item Item Item -> Row [ctor] .     --- Rows have three items
+    
+    op init : -> State .    --- Initial state
+    eq init = SCORE: 0
+        [ octo : octo : octo ]
+        [ squi : squi : squi ]
+        [ crab : crab : crab ]
+        [ .... : .... : .... ]
+        [ .... : cann : .... ] .
+
+    var N : Nat .
+    var PL : Player .
+    var AL : Alien .
+    vars G1 G2 : Grid .
+    vars I1 I2 I3 I4 I5 I6 : Item .
+    
+    op score : Item -> Nat .        
+    eq score(octo) = 3 .        --- Killing an octopus gives 3 points
+    eq score(squi) = 2 .        --- Killing a squid gives 2 points
+    eq score(crab) = 1 .        --- Killing a crab gives 1 point
+    eq score(I1) = 0 [owise] .
+
+    op shoot : Item -> Shot .
+    eq shoot(AL) = .**. .           --- We hit an alien
+    eq shoot(I1) = .||. [owise] .   --- No alien in the cell, the laser keeps its way up
+
+    op down : Item Item -> Item .
+    eq down(AL,I2) = AL .            --- An alien always goes down
+    eq down(I1,I2) = I2 [owise] .
+
+    --- If there's an alien in the ground, it's Game Over
+    eq SCORE: N G1 [ AL : I2 : I3 ] = SCORE: N GAME-OVER .
+    eq SCORE: N G1 [ I1 : AL : I3 ] = SCORE: N GAME-OVER .
+    eq SCORE: N G1 [ I1 : I2 : AL ] = SCORE: N GAME-OVER .
+    
+    op MAXSCORE : -> Nat .
+    eq MAXSCORE = 10 .
+    
+    --- Moves cannon left and right
+    rl [move-0] : [ cann : .... : I3 ] => [ .... : cann : I3 ] .
+    rl [move-1] : [ .... : cann : I3 ] => [ cann : .... : I3 ] .
+    rl [move-2] : [ I1 : cann : .... ] => [ I1 : .... : cann ] .
+    rl [move-3] : [ I1 : .... : cann ] => [ I1 : cann : .... ] .
+
+    --- Moves cannon up and down
+    rl [move-4] : [ cann : I2 : I3 ] [ .... : I5 : I6 ] => [ .... : I2 : I3 ] [ cann : I5 : I6 ] .
+    rl [move-5] : [ I1 : cann : I3 ] [ I4 : .... : I6 ] => [ I1 : .... : I3 ] [ I4 : cann : I6 ] .
+    rl [move-6] : [ I1 : I2 : cann ] [ I4 : I5 : .... ] => [ I1 : I2 : .... ] [ I4 : I5 : cann ] .
+    rl [move-7] : [ .... : I2 : I3 ] [ cann : I5 : I6 ] => [ cann : I2 : I3 ] [ .... : I5 : I6 ] .
+    rl [move-8] : [ I1 : .... : I3 ] [ I4 : cann : I6 ] => [ I1 : cann : I3 ] [ I4 : .... : I6 ] .
+    rl [move-9] : [ I1 : I2 : .... ] [ I4 : I5 : cann ] => [ I1 : I2 : cann ] [ I4 : I5 : .... ] .
+    
+    --- Shoots the cannon and gets points
+    crl [shoot-0] : SCORE: N G1 [ I1 : I2 : I3 ] [ PL : I5 : I6 ] => SCORE: N + score(I1) G1 [ shoot(I1) : I2 : I3 ] [ PL : I5 : I6 ] if N < MAXSCORE .
+    crl [shoot-1] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : PL : I6 ] => SCORE: N + score(I2) G1 [ I1 : shoot(I2) : I3 ] [ I4 : PL : I6 ] if N < MAXSCORE .
+    crl [shoot-2] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : PL ] => SCORE: N + score(I3) G1 [ I1 : I2 : shoot(I3) ] [ I4 : I5 : PL ] if N < MAXSCORE .
+    
+    --- Laser shot goes up
+    crl [laser-0] : SCORE: N G1 [ I1 : I2 : I3 ] [ .||. : I5 : I6 ] G2 => SCORE: N + score(I1) G1 [ shoot(I1) : I2 : I3 ] [ .... : I5 : I6 ] G2 if N < MAXSCORE .
+    crl [laser-1] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : .||. : I6 ] G2 => SCORE: N + score(I2) G1 [ I1 : shoot(I2) : I3 ] [ I4 : .... : I6 ] G2 if N < MAXSCORE .
+    crl [laser-2] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : .||. ] G2 => SCORE: N + score(I3) G1 [ I1 : I2 : shoot(I3) ] [ I4 : I5 : .... ] G2 if N < MAXSCORE .
+    
+    --- Alien advances to the ground
+    crl [advance-0] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : I6 ] => SCORE: N [ octo : octo : octo ] G1 [ down(I1,I4) : down(I2,I5) : down(I3,I6) ] if N < MAXSCORE .
+    crl [advance-1] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : I6 ] => SCORE: N [ squi : squi : squi ] G1 [ down(I1,I4) : down(I2,I5) : down(I3,I6) ] if N < MAXSCORE .
+    crl [advance-2] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : I6 ] => SCORE: N [ crab : crab : crab ] G1 [ down(I1,I4) : down(I2,I5) : down(I3,I6) ] if N < MAXSCORE .
+    crl [advance-3] : SCORE: N G1 [ I1 : I2 : I3 ] [ I4 : I5 : I6 ] => SCORE: N [ .... : .... : .... ] G1 [ down(I1,I4) : down(I2,I5) : down(I3,I6) ] if N < MAXSCORE .
+endm
+
+smod SPACE-INVADERS-STRASS is
+    pr SPACE-INVADERS .
+    pr EXT-BOOL .
+	strat Grid! : @ Grid .
+	strat Grid* : @ Grid .
+	strat Grid+ : @ Grid .
+	strat Grid-state : @ Grid .
+	strat Item! : @ Item .
+	strat Item* : @ Item .
+	strat Item+ : @ Item .
+	strat Item-state : @ Item .
+	strat State! : @ State .
+	strat State* : @ State .
+	strat State+ : @ State .
+	strat State-state : @ State .
+	strat s1 : @ Row .
+	strat s2 : @ Row .
+	strat s3 : @ Row .
+    strat s4 : @ Row .
+	sd Grid! := (Grid-state) ; (((all) ; (Grid-state)) !) .
+	sd Grid* := (Grid-state) ; (((all) ; (Grid-state)) *) .
+	sd Grid+ := (Grid-state) ; (((all) ; (Grid-state)) +) .
+	sd Grid-state := (s1) ; ((s2) ; ((s3) ; (s4))) .
+	sd Item! := (all) ! .
+	sd Item* := (all) * .
+	sd Item+ := (all) + .
+	sd Item-state := idle .
+	sd State! := (State-state) ; (((all) ; (State-state)) !) .
+	sd State* := (State-state) ; (((all) ; (State-state)) *) .
+	sd State+ := (State-state) ; (((all) ; (State-state)) +) .
+	sd State-state := (s1) ; ((s2) ; ((s3) ; (s4))) .
+    sd s1 := not(amatch [ I1:Item : I2:Item : I3:Item ] [ I4:Item : I5:Item : I6:Item ] s.t. (I1:Item =/= cann and-then I2:Item =/= cann and-then I3:Item =/= cann) = false) .
+	sd s2 := not(amatch [ .||. : I2:Item : I3:Item ] [ .||. : I5:Item : I6:Item ] s.t. false = false) .
+	sd s3 := not(amatch [ I1:Item : .||. : I3:Item ] [ I4:Item : .||. : I6:Item ] s.t. false = false) .
+    sd s4 := not(amatch [ I1:Item : I2:Item : .||. ] [ I4:Item : I5:Item : .||. ] s.t. false = false) .
+endsm

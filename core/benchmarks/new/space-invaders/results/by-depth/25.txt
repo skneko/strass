@@ -1,0 +1,15 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	    Maude 3.2.1 built: Feb 21 2022 18:21:17
+	     Copyright 1997-2022 SRI International
+		   Tue May  3 01:33:39 2022
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('SPACE-INVADERS, true), 'init.State, all *, breadthFirst, 5024515) .
+rewrites: 2 in 515248ms cpu (515246ms real) (0 rewrites/second)
+result ResultPair: {'SCORE:__['s_^25['0.Zero],'__['`[_:_:_`]['cann.Player,'.||..Shot,'.....Item],'`[_:_:_`]['squi.Squid,'.||..Shot,'.....Item],'`[_:_:_`]['.||..Shot,'.....Item,'.....Item],'`[_:_:_`]['.||..Shot,'.....Item,'.||..Shot],'`[_:_:_`]['.....Item,'.....Item,'.....Item]]],'State}
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('SPACE-INVADERS-STRASS, true), 'init.State, 'State*[[empty]], breadthFirst, 720648) .
+rewrites: 2 in 65348ms cpu (65345ms real) (0 rewrites/second)
+result ResultPair: {'SCORE:__['s_^25['0.Zero],'__['`[_:_:_`]['crab.Crab,'.||..Shot,'.||..Shot],'`[_:_:_`]['crab.Crab,'.....Item,'.....Item],'`[_:_:_`]['.....Item,'.||..Shot,'.||..Shot],'`[_:_:_`]['.....Item,'.....Item,'.....Item],'`[_:_:_`]['.....Item,'.....Item,'cann.Player]]],'State}
+Bye.

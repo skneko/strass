@@ -1,0 +1,4 @@
+{P:Player, L:List < X:Nat, Y:Nat > L':List, N:Nat} # X:Nat >= 1 and Y:Nat >= 1 and X:Nat <= size and Y:Nat <= size
+{P:Player, L:List < X:Nat, Y:Nat > L':List, N:Nat} # not < X:Nat, Y:Nat > in wall
+{P1:Player, L1:List < X:Nat, Y:Nat >, N1:Nat} || {P2:Player, L2:List < X:Nat, Y:Nat >, N2:Nat} # false
+{P1:Player, L:List < X:Nat, Y:Nat > L':List next(LN:List < X:Nat, Y:Nat > LN':List, Z:Nat) L'':List, N1:Nat} # false

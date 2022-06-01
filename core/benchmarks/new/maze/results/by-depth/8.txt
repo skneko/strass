@@ -1,0 +1,15 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	    Maude 3.2.1 built: Feb 21 2022 18:21:17
+	     Copyright 1997-2022 SRI International
+		   Mon May  2 05:10:45 2022
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('MAZE, true), '_||_['`{_`,_`,_`}['p1.Player,'<_`,_>['s_^4['0.Zero],'s_^4['0.Zero]],'s_['0.Zero]],'`{_`,_`,_`}['p2.Player,'<_`,_>['s_^3['0.Zero],'s_^5['0.Zero]],'s_['0.Zero]]], all *, breadthFirst, 3154237) .
+rewrites: 2 in 1236724ms cpu (1236722ms real) (0 rewrites/second)
+result ResultPair: {'_||_['`{_`,_`,_`}['p1.Player,'__['<_`,_>['s_^4['0.Zero],'s_^4['0.Zero]],'<_`,_>['s_^5['0.Zero],'s_^4['0.Zero]],'next['__['<_`,_>['s_^4['0.Zero],'s_^4['0.Zero]],'<_`,_>['s_^5['0.Zero],'s_^4['0.Zero]]],'s_['0.Zero]],'next['__['<_`,_>['s_^4['0.Zero],'s_^4['0.Zero]],'<_`,_>['s_^5['0.Zero],'s_^4['0.Zero]],'<_`,_>['s_^6['0.Zero],'s_^4['0.Zero]]],'s_['0.Zero]]],'s_^4['0.Zero]],'`{_`,_`,_`}['p2.Player,'__['<_`,_>['s_^3['0.Zero],'s_^5['0.Zero]],'next['<_`,_>['s_^3['0.Zero],'s_^5['0.Zero]],'s_['0.Zero]],'<_`,_>['s_^4['0.Zero],'s_^5['0.Zero]],'<_`,_>['s_^4['0.Zero],'s_^4['0.Zero]]],'s_^5['0.Zero]]],'State}
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('MAZE-STRASS, true), '_||_['`{_`,_`,_`}['p1.Player,'<_`,_>['s_^4['0.Zero],'s_^4['0.Zero]],'s_['0.Zero]],'`{_`,_`,_`}['p2.Player,'<_`,_>['s_^3['0.Zero],'s_^5['0.Zero]],'s_['0.Zero]]], 'State*[[empty]], breadthFirst, 302) .
+rewrites: 2 in 56ms cpu (53ms real) (35 rewrites/second)
+result ResultPair: {'_||_['`{_`,_`,_`}['p1.Player,'__['<_`,_>['s_^4['0.Zero],'s_^4['0.Zero]],'<_`,_>['s_^4['0.Zero],'s_^5['0.Zero]],'<_`,_>['s_^5['0.Zero],'s_^5['0.Zero]],'<_`,_>['s_^3['0.Zero],'s_^5['0.Zero]]],'s_^5['0.Zero]],'`{_`,_`,_`}['p2.Player,'END.List?,'s_^9['0.Zero]]],'State}
+Bye.

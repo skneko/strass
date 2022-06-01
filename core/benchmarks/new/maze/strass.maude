@@ -1,0 +1,82 @@
+mod MAZE is
+  pr NAT .
+
+  sorts Pos List List? State Player .
+  subsorts Pos < List < List? .
+
+  op p1 : -> Player [ctor] .
+  op p2 : -> Player [ctor] .
+  op nil : -> List [ctor] .
+  op exit : -> List [ctor] .
+  op size : -> Nat .
+  op wall : -> List .
+  op empty : -> State [ctor] .
+  op next : List Nat -> Pos .
+  op _in_ : Pos List -> Bool .
+  op `{_,_,_`} : Player List? Nat -> State [ctor] .
+  op __ : List List -> List [ctor assoc id: nil] .
+  op <_,_> : Nat Nat -> Pos [ctor] .
+  op _||_ : State State -> State [ctor assoc comm id: empty] .
+
+  vars X Y N M M1 M2 : Nat .
+  var P Q : Pos .
+  vars L L1 L2 : List .
+  var PY PY1 PY2 : Player .
+
+  eq [s] : size = 5 . --- Assumption: 5x5 maze
+  eq [wl] : wall = < 1,3 > < 1,5 > < 2,1 > < 2,4 > < 2,5 > < 3,3 > < 3,4 > < 4,2 > < 4,3 > < 5,4 > .
+  
+  ceq [c1] : P in L = true if L1 P L2 := L .
+  eq [c2] : P in L = false [owise] .
+  
+  rl [downN] : next(L < X,Y >,N) => < X, Y + N > .
+  rl [leftN] : next(L < X,Y >,N) => < sd(X, N), Y > .
+  rl [upN] : next(L < X,Y >,N) => < X, sd(Y, N) > .
+  rl [rightN] : next(L < X,Y >,N) => < X + N, Y > .
+  
+  crl [walk] : { PY, L , M } => { PY, L P , M + 1 } if next(L,1) => P .
+  crl [jump] : { PY, L , M } => { PY, L P , M + 2 } if next(L,2) => P .
+  
+  vars P1 P2 P3 P4 P5 : Pos .
+  op END : -> List? .
+  eq { PY, P1 P2 P3 P4 P5 L:List , M } = { PY, END , M } .
+  
+  ---rl  [eject] : { PY1, L1 < X,Y > , M1 } || { PY2, L2 < X,Y >, M2 } => empty .
+  ---crl [exit] : { PY, L < X,X >, M} => { PY, exit, M} if X == size .
+endm
+
+smod MAZE-STRASS is
+  pr MAZE .
+  strat List?! : @ List? .
+  strat List?* : @ List? .
+  strat List?+ : @ List? .
+  strat List?-state : @ List? .
+  strat Player! : @ Player .
+  strat Player* : @ Player .
+  strat Player+ : @ Player .
+  strat Player-state : @ Player .
+  strat State! : @ State .
+  strat State* : @ State .
+  strat State+ : @ State .
+  strat State-state : @ State .
+  strat s1 : @ State .
+  strat s2 : @ State .
+  strat s3 : @ State .
+  strat s4 : @ State .
+  sd List?! := (all) ! .
+  sd List?* := (all) * .
+  sd List?+ := (all) + .
+  sd List?-state := idle .
+  sd Player! := (all) ! .
+  sd Player* := (all) * .
+  sd Player+ := (all) + .
+  sd Player-state := idle .
+  sd State! := (State-state) ; (((all) ; (State-state)) !) .
+  sd State* := (State-state) ; (((all) ; (State-state)) *) .
+  sd State+ := (State-state) ; (((all) ; (State-state)) +) .
+  sd State-state := (s1) ; ((s2) ; ((s3) ; (s4))) .
+  sd s1 := not(amatch {P:Player, L:List < X:Nat, Y:Nat > L':List, N:Nat} s.t. X:Nat >= 1 and Y:Nat >= 1 and X:Nat <= size and Y:Nat <= size = false) .
+  sd s2 := not(amatch {P:Player, L:List < X:Nat, Y:Nat > L':List, N:Nat} s.t. not < X:Nat, Y:Nat > in wall = false) .
+  sd s3 := not(amatch {P1:Player, L1:List < X:Nat, Y:Nat >, N1:Nat} ||{P2:Player, L2:List < X:Nat, Y:Nat >, N2:Nat} s.t. false = false) .
+  sd s4 := not(amatch {P1:Player, L:List < X:Nat, Y:Nat > L':List next(LN:List < X:Nat, Y:Nat > LN':List, Z:Nat) L'':List, N1:Nat} s.t. false = false) .
+endsm

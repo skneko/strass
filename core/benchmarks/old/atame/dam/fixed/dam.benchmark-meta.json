@@ -1,0 +1,9 @@
+{
+    "cases": [
+        {
+            "term": "{[s1, open3][s2, open2][s3, open2] ; 49000000 ; 20 ; true}",
+            "strat": "all *"
+        }
+    ],
+    "module": "DAM-SAFE"
+}

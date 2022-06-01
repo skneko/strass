@@ -1,0 +1,9 @@
+{
+    "cases": [
+        {
+            "term": "(< 3, 3 | nil > < 4, 4 | nil > < 5, 5 | nil >) : c(1), c(2), c(3), c(4)",
+            "strat": "all *"
+        }
+    ],
+    "module": "CONTAINERS-SAFE"
+}

@@ -1,0 +1,98 @@
+mod CONTAINERS is 
+   pr INT .
+
+   sorts Container Cargo Ship Fleet State SState .
+   subsort Container < Cargo .
+   subsort Ship < Fleet .
+    
+   op c : Int -> Container [ctor] .
+   op <_,_|_> : Int Int Cargo -> Ship [ctor] .
+   op _:_ : Fleet Cargo -> State .
+   ops weight size : Cargo -> Int .
+   op isFull : Cargo -> Bool .
+   op maxW : -> Int .
+
+   op none : -> Fleet .
+   op __ : Fleet Fleet -> Fleet [ctor assoc comm id: none] .
+        
+   op nil : -> Cargo .
+   op _,_ : Cargo Cargo -> Cargo [ctor assoc id: nil] .
+      
+   vars W MAXW MAXS : Int .
+   vars CG CG1 CG2 : Cargo .
+   var FL : Fleet .
+   
+   op <_|_|_> : State Nat Nat -> SState [ctor] .
+   op END : -> SState [ctor] .
+   eq [end] : < S:State | N:Nat | N:Nat > = END .
+  
+   eq weight(nil) = 0 .
+   eq weight(c(W),CG) = W + weight(CG) .
+  
+   eq size(nil) = 0 .
+   eq size(c(W),CG) = 1 + size(CG) .
+   
+   eq maxW = 5 .
+   
+   eq isFull(nil) = true .
+   eq isFull(c(W) , CG) = (W == maxW) and isFull(CG) .
+   
+   crl [stow] : < < MAXW , MAXS | CG > FL : c(W) , CG1 | N:Nat | N':Nat > => 
+                < < MAXW , MAXS | CG,c(W) > FL : CG1 | N:Nat + 1 | N':Nat > 
+                if weight(CG,c(W)) <= MAXW .
+
+   rl [unstow] : < < MAXW , MAXS | c(W) , CG > FL : CG1 | N:Nat | N':Nat > => 
+                 < < MAXW , MAXS | CG > FL : CG1 , c(W) | N:Nat + 1 | N':Nat > .
+
+   crl [load] : < < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 | N:Nat | N':Nat > => 
+                < < MAXW , MAXS | CG > FL : CG1 , c(W + 1) , CG2 | N:Nat + 1 | N':Nat > 
+                if not(isFull(c(W))) .
+
+   rl [unload] : < < MAXW , MAXS | CG > FL : CG1 , c(W) , CG2 | N:Nat | N':Nat > => 
+                 < < MAXW , MAXS | CG > FL : CG1 , c(W - 1), CG2 | N:Nat + 1 | N':Nat > .
+endm
+
+smod CONTAINERS-STRASS is
+  pr CONTAINERS .
+  pr EXT-BOOL .
+  strat Cargo! : @ Cargo .
+  strat Cargo* : @ Cargo .
+  strat Cargo+ : @ Cargo .
+  strat Cargo-state : @ Cargo .
+  strat Fleet! : @ Fleet .
+  strat Fleet* : @ Fleet .
+  strat Fleet+ : @ Fleet .
+  strat Fleet-state : @ Fleet .
+  strat SState! : @ SState .
+  strat SState* : @ SState .
+  strat SState+ : @ SState .
+  strat SState-state : @ SState .
+  strat State! : @ State .
+  strat State* : @ State .
+  strat State+ : @ State .
+  strat State-state : @ State .
+  strat s1 : @ Container .
+  strat s2 : @ Ship .
+  strat s3 : @ Cargo .
+  strat s4 : @ Ship .
+  sd Cargo! := (Cargo-state) ; (((all) ; (Cargo-state)) !) .
+  sd Cargo* := (Cargo-state) ; (((all) ; (Cargo-state)) *) .
+  sd Cargo+ := (Cargo-state) ; (((all) ; (Cargo-state)) +) .
+  sd Cargo-state := (s3) ; (s1) .
+  sd Fleet! := (Fleet-state) ; (((all) ; (Fleet-state)) !) .
+  sd Fleet* := (Fleet-state) ; (((all) ; (Fleet-state)) *) .
+  sd Fleet+ := (Fleet-state) ; (((all) ; (Fleet-state)) +) .
+  sd Fleet-state := (s3) ; ((s1) ; ((s2) ; (s4))) .
+  sd SState! := (SState-state) ; (((all) ; (SState-state)) !) .
+  sd SState* := (SState-state) ; (((all) ; (SState-state)) *) .
+  sd SState+ := (SState-state) ; (((all) ; (SState-state)) +) .
+  sd SState-state := (s3) ; ((s1) ; ((s2) ; (s4))) .
+  sd State! := (State-state) ; (((all) ; (State-state)) !) .
+  sd State* := (State-state) ; (((all) ; (State-state)) *) .
+  sd State+ := (State-state) ; (((all) ; (State-state)) +) .
+  sd State-state := (s3) ; ((s1) ; ((s2) ; (s4))) .
+  sd s1 := not(amatch c(W:Int) s.t. W:Int >= 0 and-then W:Int <= 5 = false) .
+  sd s2 := not(amatch < MAXW:Int, MAXS:Int | CG:Cargo > s.t. weight(CG:Cargo) <= MAXW:Int and-then size(CG:Cargo) <= MAXS:Int = false) .
+  sd s3 := not(amatch CG1:Cargo, c(W:Int), CG2:Cargo s.t. isFull(c(W:Int)) implies isFull(CG1:Cargo) = false) .
+  sd s4 := not(amatch < MAXW1:Int, MAXS1:Int | c(W1:Int), c(W1':Int) > s.t. W1:Int >= 0 and-then W1:Int <= 5 = false) .
+endsm

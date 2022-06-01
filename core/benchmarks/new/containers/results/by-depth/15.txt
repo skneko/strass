@@ -1,0 +1,15 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	    Maude 3.2.1 built: Feb 21 2022 18:21:17
+	     Copyright 1997-2022 SRI International
+		   Mon May  2 20:12:23 2022
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('CONTAINERS, true), '<_|_|_>['_:_['__['<_`,_|_>['s_^3['0.Zero],'s_^3['0.Zero],'nil.Cargo],'<_`,_|_>['s_^4['0.Zero],'s_^4['0.Zero],'nil.Cargo],'<_`,_|_>['s_^5['0.Zero],'s_^5['0.Zero],'nil.Cargo]],'_`,_['c['s_['0.Zero]],'c['s_^2['0.Zero]],'c['s_^3['0.Zero]],'c['s_^4['0.Zero]]]],'0.Zero,'s_^15['0.Zero]], all *, breadthFirst, 350390) .
+rewrites: 3 in 40968ms cpu (40967ms real) (0 rewrites/second)
+result ResultPair: {'<_|_|_>['_:_['__['<_`,_|_>['s_^3['0.Zero],'s_^3['0.Zero],'nil.Cargo],'<_`,_|_>['s_^4['0.Zero],'s_^4['0.Zero],'c['s_^5['0.Zero]]],'<_`,_|_>['s_^5['0.Zero],'s_^5['0.Zero],'nil.Cargo]],'_`,_['c['s_^3['0.Zero]],'c['s_^4['0.Zero]],'c['s_^5['0.Zero]]]],'s_^14['0.Zero],'s_^15['0.Zero]],'SState}
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('CONTAINERS-STRASS, true), '<_|_|_>['_:_['__['<_`,_|_>['s_^3['0.Zero],'s_^3['0.Zero],'nil.Cargo],'<_`,_|_>['s_^4['0.Zero],'s_^4['0.Zero],'nil.Cargo],'<_`,_|_>['s_^5['0.Zero],'s_^5['0.Zero],'nil.Cargo]],'_`,_['c['s_['0.Zero]],'c['s_^2['0.Zero]],'c['s_^3['0.Zero]],'c['s_^4['0.Zero]]]],'0.Zero,'s_^15['0.Zero]], 'SState*[[empty]], breadthFirst, 53623) .
+rewrites: 3 in 7632ms cpu (7635ms real) (0 rewrites/second)
+result ResultPair: {'<_|_|_>['_:_['__['<_`,_|_>['s_^3['0.Zero],'s_^3['0.Zero],'nil.Cargo],'<_`,_|_>['s_^4['0.Zero],'s_^4['0.Zero],'nil.Cargo],'<_`,_|_>['s_^5['0.Zero],'s_^5['0.Zero],'nil.Cargo]],'_`,_['c['s_^5['0.Zero]],'c['s_^5['0.Zero]],'c['s_^5['0.Zero]],'c['s_^5['0.Zero]]]],'s_^14['0.Zero],'s_^15['0.Zero]],'SState}
+Bye.

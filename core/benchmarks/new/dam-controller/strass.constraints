@@ -1,0 +1,4 @@
+{SC:Spillways ; V:Rat ; T:TimeStamp ; N:Nat ; N':Nat} # V:Rat >= 0 and-then V:Rat <= 5000
+{[S1:SpillwayId, O1:Aperture][S2:SpillwayId, O2:Aperture][S3:SpillwayId, O3:Aperture] ; V:Rat ; T:TimeStamp ; N:Nat ; N':Nat} # V:Rat > 4000 implies O1:Aperture == open3 and-then O2:Aperture =/= close and-then O3:Aperture =/= close or-else O2:Aperture == open3 and-then O1:Aperture =/= close and-then O3:Aperture =/= close or-else O3:Aperture == open3 and-then O1:Aperture =/= close and-then O2:Aperture =/= close
+{SC:Spillways ; V:Rat ; T:TimeStamp ; N:Nat ; N':Nat} # V:Rat < 1000 implies openSpillways(SC:Spillways) == 0
+{SC:Spillways ; V:Rat ; T:TimeStamp ; N:Nat ; N':Nat} # V:Rat >= 1000 and-then V:Rat <= 4000 implies openSpillways(SC:Spillways) == 2

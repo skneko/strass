@@ -1,0 +1,4 @@
+on(X:Nat, Y:Nat) # X:Nat < Y:Nat
+hold(X:Nat) hold(Y:Nat) # false
+empty empty # false
+empty hold(Y:Nat) # false

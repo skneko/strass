@@ -1,0 +1,15 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	    Maude 3.2.1 built: Feb 21 2022 18:21:17
+	     Copyright 1997-2022 SRI International
+		   Tue May  3 03:38:30 2022
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('BLOCKS-WORLD, true), '`[_`,_:_`]['0.Zero,'s_^30['0.Zero],'__['empty.PropSet,'clear['s_['0.Zero]],'clear['s_^2['0.Zero]],'clear['s_^3['0.Zero]],'table['s_['0.Zero]],'table['s_^2['0.Zero]],'table['s_^3['0.Zero]]]], all *, breadthFirst, 511920) .
+rewrites: 3 in 9668ms cpu (9668ms real) (0 rewrites/second)
+result ResultPair: {'`[_`,_:_`]['s_^29['0.Zero],'s_^30['0.Zero],'__['empty.PropSet,'clear['s_['0.Zero]],'clear['s_^2['0.Zero]],'clear['s_^32['0.Zero]],'table['s_['0.Zero]],'table['s_^2['0.Zero]],'table['s_^32['0.Zero]]]],'State}
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('BLOCKS-WORLD-STRASS, true), '`[_`,_:_`]['0.Zero,'s_^30['0.Zero],'__['empty.PropSet,'clear['s_['0.Zero]],'clear['s_^2['0.Zero]],'clear['s_^3['0.Zero]],'table['s_['0.Zero]],'table['s_^2['0.Zero]],'table['s_^3['0.Zero]]]], 'State*[[empty]], breadthFirst, 1204) .
+rewrites: 3 in 44ms cpu (40ms real) (68 rewrites/second)
+result ResultPair: {'`[_`,_:_`]['s_^29['0.Zero],'s_^30['0.Zero],'__['empty.PropSet,'clear['s_['0.Zero]],'clear['s_^2['0.Zero]],'clear['s_^32['0.Zero]],'table['s_['0.Zero]],'table['s_^2['0.Zero]],'table['s_^32['0.Zero]]]],'State}
+Bye.

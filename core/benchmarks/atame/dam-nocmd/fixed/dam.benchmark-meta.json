@@ -1,9 +1,0 @@
-{
-	"cases": [
-		{
-			"term": "{[s1, open3][s2, open2][s3, open2] ; 49000000 ; 20 ; true}",
-			"strat": "((openC-1 | open1-2 | open2-3 | close1-C | close2-1 | close3-2) ; volume) *"
-		}
-	],
-	"module": "DAM-SAFE"
-}

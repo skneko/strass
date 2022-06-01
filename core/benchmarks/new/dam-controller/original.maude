@@ -1,0 +1,103 @@
+--- Just a simple nondeterministic dam controller
+
+--- Rationals are needed to model basin water volume and 
+--- its related parameters (e.g., inflow, outflow)
+mod DAM is
+    pr RAT . 
+
+    sorts SpillwayId Aperture Spillway Spillways DamState TimeStamp .
+    subsort Spillway < Spillways .
+    subsort Nat < TimeStamp . --- we consider a Discrete time domain modeled by the set of natural numbers.
+    
+    --- We assume our dam is provided with three spillways called s1, s2 and s3 
+    --- (albeit this code can work with an arbitrary number of spillways provided their IDs are declared below)
+    ops s1 s2 s3 : -> SpillwayId [ctor] .
+
+    --- We consider 4 kinds of spillway openings of increasing discharge capacity
+    ops close open1 open2 open3 : -> Aperture [ctor] .
+
+    --- A spillway is a pair (spillwayId,aperture).
+    op `[_`,_`] : SpillwayId Aperture -> Spillway [ctor] .
+
+    --- We consider a multiset of spillways with identity empty (that is, empty represents an empty multiset of spillways)
+    op empty : -> Spillways [ctor] . 
+    op __ : Spillways Spillways -> Spillways [ctor assoc comm id: empty] .
+
+    vars T T1 T2 : TimeStamp .
+
+    --- This operator checks whether a given time stamp falls in a given time interval 
+    --- op _ in[_`,_`] : TimeStamp TimeStamp TimeStamp -> Bool .
+    op _ in [_`,_`] : TimeStamp TimeStamp TimeStamp -> Bool .
+    eq T in [T1,T2] = T >= T1 and T <= T2 .
+
+    --- A term of sort State is a triple [spillways, volume, timestamp] where spillways is a multiset 
+    --- of spillways and volume is the basin volume at the time instant timetamp.
+    op `{_;_;_;_;_`} : Spillways Rat TimeStamp Nat Nat -> DamState .  
+
+    var S : SpillwayId .
+    vars O1 O2 O3 : Aperture .
+    vars V V' H : Rat .
+    var SC : Spillways .
+    var B : Bool .
+    vars N N' : Nat .
+
+    --- The following rules changes the opening configuration of a given spillway.
+    --- Note that these rules are instantaneous and thus do not change the basin volume. 
+    --- We consider the following aperture commands:
+    ---    * open
+    ---    * close
+    --- The aperture command open (resp. close) defines
+    --- an increasing (resp. decreasing) spillway discharge capacity policy. 
+        
+    rl [openC-1] : { [S,close] SC ; V ; T ; N ; N' } => { [S,open1] SC ; V ; T ; N + 1 ; N' } .
+    rl [open1-2] : { [S,open1] SC ; V ; T ; N ; N' } => { [S,open2] SC ; V ; T ; N + 1 ; N' } .
+    rl [open2-3] : { [S,open2] SC ; V ; T ; N ; N' } => { [S,open3] SC ; V ; T ; N + 1 ; N' } .
+
+    rl [close1-C] : { [S, open1] SC ; V ; T ; N ; N' } => { [S,close] SC ; V ; T ; N + 1 ; N' } .
+    rl [close2-1] : { [S, open2] SC ; V ; T ; N ; N' } => { [S,open1] SC ; V ; T ; N + 1 ; N' } .
+    rl [close3-2] : { [S, open3] SC ; V ; T ; N ; N' } => { [S,open2] SC ; V ; T ; N + 1 ; N' } .
+
+    --- Constant operator deltaT defines the time interval between two aperture commands.
+    --- (Note: in "A Practical use of model checking for synthesis: generating a dam controller for flood management", this value is called d_cmd.)
+    op deltaT : -> TimeStamp .
+    eq deltaT = 2 .
+
+    --- We assume that the environmental inflow has a constant rate of 2000 m^3/min.
+    op inflow : -> Rat . 
+    eq inflow = 500 .
+
+    --- Spillway outflow depends on its opening position (aperture).
+    op aperture : Aperture -> Rat .
+    eq aperture(close) = 0 .
+    eq aperture(open1) = 100 .
+    eq aperture(open2) = 250 .
+    eq aperture(open3) = 500 .
+
+    var O : Aperture .  
+
+    --- Spillway outflow computation can be lifted to outflow of multisets of spillways. 
+    op outflow : Spillways -> Rat .
+    eq outflow(empty) = 0 .
+    eq outflow([S,O] SC) = aperture(O) + outflow(SC) .
+
+    --- The volume rule models the basin volume variation in time interval [T,T+deltaT] depending on the outflow of the spillways and the inflow capacity.
+    --- Assumption: 1 time unit corresponds to 1 minute.
+    --- Note that the application of volume is in mutal exclusion with the application of 
+    --- any close/open rule. In other words, the open/close rules and the volume rule cannot be applied concurrently: 
+    --- either an aperture command is executed or the basin volume modification w.r.t. the current spillways 
+    --- configuration is observed.
+    --- This is enforced in the next step by specifying a path assertion.
+    crl [volume] :  { SC ; V ; T ; N ; N' } => { SC ; V' ; (T + deltaT) ; N + 1 ; N' } 
+        if V' := (V + inflow * deltaT) - (outflow(SC) * deltaT) .
+    
+    op END : -> DamState [ctor] .
+    eq [END] : { SC ; V ; T ; N ; N } = END .
+endm
+
+mod DAM-PREDICATES is
+	pr DAM .
+	op openSpillways : Spillways -> Nat .
+	eq openSpillways(empty) = 0 .
+	eq openSpillways(SC:Spillways[S:SpillwayId, close]) = 1 + openSpillways(SC:Spillways) .
+    eq openSpillways(SC:Spillways[S:SpillwayId, O:Aperture]) = openSpillways(SC:Spillways) [owise] .
+endm
