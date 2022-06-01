@@ -1,24 +1,25 @@
-html, body {
-	position: relative;
-	width: 100%;
-	height: 100%;
+html,
+body {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 body {
-	margin: 0;
-	padding: 8px;
-	box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .btn {
-	border: 2px solid black !important;
+    border: 2px solid black !important;
 }
 
 .form-select {
-	border: 2px solid black !important;
+    border: 2px solid black !important;
 }
 
 svg.bi {
-	bottom: .125em !important;
+    bottom: .125em !important;
     position: relative !important;
 }

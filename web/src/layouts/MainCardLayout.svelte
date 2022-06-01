@@ -1,16 +1,14 @@
 <main class="card">
-  <slot/>
+    <slot />
 </main>
 
 <style>
-  main {
-    max-width: 990px;
-    margin-top: 10px;
-    margin-right: auto;
-    margin-left: auto;
-  }
+    main {
+        max-width: 990px;
+        margin: 18px auto;
+    }
 
-  .card {
-	  border: 2px solid black;
-  }
+    .card {
+        border: 2px solid black;
+    }
 </style>
