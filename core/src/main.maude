@@ -256,16 +256,16 @@ fmod STRASS-CONSTRAINTS-PARSING is
 
     op $generateParsingContextOps : Module SortSet SortSet Sort -> OpDeclSet .
     eq $generateParsingContextOps(M, S ; Ss, Ss', ST) =
-        $$generateParsingContextOps(getKind(M, S), Ss', ST)
+        $$generateParsingContextOps(M, getKind(M, S), Ss', ST)
         $generateParsingContextOps(M, Ss, Ss', ST) .
     eq $generateParsingContextOps(M, none, Ss', ST) = none .
 
-    op $$generateParsingContextOps : Kind SortSet Sort -> OpDeclSet .
-    eq $$generateParsingContextOps(K, S' ; Ss', ST) =
-        (op '_#_ : K S' -> ST [ctor prec(0) gather('& '&)] .)
+    op $$generateParsingContextOps : Module Kind SortSet Sort -> OpDeclSet .
+    eq $$generateParsingContextOps(M, K, S' ; Ss', ST) =
+        (op '_#_ : K getKind(M, S') -> ST [ctor prec(0) gather('& '&)] .)
         (op 'path`for_:_ : '__STRASS_SortName '__STRASS_Action -> ST [ctor prec(0) gather('& '&)] .)
-        $$generateParsingContextOps(K, Ss', ST) .
-    eq $$generateParsingContextOps(K, none, ST) = none .
+        $$generateParsingContextOps(M, K, Ss', ST) .
+    eq $$generateParsingContextOps(M, K, none, ST) = none .
 
     op $generateActionParsingContext : Module -> Module .
     eq $generateActionParsingContext(M) =
@@ -549,9 +549,9 @@ fmod STRASS-GENERATION is
             (sd $suffix(S, "!")[[empty]] := all ! [ none ] .)
         else 
             if UsePathStrategy:Bool then
-                (sd $suffix(S, "*")[[empty]] := $sortStateStratName(S)[[empty]] ; $sortPathStratName(S)[[empty]] ; ((all ; $sortPathStratName(S)[[empty]]) *) [ none ] .)
-                (sd $suffix(S, "+")[[empty]] := $sortStateStratName(S)[[empty]] ; $sortPathStratName(S)[[empty]] ; ((all ; $sortPathStratName(S)[[empty]]) +) [ none ] .)
-                (sd $suffix(S, "!")[[empty]] := $sortStateStratName(S)[[empty]] ; $sortPathStratName(S)[[empty]] ; ((all ; $sortPathStratName(S)[[empty]]) !) [ none ] .)
+                (sd $suffix(S, "*")[[empty]] := $sortStateStratName(S)[[empty]] ; (($sortPathStratName(S)[[empty]]) *) [ none ] .)
+                (sd $suffix(S, "+")[[empty]] := $sortStateStratName(S)[[empty]] ; (($sortPathStratName(S)[[empty]]) +) [ none ] .)
+                (sd $suffix(S, "!")[[empty]] := $sortStateStratName(S)[[empty]] ; (($sortPathStratName(S)[[empty]]) !) [ none ] .)
             else
                 (sd $suffix(S, "*")[[empty]] := $sortStateStratName(S)[[empty]] ; ((all ; $sortStateStratName(S)[[empty]]) *) [ none ] .)
                 (sd $suffix(S, "+")[[empty]] := $sortStateStratName(S)[[empty]] ; ((all ; $sortStateStratName(S)[[empty]]) +) [ none ] .)

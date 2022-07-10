@@ -162,9 +162,9 @@ smod DAM-CONTROLLER-NAIVE-SAFE is
 	sd Spillways* := (all) * .
 	sd Spillways+ := (all) + .
 	sd Spillways-state := idle .
-	sd State! := (State-state) ; ((State-path) ; (((all) ; (State-path)) !)) .
-	sd State* := (State-state) ; ((State-path) ; (((all) ; (State-path)) *)) .
-	sd State+ := (State-state) ; ((State-path) ; (((all) ; (State-path)) +)) .
+	sd State! := (State-state) ; ((State-path) !) .
+	sd State* := (State-state) ; ((State-path) *) .
+	sd State+ := (State-state) ; ((State-path) +) .
 	sd State-path := (((close1-C) ; (State-state)) | ((close2-1) ; (State-state)) | ((close3-2) ; (State-state)) | ((open1-2) ; (State-state)) | ((open2-3) ; (State-state)) | (openC-1) ; (State-state)) ; ((volume) ; (State-state)) .
 	sd State-state := (s2) ; ((s3) ; ((s4) ; (s5))) .
 	sd TimeStamp! := (all) ! .

@@ -137,8 +137,7 @@ fmod PRETTY-PRINT is
     eq toStringTermList(M, (T, Ts)) = toStringTerm(M, T) + ", " + toStringTermList(M, Ts) [owise] .
 
     op toStringTerm : Module Term -> String .
-    eq toStringTerm(M, T) = printTokens(metaPrettyPrint(M, (none).VariableSet, T, 
-                                            mixfix flat format number rat)) .
+    eq toStringTerm(M, T) = printTokens(metaPrettyPrint(M, (none).VariableSet, T, mixfix flat number rat)) .
 
     op toStringAttributes : Module AttrSet -> String .
     eq toStringAttributes(M, (none).AttrSet) = "" .
