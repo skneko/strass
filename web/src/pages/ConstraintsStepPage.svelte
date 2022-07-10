@@ -6,16 +6,16 @@
     import { Level } from "@models/AlertLevel";
     import { rootPath } from "@stores/context";
     import {
-        addendumModuleName,
-        constraints,
-        predicatesAddendum,
-        program,
-        rootModuleName
+    addendumModuleName,
+    constraints,
+    predicatesAddendum,
+    program,
+    rootModuleName
     } from "@stores/wizardSession";
     import { Strass } from "api/strass";
     import { convertToMonacoMarkerData } from "api/strass/monacoIntegration";
     import { navigate } from "svelte-routing";
-
+    
     let addendumEditor: CodeEditor;
     let constraintsEditor: CodeEditor;
 
@@ -33,7 +33,7 @@
 
     const wizardStepProps = {
         step: 2,
-        header: "Specify assertions for your program",
+        header: "Specify the safety policy for your program",
         onNext: async () => {
             $predicatesAddendum = addendumEditor.getMonacoEditor().getValue();
             $constraints = constraintsEditor.getMonacoEditor().getValue();
@@ -142,8 +142,8 @@
 
     <ul class="list-group list-group-flush">
         <li class="list-group-item">
-            <h5 class="card-title">Predicates</h5>
-            Optionally, add the extra predicates used in your assertions:
+            <h5 class="card-title">Auxiliary Predicates</h5>
+            Optionally, add the extra predicates that will be used in the safety policy provided below:
             <pre class="maude-code"><span class="maude-kw">mod</span
                 > {$addendumModuleName} <span class="maude-kw">is</span><br
                 />    <span class="maude-kw">protecting</span
@@ -159,10 +159,10 @@
             <pre class="maude-code"><span class="maude-kw">endm</span></pre>
         </li>
         <li class="list-group-item">
-            <h5 class="card-title">Assertions</h5>
-            Specify one assertion per line. Assertions may be state assertions (<em
+            <h5 class="card-title">Safety Policy</h5>
+            Specify one statement per line. Statements may be state assertions (<em
                 >pattern</em
-            > <code>#</code> <em>guard</em>) or path assertions (<code
+            > <code>#</code> <em>guard</em>) or path strategies (<code
                 >path for</code
             > <em>sort</em><code>:</code> <em>strategy</em>).
             <CodeEditor

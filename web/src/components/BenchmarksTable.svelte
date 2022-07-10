@@ -83,7 +83,7 @@
                                     href={`${rootDataPath}/${benchmark.id}/strass.constraints`}
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Assertions"><ShieldFillCheck /></a
+                                    title="Safety policy"><ShieldFillCheck /></a
                                 >
                                 <a
                                     class="link-icon text-primary"
