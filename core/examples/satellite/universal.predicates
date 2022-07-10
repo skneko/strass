@@ -1,0 +1,4 @@
+var Tmin Tmax : Time .
+
+op max : TimeInterval -> Time .
+eq max([Tmin, Tmax]) = Tmax .

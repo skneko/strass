@@ -37,6 +37,12 @@ export const examples: Readable<Example[]> = readable([
         id: "space-invaders",
         name: "Space Invaders",
         constraints: "state"
+    },
+    {
+        id: "satellite",
+        name: "Satellite Controller",
+        constraints: "base",
+        predicates: "universal"
     }
 ]);
 
@@ -188,6 +194,36 @@ export const benchmarks: Readable<Benchmark[]> = readable([
                 originalRunTime: 515_246,
                 fixedRunTime: 65_345,
                 speedup: 7.8
+            },
+        ]
+    },
+    {
+        id: "satellite",
+        name: "Satellite Controller",
+        cases: [
+            {
+                depth: 40,
+                originalSearchSize: 648_965,
+                fixedSearchSize: 8_585,
+                originalRunTime: 35_776,
+                fixedRunTime: 1_508,
+                speedup: 23.72
+            },
+            {
+                depth: 45,
+                originalSearchSize: 1_687_605,
+                fixedSearchSize: 9_924,
+                originalRunTime: 216_781,
+                fixedRunTime: 3_097,
+                speedup: 70.00
+            },
+            {
+                depth: 50,
+                originalSearchSize: 3_496_645,
+                fixedSearchSize: 11_289,
+                originalRunTime: 894_733,
+                fixedRunTime: 6_308,
+                speedup: 141.84
             },
         ]
     }

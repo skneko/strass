@@ -1,0 +1,15 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	    Maude 3.2.1 built: Feb 21 2022 18:21:17
+	     Copyright 1997-2022 SRI International
+		   Sun Jul 10 20:26:53 2022
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('SATELLITE, true), '`{_$_`,_`,_`}['s_^45['0.Zero],'pm:__['s_^12['0.Zero],'earth.PointingMode],'gv:__['s_^28['0.Zero],'visible.GroundVisibility],'is:__['s_^7['0.Zero],'idle.InstrumentStatus]], all *, breadthFirst, 1687604) .
+rewrites: 3 in 216784ms cpu (216781ms real) (0 rewrites/second)
+result ResultPair: {'`{_$_`,_`,_`}['0.Zero,'pm:__['s_^15['0.Zero],'earth.PointingMode],'gv:__['s_^12['0.Zero],'visible.GroundVisibility],'is:__['s_^5['0.Zero],'turnoff.InstrumentStatus]],'State}
+==========================================
+reduce in META-LEVEL : metaSrewrite(upModule('SATELLITE-STRASS, true), '`{_$_`,_`,_`}['s_^45['0.Zero],'pm:__['s_^12['0.Zero],'earth.PointingMode],'gv:__['s_^28['0.Zero],'visible.GroundVisibility],'is:__['s_^7['0.Zero],'idle.InstrumentStatus]], 'State*[[empty]], breadthFirst, 9924) .
+rewrites: 3 in 3096ms cpu (3097ms real) (0 rewrites/second)
+result ResultPair: {'`{_$_`,_`,_`}['0.Zero,'pm:__['s_^4['0.Zero],'slewing.PointingMode],'gv:__['s_^73['0.Zero],'visible.GroundVisibility],'is:__['s_^5['0.Zero],'turnoff.InstrumentStatus]],'State}
+Bye.

@@ -1,0 +1,4 @@
+gv: Tgv:Time notVisible # false
+is: Tis:Time warmup # false
+T:Time # T:Time <= 100
+{ N:Nat $ pm: Tpm:Time PM:PointingMode, gv: Tgv:Time GV:GroundVisibility, is: Tis:Time idle } # PM:PointingMode == earth

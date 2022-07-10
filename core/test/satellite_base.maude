@@ -1,0 +1,19 @@
+load test.maude
+load ../examples/satellite/satellite.maude
+
+mod SATELLITE-PREDS is
+    protecting SATELLITE .
+
+    var Tmin Tmax : Time .
+
+    op max : TimeInterval -> Time .
+    eq max([Tmin, Tmax]) = Tmax .
+endm
+
+erew in TEST-CONTEXT : test(
+    "../examples/satellite/satellite.maude",
+    "../examples/satellite/base.constraints",
+    'SATELLITE, 'SATELLITE-PREDS,
+    "../examples/satellite/fixed/satellite_base.maude") .
+
+quit

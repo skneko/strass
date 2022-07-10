@@ -1,0 +1,6 @@
+T:Time # T:Time >= 0
+{ pm: Tpm:Time comm, gv: Tgv:Time GV:GroundVisibility, is: Tis:Time IS:InstrumentStatus } # GV:GroundVisibility == visible
+{ pm: Tpm:Time maintenance, gv: Tgv:Time GV:GroundVisibility, is: Tis:Time IS:InstrumentStatus } # IS:InstrumentStatus == idle
+{ pm: Tpm:Time maintenance, gv: Tgv:Time notVisible, is: Tis:Time IS:InstrumentStatus } # false
+{ pm: Tpm:Time science, gv: Tgv:Time GV:GroundVisibility, is: Tis:Time idle } # Tis:Time <= 2 * max(duration(process))
+path for State : (all-(advance-time) | idle) ; advance-time
