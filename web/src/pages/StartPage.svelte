@@ -45,6 +45,11 @@
         class="btn btn-primary centered-btn start-btn"
         to={`${$rootPath}/program`}>Start</Link
     >
+    <a
+        class="btn btn-outline-primary btn-sm centered-btn"
+        target="_blank"
+        href={`${$rootPath}/guide.pdf`}>User Guide</a
+    >
     <Link
         class="btn btn-outline-primary btn-sm centered-btn"
         to={`${$rootPath}/benchmarks`}>Benchmarks</Link
@@ -123,7 +128,6 @@
     :global(.start-btn) {
         margin-top: 50px;
         font-size: 23px !important;
-        margin-bottom: 15px;
     }
 
     :global(.centered-btn) {
@@ -131,6 +135,7 @@
         margin-right: auto;
         margin-left: auto;
         width: 150px;
+        margin-top: 15px;
     }
 
     .backers-area {
