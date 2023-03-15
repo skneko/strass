@@ -11,7 +11,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/safe-tools (Tomcat 8 + OpenJDK 8)">
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/safe-tools (Tomcat 9 + OpenJDK 11)">
 		<attributes>
 			<attribute name="owner.project.facets" value="jst.web"/>
 		</attributes>
